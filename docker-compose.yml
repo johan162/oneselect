@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  oneselect-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: oneselect-backend
+    ports:
+      - "8000:8000"
+    environment:
+      # Application settings
+      - PROJECT_NAME=OneSelect
+      - API_V1_STR=/v1
+      - SECRET_KEY=${SECRET_KEY:-change-this-to-a-random-secret-key-in-production}
+      
+      # Database settings (SQLite by default)
+      - SQLALCHEMY_DATABASE_URI=sqlite:////app/data/oneselect.db
+      
+      # Security settings
+      - BACKEND_CORS_ORIGINS=["http://localhost:3000","http://localhost:8000"]
+      - ACCESS_TOKEN_EXPIRE_MINUTES=30
+      
+      # Admin user (created on first run)
+      - FIRST_SUPERUSER=admin@example.com
+      - FIRST_SUPERUSER_PASSWORD=${ADMIN_PASSWORD:-admin}
+    
+    volumes:
+      # Persist database
+      - oneselect-data:/app/data
+      
+      # For development: mount source code for hot reload
+      # Uncomment the following lines for development mode:
+      # - ./app:/app/app:ro
+      # command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    
+    restart: unless-stopped
+    
+    networks:
+      - oneselect-network
+    
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/docs').read()"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  oneselect-data:
+    driver: local
+
+networks:
+  oneselect-network:
+    driver: bridge
