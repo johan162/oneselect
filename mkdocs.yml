@@ -20,6 +20,7 @@ nav:
   - Home: index.md
   - Introduction: introduction.md
   - Theory Background: theory_background.md
+  - Authentication: authentication.md
   - API Reference: api.md
 
 markdown_extensions:

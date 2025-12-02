@@ -14,16 +14,28 @@ This document provides a comprehensive list of all REST API endpoints in the One
 
 ## 1. Authentication & Authorization
 
+OneSelect supports two authentication methods: **Username/Password** (traditional) and **Google OAuth** (optional).
+
+### 1.1 Username/Password Authentication
+
 | ID | Name | Description | Method | Endpoint | Parameters | Responses |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **AUTH-01** | Login | Authenticate a user and return a session token (JWT). | `POST` | `/auth/login` | **Body**: `{ "username": "string", "password": "string" }` | **200 OK**: `{ "token": "string", "user": { "id": "uuid", "role": "string" } }`<br>**401 Unauthorized** |
-| **AUTH-02** | Register | Register a new user (self-service sign-up). | `POST` | `/auth/register` | **Body**: `{ "username": "string", "password": "string", "email": "string" }` | **201 Created**: `{ "id": "uuid", "username": "string" }`<br>**400 Bad Request** |
+| **AUTH-01** | Login | Authenticate a user and return a session token (JWT). | `POST` | `/auth/login` | **Body**: `{ "username": "string", "password": "string" }` | **200 OK**: `{ "access_token": "string", "token_type": "bearer" }`<br>**401 Unauthorized** |
+| **AUTH-02** | Register | Register a new user (self-service sign-up). | `POST` | `/auth/register` | **Body**: `{ "username": "string", "password": "string", "email": "string" }` | **201 Created**: `{ "id": "uuid", "username": "string", "email": "string", "auth_provider": "local" }`<br>**400 Bad Request** |
 | **AUTH-03** | Refresh Token | Refresh an expired JWT token using a refresh token. | `POST` | `/auth/refresh` | **Body**: `{ "refresh_token": "string" }` | **200 OK**: `{ "token": "string", "refresh_token": "string" }`<br>**401 Unauthorized** |
 | **AUTH-04** | Logout | Invalidate the current session/token. | `POST` | `/auth/logout` | None | **204 No Content** |
-| **AUTH-05** | Get Current User | Get the profile of the currently authenticated user. | `GET` | `/auth/me` | None | **200 OK**: `{ "id": "uuid", "username": "string", "email": "string", "role": "string" }` |
-| **AUTH-06** | Change Password | Update the current user's password. | `POST` | `/auth/change-password` | **Body**: `{ "current_password": "string", "new_password": "string" }` | **204 No Content**<br>**400 Bad Request** (weak password)<br>**401 Unauthorized** (wrong current password) |
+| **AUTH-05** | Get Current User | Get the profile of the currently authenticated user. | `GET` | `/auth/me` | None | **200 OK**: `{ "id": "uuid", "username": "string", "email": "string", "role": "string", "auth_provider": "local" \| "google" }` |
+| **AUTH-06** | Change Password | Update the current user's password (local accounts only). | `POST` | `/auth/change-password` | **Body**: `{ "current_password": "string", "new_password": "string" }` | **204 No Content**<br>**400 Bad Request** (weak password or OAuth user)<br>**401 Unauthorized** (wrong current password) |
 | **AUTH-07** | Update Profile | Update mutable profile attributes for the current user. | `PATCH` | `/auth/me` | **Body**: `{ "email": "string", "display_name": "string", "avatar_url": "string" }` | **200 OK**: `{ "id": "uuid", "username": "string", "email": "string", "display_name": "string", "avatar_url": "string" }` |
 | **AUTH-08** | Test Token | Validate and test the current JWT token. | `POST` | `/auth/login/test-token` | None | **200 OK**: `{ "id": "uuid", "username": "string", "email": "string", "role": "string" }` |
+
+### 1.2 Google OAuth Authentication
+
+| ID | Name | Description | Method | Endpoint | Parameters | Responses |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **AUTH-GOOGLE-01** | Google Login | Initiate Google OAuth flow. Redirects to Google's consent screen. | `GET` | `/auth/google/login` | None | **302 Redirect**: To Google OAuth consent screen |
+| **AUTH-GOOGLE-02** | Google Callback | Handle Google OAuth callback. Creates/links user account and redirects to frontend with JWT token. | `GET` | `/auth/google/callback` | **Query**: `code` (OAuth code from Google), `state` (CSRF protection) | **302 Redirect**: `{FRONTEND_URL}/auth/callback?token=<jwt_token>` or `{FRONTEND_URL}/auth/error?message=<error>` |
+| **AUTH-GOOGLE-03** | OAuth Status | Check if Google OAuth is configured and enabled. | `GET` | `/auth/google/status` | None | **200 OK**: `{ "google_oauth_enabled": bool, "google_client_id_set": bool, "google_client_secret_set": bool }` |
 
 ## 2. User Management (Root/Admin Only)
 *Note: Regular users can only see their own profile (implementation detail).*

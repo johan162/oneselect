@@ -16,6 +16,7 @@ OneSelect is a pairwise comparison system.
 ## Documentation Structure
 
 - **[Introduction](introduction.md)** - System overview and getting started
+- **[Authentication](authentication.md)** - User authentication with username/password or Google OAuth
 - **[Deployment Guide](deployment.md)** - Container and production deployment instructions
 - **[API Reference](api.md)** - Detailed endpoint documentation with examples
 - **[Theory Background](theory_background.md)** - AHP algorithm and mathematical foundations

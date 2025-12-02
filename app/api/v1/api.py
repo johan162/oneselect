@@ -2,6 +2,7 @@ from fastapi import APIRouter
 
 from app.api.v1.endpoints import (
     login,
+    auth,
     users,
     projects,
     features,
@@ -14,6 +15,7 @@ from app.api.v1.endpoints import (
 
 api_router = APIRouter()
 api_router.include_router(login.router, prefix="/auth", tags=["auth"])
+api_router.include_router(auth.router, prefix="/auth", tags=["auth"])
 api_router.include_router(users.router, prefix="/users", tags=["users"])
 api_router.include_router(projects.router, prefix="/projects", tags=["projects"])
 # Features and comparisons are nested under projects
