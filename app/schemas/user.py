@@ -43,6 +43,8 @@ class UserInDBBase(UserBase):
     role: str = "user"
     display_name: Optional[str] = None
     avatar_url: Optional[str] = None
+    auth_provider: str = "local"
+    google_id: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -52,4 +54,12 @@ class User(UserInDBBase):
 
 
 class UserInDB(UserInDBBase):
-    hashed_password: str
+    hashed_password: Optional[str] = None
+
+
+class GoogleUserInfo(BaseModel):
+    """Schema for Google OAuth user information"""
+    email: EmailStr
+    name: str
+    picture: Optional[str] = None
+    google_id: str

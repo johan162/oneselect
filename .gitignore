@@ -101,6 +101,10 @@ ipython_config.py
 #   in pyproject.toml and not include poetry.lock
 #poetry.lock
 
+# NOTE: If you add custom PyPI sources to pyproject.toml (e.g., corporate Artifactory),
+# do NOT commit them! Remove [[tool.poetry.source]] sections before committing.
+# See docs/working-with-proxies.md for details.
+
 # pdm
 #   Similar to Pipfile.lock, it is generally recommended to include pdm.lock in version control.
 #pdm.lock
@@ -173,3 +177,4 @@ cython_debug/
 *.log
 temp/
 tmp/
+.local-dev-notes.md

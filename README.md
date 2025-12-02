@@ -1,5 +1,16 @@
 # OneSelect Backend
 
+| Category | Link |
+|----------|--------|
+|**Python**|[![Python 3.13+](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/downloads/)|
+|**Documentation**|[![Documentation](https://img.shields.io/badge/docs-mkdocs-blue)](https://johan162.github.io/oneselect/)|
+|**API**|[![OpenAPI](https://img.shields.io/badge/OpenAPI-3.1.0-6BA539?logo=openapiinitiative&logoColor=white)](http://localhost:8000/docs)|
+|**License**|[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)|
+|**Release**|[![GitHub release](https://img.shields.io/github/v/release/johan162/oneselect?include_prereleases)](https://github.com/johan162/oneselect/releases)|
+|**Code Quality**|[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black) [![Checked with mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/) [![Linting: flake8](https://img.shields.io/badge/linting-flake8-yellowgreen)](https://flake8.pycqa.org/)|
+|Repo URL|[![GitHub](https://img.shields.io/badge/GitHub-100000?style=flat-square&logo=github&logoColor=white)](https://github.com/johan162/oneselect)|
+
+
 ## Introduction
 
 Prioritizing a large backlog of tasks or features is a challenge for any team. While humans often struggle to consistently rank a long list of items against complex criteria like "technical complexity" or "business value," we are intuitively good at comparing just two items at a time.
@@ -114,10 +125,31 @@ make podman-stop
    cd oneselect
    ```
 
-2. Install dependencies:
+2. **(Optional)** Configure custom PyPI source:
+   ```bash
+   # If you use a corporate PyPI mirror/proxy (e.g., Artifactory, Nexus)
+   poetry source add --priority=primary <source-name> <source-url>
+   
+   # Example with Artifactory:
+   # poetry source add --priority=primary artifactory https://your-artifactory.com/api/pypi/pypi-virtual/simple
+   ```
+
+3. Install dependencies:
    ```bash
    poetry install
    ```
+
+## Configuration
+
+1. Copy the example environment file:
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Edit `.env` and configure:
+   - **SECRET_KEY**: Generate with `openssl rand -hex 32`
+   - **GOOGLE_CLIENT_ID** and **GOOGLE_CLIENT_SECRET**: Optional, for Google OAuth (see [Authentication Setup](AUTHENTICATION_SETUP.md))
+   - **DATABASE_URI**: Default is SQLite, can use PostgreSQL or MySQL
 
 ## Database Setup
 
@@ -135,6 +167,15 @@ The project uses SQLite by default for development.
    Default credentials:
    - Email: `admin@example.com`
    - Password: `admin`
+
+## Authentication
+
+OneSelect supports two authentication methods:
+
+1. **Username/Password** - Traditional local authentication
+2. **Google OAuth** - Sign in with Google (optional)
+
+See [AUTHENTICATION_SETUP.md](AUTHENTICATION_SETUP.md) for quick setup or [docs/authentication.md](docs/authentication.md) for the complete guide.
 
 ## Running the Server
 
