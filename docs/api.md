@@ -756,7 +756,7 @@ Retrieve comparison history for a project.
 
 `POST /api/v1/projects/{project_id}/comparisons`
 
-Submit a comparison result.
+Submit a comparison result. This endpoint performs a Bayesian update to the feature rankings and returns the comparison along with current inconsistency statistics for immediate UI feedback.
 
 **Parameters:**
 *   `project_id` (string, required): The UUID of the project.
@@ -772,7 +772,31 @@ Submit a comparison result.
 ```
 
 **Response (201 Created):**
-*   Returns the created [Comparison](#comparison-object) object.
+```json
+{
+  "id": "uuid",
+  "project_id": "uuid",
+  "feature_a": {
+    "id": "uuid",
+    "name": "string"
+  },
+  "feature_b": {
+    "id": "uuid",
+    "name": "string"
+  },
+  "choice": "feature_a" | "feature_b" | "tie",
+  "dimension": "complexity" | "value",
+  "created_at": "datetime",
+  "inconsistency_stats": {
+    "cycle_count": 0,
+    "total_comparisons": 0,
+    "inconsistency_percentage": 0.0,
+    "dimension": "complexity" | "value"
+  }
+}
+```
+
+The `inconsistency_stats` object provides immediate feedback about the health of the comparison graph, allowing UIs to display warnings when inconsistencies are detected.
 
 ### Get Comparison Estimates
 
@@ -798,50 +822,98 @@ Get current estimates for all features based on comparisons made.
 }
 ```
 
+### Get Inconsistency Statistics
+
+`GET /api/v1/projects/{project_id}/comparisons/inconsistency-stats`
+
+Get a summary of inconsistency statistics without detailed cycle information. This lightweight endpoint is ideal for dashboard widgets, health checks, and polling for updates.
+
+**Parameters:**
+*   `project_id` (string, required): The UUID of the project.
+*   `dimension` (string, query, optional): Filter by dimension ("complexity" or "value"). If omitted, returns stats for both dimensions.
+
+**Response (200 OK):**
+```json
+{
+  "cycle_count": 0,
+  "total_comparisons": 0,
+  "inconsistency_percentage": 0.0,
+  "dimension": "complexity" | "value"
+}
+```
+
+**Use Cases:**
+*   Dashboard widgets showing project health
+*   Real-time polling for inconsistency alerts
+*   Quick health checks without fetching full cycle details
+
 ### Get Inconsistencies
 
 `GET /api/v1/projects/{project_id}/comparisons/inconsistencies`
 
-Detect inconsistent comparison cycles (e.g., A > B > C > A).
+Detect and return detailed information about inconsistent comparison cycles (e.g., A > B > C > A). This endpoint performs a depth-first search on the comparison graph to identify all cycles, which represent logical inconsistencies where the transitive property of comparisons is violated.
 
 **Parameters:**
 *   `project_id` (string, required): The UUID of the project.
-*   `dimension` (string, query, optional): Filter by dimension.
+*   `dimension` (string, query, optional): Filter by dimension ("complexity" or "value"). If omitted, detects cycles in both dimensions.
 
 **Response (200 OK):**
 ```json
 {
   "cycles": [
     {
-      "features": ["uuid", "uuid", "uuid"],
-      "comparisons": ["uuid", "uuid", "uuid"]
+      "feature_ids": ["uuid", "uuid", "uuid"],
+      "feature_names": ["Feature A", "Feature B", "Feature C"],
+      "length": 3,
+      "dimension": "complexity" | "value"
     }
-  ]
+  ],
+  "count": 0,
+  "message": "Found N inconsistency cycles"
 }
 ```
+
+**Algorithm:**
+Uses depth-first search (DFS) with cycle detection. Time complexity: O(V + E) where V is the number of features and E is the number of comparisons. Typical performance: <1ms for 70 features.
+
+**Cycle Interpretation:**
+A cycle like [A, B, C] means: A > B > C > A, which is logically inconsistent. The cycle represents a sequence of comparisons where following the "winner" edges leads back to the starting feature.
 
 ### Get Resolution Pair
 
 `GET /api/v1/projects/{project_id}/comparisons/resolve-inconsistency`
 
-Get a comparison pair to resolve detected inconsistencies.
+Get a specific pair of features to compare to resolve detected inconsistencies. Uses the "weakest link" strategy: identifies all cycles, examines pairs in those cycles, and suggests re-comparing the pair with the highest combined uncertainty (σ_i + σ_j). This approach targets the comparison most likely to be incorrect.
 
 **Parameters:**
 *   `project_id` (string, required): The UUID of the project.
-*   `dimension` (string, query, optional): Filter by dimension.
+*   `dimension` (string, query, required): The dimension to check ("complexity" or "value").
 
 **Response (200 OK):**
 ```json
 {
-  "comparison_id": "uuid",
-  "feature_a": { ...Feature Object... },
-  "feature_b": { ...Feature Object... },
-  "reason": "string"
+  "comparison_id": null,
+  "feature_a": {
+    "id": "uuid",
+    "name": "string",
+    "description": "string"
+  },
+  "feature_b": {
+    "id": "uuid",
+    "name": "string",
+    "description": "string"
+  },
+  "dimension": "complexity" | "value",
+  "reason": "Weakest link in cycle: highest combined uncertainty",
+  "combined_uncertainty": 2.5
 }
 ```
 
 **Response (204 No Content):**
-*   No inconsistencies found.
+*   No inconsistencies detected in the specified dimension.
+
+**Strategy:**
+The weakest link approach assumes that pairs with high uncertainty are more likely to have incorrect comparison results. By re-comparing these pairs, users can potentially break the cycle and restore consistency to the comparison graph.
 
 ### Get Comparison Progress
 
@@ -1418,5 +1490,33 @@ Bulk import data into the database.
   "project_id": "uuid",
   "user_id": "uuid",
   "created_at": "datetime"
+}
+```
+
+### ComparisonWithStats Object
+
+Returned by the Create Comparison endpoint to provide immediate feedback about inconsistencies:
+
+```json
+{
+  "id": "uuid",
+  "project_id": "uuid",
+  "feature_a": {
+    "id": "uuid",
+    "name": "string"
+  },
+  "feature_b": {
+    "id": "uuid",
+    "name": "string"
+  },
+  "choice": "feature_a" | "feature_b" | "tie",
+  "dimension": "complexity" | "value",
+  "created_at": "datetime",
+  "inconsistency_stats": {
+    "cycle_count": 0,
+    "total_comparisons": 0,
+    "inconsistency_percentage": 0.0,
+    "dimension": "complexity" | "value"
+  }
 }
 ```

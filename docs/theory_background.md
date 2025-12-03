@@ -220,3 +220,4 @@ At the end of the session, you have for each feature $i$:
 *   A **standard deviation** $\sigma_i$, which quantifies your confidence.
 
 You can then plot the features on a 2x2 matrix (Business Value vs. Technical Complexity), where each feature is not a point but an **ellipse**, representing the uncertainty in both dimensions. This visually communicates that the ranking is probabilistic.
+

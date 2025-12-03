@@ -36,6 +36,9 @@ class Project(ProjectBase):
     id: uuid.UUID
     created_at: datetime
     owner_id: str
+    total_comparisons: int = 0
+    complexity_avg_variance: float = 1.0
+    value_avg_variance: float = 1.0
 
     model_config = ConfigDict(from_attributes=True)
 
