@@ -1,5 +1,6 @@
 from typing import Any, List, Optional
 import random
+import math
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -79,7 +80,7 @@ def get_next_comparison_pair(
             pair = tuple(sorted([str(comp.feature_a_id), str(comp.feature_b_id)]))
             compared_pairs.add(pair)
 
-    # Find unpaired combinations (simple strategy - production would use Bayesian info gain)
+    # Find unpaired combinations and calculate selection scores
     available_pairs = []
     for i, feat_a in enumerate(features):
         for feat_b in features[i + 1 :]:
@@ -90,8 +91,45 @@ def get_next_comparison_pair(
     if not available_pairs:
         raise HTTPException(status_code=400, detail="No useful comparisons left")
 
-    # Select a random pair (production would use max variance reduction)
-    feature_a, feature_b = random.choice(available_pairs)
+    # Active Learning: Select pair with maximum expected information gain
+    # Based on the formula from theory_background.md:
+    # Selection Score = (σ_i + σ_j) * exp(-(μ_i - μ_j)² / (2c²))
+    #
+    # This combines two factors:
+    # 1. Uncertainty (σ_i + σ_j): Prioritize features we're uncertain about
+    # 2. Closeness: Prioritize pairs where outcome is uncertain (close scores)
+    
+    best_score = -1.0
+    best_pair = None
+    
+    # Scaling factor for closeness term (controls how much we favor close pairs)
+    c = 2.0
+    
+    for feat_a, feat_b in available_pairs:
+        # Get current mu and sigma for this dimension
+        if dimension == "complexity":
+            mu_a, sigma_a = feat_a.complexity_mu, feat_a.complexity_sigma
+            mu_b, sigma_b = feat_b.complexity_mu, feat_b.complexity_sigma
+        else:  # value
+            mu_a, sigma_a = feat_a.value_mu, feat_a.value_sigma
+            mu_b, sigma_b = feat_b.value_mu, feat_b.value_sigma
+        
+        # Calculate selection score
+        uncertainty = sigma_a + sigma_b
+        mu_diff = mu_a - mu_b
+        closeness = math.exp(-(mu_diff ** 2) / (2 * c ** 2))
+        
+        selection_score = uncertainty * closeness
+        
+        if selection_score > best_score:
+            best_score = selection_score
+            best_pair = (feat_a, feat_b)
+    
+    if best_pair is None:
+        # Fallback to random if scoring fails
+        best_pair = random.choice(available_pairs)
+    
+    feature_a, feature_b = best_pair
 
     return {
         "comparison_id": None,  # Generated on submission
@@ -134,9 +172,95 @@ def create_comparison(
             status_code=400, detail="Cannot compare a feature with itself"
         )
 
+    # Store the comparison
     comparison = crud.comparison.create_with_project(
         db=db, obj_in=comparison_in, project_id=project_id, user_id=str(current_user.id)  # type: ignore
     )
+    
+    # Bayesian Bradley-Terry update
+    # Update the mu and sigma values for both features based on the comparison outcome
+    
+    # Tuning parameters
+    LAMBDA = math.pi / 8  # ≈ 0.39 - standard for logistic model
+    KAPPA = 0.01  # Minimum variance to prevent overconfidence
+    
+    # Get current scores for the relevant dimension
+    if comparison_in.dimension == "complexity":
+        mu_a = feature_a.complexity_mu
+        sigma_a = feature_a.complexity_sigma
+        mu_b = feature_b.complexity_mu
+        sigma_b = feature_b.complexity_sigma
+    else:  # value
+        mu_a = feature_a.value_mu
+        sigma_a = feature_a.value_sigma
+        mu_b = feature_b.value_mu
+        sigma_b = feature_b.value_sigma
+    
+    # Determine outcome: y=1 if feature_a wins, y=0 if feature_b wins, y=0.5 for tie
+    if comparison_in.winner == "feature_a":
+        y = 1.0
+    elif comparison_in.winner == "feature_b":
+        y = 0.0
+    else:  # tie
+        y = 0.5
+    
+    # Step 1: Compute expected outcome probability
+    # p_hat = P(feature_a > feature_b) = 1 / (1 + exp(-(mu_a - mu_b)))
+    try:
+        p_hat = 1.0 / (1.0 + math.exp(-(mu_a - mu_b)))
+    except OverflowError:
+        # Handle extreme values
+        p_hat = 1.0 if mu_a > mu_b else 0.0
+    
+    # Step 2: Calculate prediction error
+    delta = y - p_hat
+    
+    # Step 3: Calculate variance of outcome
+    variance_term = p_hat * (1.0 - p_hat)
+    
+    # Avoid division by zero
+    if variance_term < 1e-10:
+        variance_term = 1e-10
+    
+    # Step 4: Update means
+    # mu_i += sigma_i^2 * delta / sqrt(1 + lambda * p_hat * (1-p_hat))
+    denominator = math.sqrt(1.0 + LAMBDA * variance_term)
+    
+    sigma_a_squared = sigma_a ** 2
+    sigma_b_squared = sigma_b ** 2
+    
+    new_mu_a = mu_a + (sigma_a_squared * delta) / denominator
+    new_mu_b = mu_b - (sigma_b_squared * delta) / denominator
+    
+    # Step 5: Update variances (reduce uncertainty)
+    # sigma_i^2 *= max(1 - sigma_i^2 * p_hat*(1-p_hat) / (1 + lambda*p_hat*(1-p_hat)), kappa)
+    variance_reduction_a = 1.0 - (sigma_a_squared * variance_term) / (1.0 + LAMBDA * variance_term)
+    variance_reduction_b = 1.0 - (sigma_b_squared * variance_term) / (1.0 + LAMBDA * variance_term)
+    
+    new_sigma_a_squared = max(sigma_a_squared * variance_reduction_a, KAPPA)
+    new_sigma_b_squared = max(sigma_b_squared * variance_reduction_b, KAPPA)
+    
+    new_sigma_a = math.sqrt(new_sigma_a_squared)
+    new_sigma_b = math.sqrt(new_sigma_b_squared)
+    
+    # Step 6: Apply updates to features
+    if comparison_in.dimension == "complexity":
+        feature_a.complexity_mu = new_mu_a
+        feature_a.complexity_sigma = new_sigma_a
+        feature_b.complexity_mu = new_mu_b
+        feature_b.complexity_sigma = new_sigma_b
+    else:  # value
+        feature_a.value_mu = new_mu_a
+        feature_a.value_sigma = new_sigma_a
+        feature_b.value_mu = new_mu_b
+        feature_b.value_sigma = new_sigma_b
+    
+    # Commit the updates
+    db.add(feature_a)
+    db.add(feature_b)
+    db.commit()
+    db.refresh(comparison)
+    
     return comparison
 
 
