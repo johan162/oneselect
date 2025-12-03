@@ -88,16 +88,6 @@ parallel = true
 in-project = true
 ```
 
-**Example for Nasdaq Artifactory:**
-```toml
-[repositories.artifactory]
-url = "https://bvartifactory01.org.nasdaqomx.com/artifactory/api/pypi/mme-pypi-virtual/simple"
-
-[http-basic.artifactory]
-username = "your-username"
-password = "your-password"
-```
-
 After editing, verify with:
 ```bash
 poetry config --list
