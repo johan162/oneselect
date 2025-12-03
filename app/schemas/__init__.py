@@ -6,5 +6,8 @@ from .comparison import (  # noqa: F401
     ComparisonCreate,
     ComparisonUpdate,
     ComparisonPair,
+    ComparisonWithStats,
+    InconsistencyCycle,
+    InconsistencyResponse,
 )
 from .token import Token, TokenPayload  # noqa: F401

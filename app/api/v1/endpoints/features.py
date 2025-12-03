@@ -57,6 +57,19 @@ def create_feature(
     feature = crud.feature.create_with_project(
         db=db, obj_in=feature_in, project_id=project_id
     )
+    
+    # Update project average variance if comparisons exist
+    if project.total_comparisons > 0:
+        features = crud.feature.get_multi_by_project(db=db, project_id=project_id)
+        if features:
+            complexity_avg = sum(f.complexity_sigma for f in features) / len(features)
+            value_avg = sum(f.value_sigma for f in features) / len(features)
+            project.complexity_avg_variance = complexity_avg
+            project.value_avg_variance = value_avg
+            db.add(project)
+            db.commit()
+            db.refresh(feature)
+    
     return feature
 
 
@@ -85,6 +98,17 @@ def bulk_create_features(
             db=db, obj_in=feature_in, project_id=project_id
         )
         created_ids.append(str(feature.id))
+    
+    # Update project average variance if comparisons exist
+    if project.total_comparisons > 0:
+        all_features = crud.feature.get_multi_by_project(db=db, project_id=project_id)
+        if all_features:
+            complexity_avg = sum(f.complexity_sigma for f in all_features) / len(all_features)
+            value_avg = sum(f.value_sigma for f in all_features) / len(all_features)
+            project.complexity_avg_variance = complexity_avg
+            project.value_avg_variance = value_avg
+            db.add(project)
+            db.commit()
 
     return {
         "count": len(created_ids),
@@ -117,6 +141,21 @@ def bulk_delete_features(
         if feature and feature.project_id == project_id:
             crud.feature.remove(db=db, id=feature_id)
             deleted_count += 1
+    
+    # Update project average variance if comparisons exist
+    if deleted_count > 0 and project.total_comparisons > 0:
+        remaining_features = crud.feature.get_multi_by_project(db=db, project_id=project_id)
+        if remaining_features:
+            complexity_avg = sum(f.complexity_sigma for f in remaining_features) / len(remaining_features)
+            value_avg = sum(f.value_sigma for f in remaining_features) / len(remaining_features)
+            project.complexity_avg_variance = complexity_avg
+            project.value_avg_variance = value_avg
+        else:
+            # No features left, reset to default
+            project.complexity_avg_variance = 1.0
+            project.value_avg_variance = 1.0
+        db.add(project)
+        db.commit()
 
     return {
         "deleted_count": deleted_count,
@@ -216,4 +255,20 @@ def delete_feature(
         raise HTTPException(status_code=400, detail="Not enough permissions")
 
     crud.feature.remove(db=db, id=feature_id)
+    
+    # Update project average variance if comparisons exist
+    if project.total_comparisons > 0:
+        remaining_features = crud.feature.get_multi_by_project(db=db, project_id=project_id)
+        if remaining_features:
+            complexity_avg = sum(f.complexity_sigma for f in remaining_features) / len(remaining_features)
+            value_avg = sum(f.value_sigma for f in remaining_features) / len(remaining_features)
+            project.complexity_avg_variance = complexity_avg
+            project.value_avg_variance = value_avg
+        else:
+            # No features left, reset to default
+            project.complexity_avg_variance = 1.0
+            project.value_avg_variance = 1.0
+        db.add(project)
+        db.commit()
+    
     return None

@@ -22,6 +22,10 @@ nav:
   - Theory Background: theory_background.md
   - Authentication: authentication.md
   - API Reference: api.md
+  - API Summary List: rest_api_spec_list.md
+  - Inconsistency Detection: inconsistency_detection.md
+  - Deployment: deployment.md
+  - Working with Proxies: working-with-proxies.md
 
 markdown_extensions:
   - pymdownx.highlight:

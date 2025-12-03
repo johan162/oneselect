@@ -41,6 +41,11 @@ class Comparison(ComparisonBase):
     model_config = ConfigDict(from_attributes=True)
 
 
+class ComparisonWithStats(Comparison):
+    """Comparison response with inconsistency statistics."""
+    inconsistency_stats: dict
+
+
 class ComparisonResult(BaseModel):
     status: str
     updated_variance: float
@@ -51,3 +56,18 @@ class ComparisonPair(BaseModel):
     feature_a: Feature
     feature_b: Feature
     dimension: Dimension
+
+
+class InconsistencyCycle(BaseModel):
+    """Represents a detected cycle in comparison graph (e.g., A>B, B>C, C>A)."""
+    feature_ids: list[str]
+    feature_names: list[str]
+    length: int
+    dimension: str
+
+
+class InconsistencyResponse(BaseModel):
+    """Response containing all detected cycles and inconsistencies."""
+    cycles: list[InconsistencyCycle]
+    count: int
+    message: str

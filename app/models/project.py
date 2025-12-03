@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, ForeignKey, DateTime, func
+from sqlalchemy import Column, String, ForeignKey, DateTime, Integer, Float, func
 from sqlalchemy.orm import relationship
 from app.db.base_class import Base
 import uuid
@@ -12,6 +12,9 @@ class Project(Base):
     description = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     owner_id = Column(String, ForeignKey("users.id"), nullable=False)
+    total_comparisons = Column(Integer, default=0, nullable=False)
+    complexity_avg_variance = Column(Float, default=1.0, nullable=False)
+    value_avg_variance = Column(Float, default=1.0, nullable=False)
 
     owner = relationship("User", backref="projects")
     features = relationship(

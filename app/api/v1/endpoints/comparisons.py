@@ -11,6 +11,102 @@ from app.api import deps
 router = APIRouter()
 
 
+def _calculate_inconsistency_stats(db: Session, project_id: str, dimension: Optional[str] = None) -> dict:
+    """
+    Calculate inconsistency statistics for a project.
+    
+    Returns:
+        dict with keys:
+        - cycle_count: Number of detected cycles
+        - total_comparisons: Total comparisons for dimension(s)
+        - inconsistency_percentage: Percentage of comparisons involved in cycles
+        - dimension: The dimension analyzed
+    """
+    # Get all active comparisons
+    comparisons = crud.comparison.get_multi_by_project(db=db, project_id=project_id)
+    
+    # Filter by dimension if specified
+    if dimension:
+        comparisons = [c for c in comparisons if c.dimension == dimension]
+    
+    total_comparisons = len(comparisons)
+    
+    if total_comparisons == 0:
+        return {
+            "cycle_count": 0,
+            "total_comparisons": 0,
+            "inconsistency_percentage": 0.0,
+            "dimension": dimension or "all",
+        }
+    
+    # Build directed graph
+    graph = {}
+    comparison_edges = set()  # Track which comparisons are involved in cycles
+    comparison_map = {}  # Map (winner, loser) -> comparison id
+    
+    for comp in comparisons:
+        if comp.choice == "tie":
+            continue
+        
+        winner_id = str(comp.feature_a_id if comp.choice == "feature_a" else comp.feature_b_id)
+        loser_id = str(comp.feature_b_id if comp.choice == "feature_a" else comp.feature_a_id)
+        
+        if winner_id not in graph:
+            graph[winner_id] = set()
+        if loser_id not in graph:
+            graph[loser_id] = set()
+        
+        graph[winner_id].add(loser_id)
+        comparison_map[(winner_id, loser_id)] = str(comp.id)
+    
+    # Detect cycles
+    def find_cycles_dfs(node, path, visited, rec_stack, all_cycles):
+        visited.add(node)
+        rec_stack.add(node)
+        path.append(node)
+        
+        for neighbor in graph.get(node, []):
+            if neighbor not in visited:
+                find_cycles_dfs(neighbor, path, visited, rec_stack, all_cycles)
+            elif neighbor in rec_stack:
+                cycle_start_idx = path.index(neighbor)
+                cycle = path[cycle_start_idx:]
+                min_idx = cycle.index(min(cycle))
+                normalized = cycle[min_idx:] + cycle[:min_idx]
+                if normalized not in all_cycles:
+                    all_cycles.append(normalized)
+        
+        path.pop()
+        rec_stack.remove(node)
+    
+    cycles_found = []
+    visited_global = set()
+    
+    for node in graph:
+        if node not in visited_global:
+            find_cycles_dfs(node, [], visited_global, set(), cycles_found)
+    
+    # Count unique comparisons involved in cycles
+    comparisons_in_cycles = set()
+    for cycle in cycles_found:
+        for i in range(len(cycle)):
+            winner = cycle[i]
+            loser = cycle[(i + 1) % len(cycle)]
+            edge = (winner, loser)
+            if edge in comparison_map:
+                comparisons_in_cycles.add(comparison_map[edge])
+    
+    # Calculate percentage
+    inconsistency_percentage = (len(comparisons_in_cycles) / total_comparisons * 100) if total_comparisons > 0 else 0.0
+    
+    return {
+        "cycle_count": len(cycles_found),
+        "total_comparisons": total_comparisons,
+        "inconsistency_percentage": round(inconsistency_percentage, 2),
+        "dimension": dimension or "all",
+    }
+
+
 @router.get("/{project_id}/comparisons", response_model=List[schemas.Comparison])
 def read_comparisons(
     *,
@@ -140,7 +236,7 @@ def get_next_comparison_pair(
 
 
 @router.post(
-    "/{project_id}/comparisons", response_model=schemas.Comparison, status_code=201
+    "/{project_id}/comparisons", response_model=schemas.ComparisonWithStats, status_code=201
 )
 def create_comparison(
     *,
@@ -151,6 +247,9 @@ def create_comparison(
 ) -> Any:
     """
     Submit the result of a pairwise comparison.
+    
+    Returns the created comparison along with updated inconsistency statistics
+    for immediate UI feedback.
     """
     project = crud.project.get(db=db, id=project_id)
     if not project:
@@ -176,6 +275,10 @@ def create_comparison(
     comparison = crud.comparison.create_with_project(
         db=db, obj_in=comparison_in, project_id=project_id, user_id=str(current_user.id)  # type: ignore
     )
+    
+    # Increment project comparison counter
+    project.total_comparisons += 1
+    db.add(project)
     
     # Bayesian Bradley-Terry update
     # Update the mu and sigma values for both features based on the comparison outcome
@@ -258,10 +361,40 @@ def create_comparison(
     # Commit the updates
     db.add(feature_a)
     db.add(feature_b)
+    
+    # Update project average variance for this dimension
+    features = crud.feature.get_multi_by_project(db=db, project_id=project_id)
+    if features:
+        if comparison_in.dimension == "complexity":
+            avg_variance = sum(f.complexity_sigma for f in features) / len(features)
+            project.complexity_avg_variance = avg_variance
+        else:  # value
+            avg_variance = sum(f.value_sigma for f in features) / len(features)
+            project.value_avg_variance = avg_variance
+    
     db.commit()
     db.refresh(comparison)
     
-    return comparison
+    # Calculate inconsistency stats for immediate UI feedback
+    inconsistency_stats = _calculate_inconsistency_stats(
+        db=db,
+        project_id=project_id,
+        dimension=comparison_in.dimension
+    )
+    
+    # Construct response with stats
+    comparison_dict = {
+        "id": comparison.id,
+        "project_id": comparison.project_id,
+        "feature_a": comparison.feature_a,
+        "feature_b": comparison.feature_b,
+        "choice": comparison.choice,
+        "dimension": comparison.dimension,
+        "created_at": comparison.created_at,
+        "inconsistency_stats": inconsistency_stats,
+    }
+    
+    return comparison_dict
 
 
 @router.get("/{project_id}/comparisons/estimates")
@@ -302,7 +435,42 @@ def get_comparison_estimates(
     }
 
 
-@router.get("/{project_id}/comparisons/inconsistencies")
+@router.get("/{project_id}/comparisons/inconsistency-stats")
+def get_inconsistency_stats(
+    *,
+    db: Session = Depends(deps.get_db),
+    project_id: str,
+    dimension: Optional[str] = None,
+    current_user: models.User = Depends(deps.get_current_active_user),
+) -> Any:
+    """
+    Get inconsistency statistics without full cycle details.
+    
+    Useful for:
+    - Dashboard widgets showing inconsistency count
+    - Polling for updates without creating comparisons
+    - Quick health checks of comparison quality
+    
+    Returns summary statistics including cycle count and percentage.
+    """
+    project = crud.project.get(db=db, id=project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    if not crud.user.is_superuser(current_user) and (
+        project.owner_id != current_user.id
+    ):
+        raise HTTPException(status_code=400, detail="Not enough permissions")
+    
+    stats = _calculate_inconsistency_stats(
+        db=db,
+        project_id=project_id,
+        dimension=dimension
+    )
+    
+    return stats
+
+
+@router.get("/{project_id}/comparisons/inconsistencies", response_model=schemas.InconsistencyResponse)
 def get_inconsistencies(
     *,
     db: Session = Depends(deps.get_db),
@@ -312,6 +480,12 @@ def get_inconsistencies(
 ) -> Any:
     """
     Get graph cycles representing logical inconsistencies.
+    
+    Detects cycles in the comparison graph where A>B, B>C, C>A.
+    These represent logical inconsistencies in user choices.
+    
+    Note: The Bayesian model handles probabilistic inconsistencies naturally,
+    but detecting hard cycles is useful for identifying pairs that need re-evaluation.
     """
     project = crud.project.get(db=db, id=project_id)
     if not project:
@@ -321,9 +495,102 @@ def get_inconsistencies(
     ):
         raise HTTPException(status_code=400, detail="Not enough permissions")
 
-    # Placeholder - production would implement cycle detection
+    # Get all active comparisons for the project
+    comparisons = crud.comparison.get_multi_by_project(db=db, project_id=project_id)
+    
+    # Filter by dimension if specified
+    if dimension:
+        comparisons = [c for c in comparisons if c.dimension == dimension]
+    
+    # Build directed graph: winner -> loser edges
+    # Key: feature_id, Value: set of feature_ids that this feature beats
+    graph = {}
+    feature_names = {}  # Cache feature names for response
+    
+    for comp in comparisons:
+        # Skip ties - they don't create directed edges
+        if comp.choice == "tie":
+            continue
+        
+        winner_id = str(comp.feature_a_id if comp.choice == "feature_a" else comp.feature_b_id)
+        loser_id = str(comp.feature_b_id if comp.choice == "feature_a" else comp.feature_a_id)
+        
+        # Initialize graph nodes
+        if winner_id not in graph:
+            graph[winner_id] = set()
+        if loser_id not in graph:
+            graph[loser_id] = set()
+        
+        # Add directed edge: winner -> loser
+        graph[winner_id].add(loser_id)
+        
+        # Cache feature names
+        if winner_id not in feature_names:
+            feature_names[winner_id] = comp.feature_a.name if comp.choice == "feature_a" else comp.feature_b.name
+        if loser_id not in feature_names:
+            feature_names[loser_id] = comp.feature_b.name if comp.choice == "feature_a" else comp.feature_a.name
+    
+    # Detect cycles using DFS with cycle tracking
+    def find_cycles_dfs(node, path, visited, rec_stack, all_cycles):
+        """
+        DFS-based cycle detection.
+        
+        Args:
+            node: Current node being explored
+            path: Current path from start to current node
+            visited: Set of all visited nodes (global)
+            rec_stack: Set of nodes in current recursion stack
+            all_cycles: List to accumulate found cycles
+        """
+        visited.add(node)
+        rec_stack.add(node)
+        path.append(node)
+        
+        # Explore all neighbors
+        for neighbor in graph.get(node, []):
+            if neighbor not in visited:
+                # Recursively explore unvisited neighbor
+                find_cycles_dfs(neighbor, path, visited, rec_stack, all_cycles)
+            elif neighbor in rec_stack:
+                # Found a cycle! Extract the cycle from path
+                cycle_start_idx = path.index(neighbor)
+                cycle = path[cycle_start_idx:] + [neighbor]
+                
+                # Normalize cycle to start with lexicographically smallest node
+                # This prevents duplicates like [A,B,C] and [B,C,A]
+                min_idx = cycle.index(min(cycle[:-1]))  # Exclude last (duplicate) node
+                normalized = cycle[min_idx:-1] + cycle[:min_idx] + [cycle[min_idx]]
+                
+                # Add if not already found
+                if normalized not in all_cycles:
+                    all_cycles.append(normalized)
+        
+        # Backtrack
+        path.pop()
+        rec_stack.remove(node)
+    
+    # Find all cycles
+    cycles_found = []
+    visited_global = set()
+    
+    for node in graph:
+        if node not in visited_global:
+            find_cycles_dfs(node, [], visited_global, set(), cycles_found)
+    
+    # Format cycles for response with feature names and dimension
+    formatted_cycles = []
+    for cycle in cycles_found:
+        formatted_cycles.append({
+            "feature_ids": cycle,
+            "feature_names": [feature_names.get(fid, "Unknown") for fid in cycle],
+            "length": len(cycle) - 1,  # Subtract 1 because last node is duplicate of first
+            "dimension": dimension if dimension else "mixed",
+        })
+    
     return {
-        "cycles": [],
+        "cycles": formatted_cycles,
+        "count": len(formatted_cycles),
+        "message": f"Found {len(formatted_cycles)} logical inconsistencies" if formatted_cycles else "No inconsistencies detected",
     }
 
 
@@ -337,17 +604,120 @@ def get_resolution_pair(
 ) -> Any:
     """
     Get a specific pair of features to compare to resolve a detected inconsistency.
-    COMP-07: Get Resolution Pair
+    
+    Strategy: Find the "weakest link" in detected cycles - the pair where
+    the Bayesian model is most uncertain about the current comparison result.
+    Re-comparing this pair can help break the cycle.
     """
     project = crud.project.get(db=db, id=project_id)
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
-
-    # Placeholder - would use cycle detection to identify pairs that need resolution
-    # If no inconsistencies, return 204 No Content
-    from fastapi import Response
-
-    return Response(status_code=204)
+    if not crud.user.is_superuser(current_user) and (
+        project.owner_id != current_user.id
+    ):
+        raise HTTPException(status_code=400, detail="Not enough permissions")
+    
+    # Reuse cycle detection logic from get_inconsistencies
+    comparisons = crud.comparison.get_multi_by_project(db=db, project_id=project_id)
+    comparisons = [c for c in comparisons if c.dimension == dimension]
+    
+    # Build graph
+    graph = {}
+    comparison_map = {}  # Map (winner, loser) -> comparison object
+    
+    for comp in comparisons:
+        if comp.choice == "tie":
+            continue
+        
+        winner_id = str(comp.feature_a_id if comp.choice == "feature_a" else comp.feature_b_id)
+        loser_id = str(comp.feature_b_id if comp.choice == "feature_a" else comp.feature_a_id)
+        
+        if winner_id not in graph:
+            graph[winner_id] = set()
+        if loser_id not in graph:
+            graph[loser_id] = set()
+        
+        graph[winner_id].add(loser_id)
+        comparison_map[(winner_id, loser_id)] = comp
+    
+    # Find cycles
+    def find_cycles_dfs(node, path, visited, rec_stack, all_cycles):
+        visited.add(node)
+        rec_stack.add(node)
+        path.append(node)
+        
+        for neighbor in graph.get(node, []):
+            if neighbor not in visited:
+                find_cycles_dfs(neighbor, path, visited, rec_stack, all_cycles)
+            elif neighbor in rec_stack:
+                cycle_start_idx = path.index(neighbor)
+                cycle = path[cycle_start_idx:]
+                min_idx = cycle.index(min(cycle))
+                normalized = cycle[min_idx:] + cycle[:min_idx]
+                if normalized not in all_cycles:
+                    all_cycles.append(normalized)
+        
+        path.pop()
+        rec_stack.remove(node)
+    
+    cycles_found = []
+    visited_global = set()
+    
+    for node in graph:
+        if node not in visited_global:
+            find_cycles_dfs(node, [], visited_global, set(), cycles_found)
+    
+    # If no cycles, return 204
+    if not cycles_found:
+        from fastapi import Response
+        return Response(status_code=204)
+    
+    # Find the "weakest link" in all cycles
+    # This is the comparison where the model is least confident (highest combined variance)
+    weakest_pair = None
+    max_uncertainty = -1.0
+    
+    for cycle in cycles_found:
+        # Check each edge in the cycle
+        for i in range(len(cycle)):
+            winner = cycle[i]
+            loser = cycle[(i + 1) % len(cycle)]
+            
+            comp = comparison_map.get((winner, loser))
+            if not comp:
+                continue
+            
+            # Get features to calculate uncertainty
+            feature_winner = crud.feature.get(db=db, id=winner)
+            feature_loser = crud.feature.get(db=db, id=loser)
+            
+            if not feature_winner or not feature_loser:
+                continue
+            
+            # Calculate combined uncertainty for this pair
+            if dimension == "complexity":
+                uncertainty = feature_winner.complexity_sigma + feature_loser.complexity_sigma
+            else:  # value
+                uncertainty = feature_winner.value_sigma + feature_loser.value_sigma
+            
+            if uncertainty > max_uncertainty:
+                max_uncertainty = uncertainty
+                weakest_pair = (feature_winner, feature_loser)
+    
+    if not weakest_pair:
+        from fastapi import Response
+        return Response(status_code=204)
+    
+    feature_a, feature_b = weakest_pair
+    
+    return {
+        "comparison_id": None,
+        "feature_a": feature_a,
+        "feature_b": feature_b,
+        "dimension": dimension,
+        "reason": "This pair is involved in a logical cycle and has high uncertainty. Re-comparing may help resolve the inconsistency.",
+        "combined_uncertainty": max_uncertainty,
+    }
 
 
 @router.get("/{project_id}/comparisons/progress")
@@ -374,20 +744,51 @@ def get_comparison_progress(
     all_comparisons = crud.comparison.get_multi_by_project(db=db, project_id=project_id)
     comparisons_done = sum(1 for c in all_comparisons if c.dimension == dimension)
 
-    # Estimate total needed (placeholder)
+    # Use actual average variance to determine progress
+    # Target variance for different certainty levels:
+    # 90% certainty ≈ σ < 0.5
+    # 95% certainty ≈ σ < 0.3
+    # 99% certainty ≈ σ < 0.2
+    target_variance_map = {
+        0.70: 0.7,
+        0.80: 0.6,
+        0.90: 0.5,
+        0.95: 0.3,
+        0.99: 0.2,
+    }
+    target_variance = target_variance_map.get(target_certainty, 0.5)
+    
+    # Get current average variance for the dimension
+    current_variance = (
+        project.complexity_avg_variance if dimension == "complexity" 
+        else project.value_avg_variance
+    )
+    
+    # Calculate progress based on variance reduction
+    # Starting variance is 1.0, we measure how much we've reduced it
+    initial_variance = 1.0
+    variance_reduction = (initial_variance - current_variance) / (initial_variance - target_variance)
+    progress_percent = min(100.0, max(0.0, variance_reduction * 100))
+    current_certainty = min(1.0, max(0.0, variance_reduction))
+    
+    # Estimate remaining comparisons needed (heuristic: ~2-3 comparisons per feature to converge)
     features = crud.feature.get_multi_by_project(db=db, project_id=project_id)
     n = len(features)
-    estimated_total = int(n * (n - 1) * target_certainty / 2)
-
-    progress_percent = min(100.0, (comparisons_done / max(1, estimated_total)) * 100)
+    if current_variance <= target_variance:
+        comparisons_remaining = 0
+    else:
+        # Rough estimate: need more comparisons if variance is still high
+        comparisons_remaining = max(0, int(n * (current_variance / target_variance - 1)))
 
     return {
         "dimension": dimension,
         "target_certainty": target_certainty,
-        "current_certainty": progress_percent / 100.0,
+        "current_certainty": current_certainty,
         "progress_percent": progress_percent,
         "comparisons_done": comparisons_done,
-        "comparisons_remaining": max(0, estimated_total - comparisons_done),
+        "comparisons_remaining": comparisons_remaining,
+        "current_avg_variance": current_variance,
+        "target_variance": target_variance,
     }
 
 
@@ -416,6 +817,11 @@ def reset_comparisons(
         if dimension is None or comp.dimension == dimension:
             crud.comparison.remove(db=db, id=comp.id)
             count += 1
+    
+    # Decrement project comparison counter
+    project.total_comparisons = max(0, project.total_comparisons - count)
+    db.add(project)
+    db.commit()
 
     return {
         "message": "Comparisons reset",
@@ -453,6 +859,11 @@ def undo_last_comparison(
     last_comparison = sorted(filtered, key=lambda c: c.created_at, reverse=True)[0]
 
     crud.comparison.remove(db=db, id=last_comparison.id)
+    
+    # Decrement project comparison counter
+    project.total_comparisons = max(0, project.total_comparisons - 1)
+    db.add(project)
+    db.commit()
 
     return {
         "undone_comparison_id": str(last_comparison.id),

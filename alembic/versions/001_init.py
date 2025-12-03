@@ -50,6 +50,9 @@ def upgrade() -> None:
         sa.Column('description', sa.String(), nullable=True),
         sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
         sa.Column('owner_id', sa.String(), nullable=False),
+        sa.Column('total_comparisons', sa.Integer(), nullable=False, server_default='0'),
+        sa.Column('complexity_avg_variance', sa.Float(), nullable=False, server_default='1.0'),
+        sa.Column('value_avg_variance', sa.Float(), nullable=False, server_default='1.0'),
         sa.ForeignKeyConstraint(['owner_id'], ['users.id'], ),
         sa.PrimaryKeyConstraint('id')
     )
