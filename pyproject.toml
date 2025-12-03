@@ -77,3 +77,9 @@ filterwarnings = [
     "ignore:'asyncio.iscoroutinefunction' is deprecated:DeprecationWarning",
     "ignore:The Query.get:sqlalchemy.exc.LegacyAPIWarning"
 ]
+
+[tool.coverage.run]
+omit = [
+    "app/initial_data.py",
+]
+

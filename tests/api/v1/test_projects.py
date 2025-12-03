@@ -218,3 +218,78 @@ def test_get_project_last_modified(
     data = r.json()
     assert "last_modified" in data
     assert "modified_by" in data
+
+
+def test_get_project_history(
+    client: TestClient, superuser_token_headers: dict, db: Session
+) -> None:
+    """Test PROJ-11: Get project comparison history."""
+    # Create project
+    data = {"name": "History Test", "description": "Test"}
+    r = client.post(
+        f"{settings.API_V1_STR}/projects/",
+        headers=superuser_token_headers,
+        json=data,
+    )
+    project_id = r.json()["id"]
+
+    # Get history
+    r = client.get(
+        f"{settings.API_V1_STR}/projects/{project_id}/history",
+        headers=superuser_token_headers,
+    )
+    assert r.status_code == 200
+    data = r.json()
+    assert "project" in data
+    assert "comparisons" in data
+    assert "deleted_comparisons" in data
+
+
+def test_get_project_history_with_comparisons(
+    client: TestClient, superuser_token_headers: dict, db: Session
+) -> None:
+    """Test PROJ-11: Get history with actual comparisons."""
+    # Create project
+    project_data = {"name": "History With Data", "description": "Test"}
+    r = client.post(
+        f"{settings.API_V1_STR}/projects/",
+        headers=superuser_token_headers,
+        json=project_data,
+    )
+    project_id = r.json()["id"]
+
+    # Add features
+    feature_ids = []
+    for i in range(2):
+        feature_data = {"name": f"History Feature {i}", "description": f"Desc {i}"}
+        r = client.post(
+            f"{settings.API_V1_STR}/projects/{project_id}/features",
+            headers=superuser_token_headers,
+            json=feature_data,
+        )
+        feature_ids.append(r.json()["id"])
+
+    # Create a comparison
+    comparison_data = {
+        "feature_a_id": feature_ids[0],
+        "feature_b_id": feature_ids[1],
+        "choice": "feature_a",
+        "dimension": "complexity",
+    }
+    r = client.post(
+        f"{settings.API_V1_STR}/projects/{project_id}/comparisons",
+        headers=superuser_token_headers,
+        json=comparison_data,
+    )
+    assert r.status_code == 201
+
+    # Get history - should have one comparison
+    r = client.get(
+        f"{settings.API_V1_STR}/projects/{project_id}/history",
+        headers=superuser_token_headers,
+    )
+    assert r.status_code == 200
+    data = r.json()
+    assert len(data["comparisons"]) >= 1
+    assert len(data["deleted_comparisons"]) == 0
+

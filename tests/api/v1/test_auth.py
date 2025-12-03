@@ -141,3 +141,30 @@ def test_refresh_token(client: TestClient) -> None:
     r = client.post(f"{settings.API_V1_STR}/auth/refresh", params=refresh_data)
     # Currently returns 501 as it's a placeholder
     assert r.status_code == 501
+
+
+def test_google_oauth_status(client: TestClient) -> None:
+    """Test AUTH-GOOGLE-03: Check Google OAuth configuration status."""
+    r = client.get(f"{settings.API_V1_STR}/auth/google/status")
+    assert r.status_code == 200
+    data = r.json()
+    assert "google_oauth_enabled" in data
+    assert "google_client_id_set" in data
+    assert "google_client_secret_set" in data
+    # Since we're in test environment, OAuth is likely not configured
+    assert isinstance(data["google_oauth_enabled"], bool)
+    assert isinstance(data["google_client_id_set"], bool)
+    assert isinstance(data["google_client_secret_set"], bool)
+
+
+def test_test_token_endpoint(client: TestClient, superuser_token_headers: dict) -> None:
+    """Test login/test-token endpoint."""
+    r = client.post(
+        f"{settings.API_V1_STR}/auth/login/test-token",
+        headers=superuser_token_headers,
+    )
+    assert r.status_code == 200
+    data = r.json()
+    assert "id" in data
+    assert "email" in data
+

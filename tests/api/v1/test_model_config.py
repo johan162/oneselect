@@ -150,3 +150,64 @@ def test_model_config_unauthorized(client: TestClient) -> None:
 
     r = client.get(f"{settings.API_V1_STR}/projects/{project_id}/model-config")
     assert r.status_code == 401
+
+
+def test_get_model_config_nonexistent_project(
+    client: TestClient, superuser_token_headers: dict
+) -> None:
+    """Test getting model config for non-existent project."""
+    fake_id = "00000000-0000-0000-0000-000000000000"
+    r = client.get(
+        f"{settings.API_V1_STR}/projects/{fake_id}/model-config",
+        headers=superuser_token_headers,
+    )
+    assert r.status_code == 404
+
+
+def test_update_model_config_nonexistent_project(
+    client: TestClient, superuser_token_headers: dict
+) -> None:
+    """Test updating model config for non-existent project."""
+    fake_id = "00000000-0000-0000-0000-000000000000"
+    config_data = {
+        "dimensions": {
+            "complexity": {"prior_mean": 0.5}
+        }
+    }
+    r = client.put(
+        f"{settings.API_V1_STR}/projects/{fake_id}/model-config",
+        json=config_data,
+        headers=superuser_token_headers,
+    )
+    assert r.status_code == 404
+
+
+def test_reset_model_config_nonexistent_project(
+    client: TestClient, superuser_token_headers: dict
+) -> None:
+    """Test resetting model config for non-existent project."""
+    fake_id = "00000000-0000-0000-0000-000000000000"
+    r = client.post(
+        f"{settings.API_V1_STR}/projects/{fake_id}/model-config/reset",
+        headers=superuser_token_headers,
+    )
+    assert r.status_code == 404
+
+
+def test_preview_model_config_nonexistent_project(
+    client: TestClient, superuser_token_headers: dict
+) -> None:
+    """Test previewing model config for non-existent project."""
+    fake_id = "00000000-0000-0000-0000-000000000000"
+    config_data = {
+        "dimensions": {
+            "complexity": {"prior_mean": 0.5}
+        }
+    }
+    r = client.post(
+        f"{settings.API_V1_STR}/projects/{fake_id}/model-config/preview",
+        json=config_data,
+        headers=superuser_token_headers,
+    )
+    assert r.status_code == 404
+

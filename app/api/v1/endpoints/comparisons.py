@@ -300,9 +300,9 @@ def create_comparison(
         sigma_b = feature_b.value_sigma
     
     # Determine outcome: y=1 if feature_a wins, y=0 if feature_b wins, y=0.5 for tie
-    if comparison_in.winner == "feature_a":
+    if comparison_in.choice == "feature_a":
         y = 1.0
-    elif comparison_in.winner == "feature_b":
+    elif comparison_in.choice == "feature_b":
         y = 0.0
     else:  # tie
         y = 0.5

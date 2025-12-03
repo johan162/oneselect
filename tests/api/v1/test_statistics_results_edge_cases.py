@@ -404,3 +404,212 @@ def test_download_results_as_csv_for_empty_project(
     )
     # Should return empty file or appropriate message
     assert r.status_code in [200, 404]
+
+
+# Additional Results Export Tests
+
+
+def test_export_results_with_different_sort_options(
+    client: TestClient, superuser_token_headers: dict
+) -> None:
+    """Test export with all sort_by options."""
+    # Create project with features
+    project_data = {"name": "Export Sort Test", "description": "Test"}
+    r = client.post(
+        f"{settings.API_V1_STR}/projects/",
+        headers=superuser_token_headers,
+        json=project_data,
+    )
+    project_id = r.json()["id"]
+
+    # Add some features
+    for i in range(3):
+        feature_data = {"name": f"Feature {i}", "description": f"Desc {i}"}
+        client.post(
+            f"{settings.API_V1_STR}/projects/{project_id}/features",
+            headers=superuser_token_headers,
+            json=feature_data,
+        )
+
+    # Test sort by complexity
+    r = client.get(
+        f"{settings.API_V1_STR}/projects/{project_id}/results/export?format=json&sort_by=complexity",
+        headers=superuser_token_headers,
+    )
+    assert r.status_code == 200
+
+    # Test sort by value
+    r = client.get(
+        f"{settings.API_V1_STR}/projects/{project_id}/results/export?format=json&sort_by=value",
+        headers=superuser_token_headers,
+    )
+    assert r.status_code == 200
+
+    # Test sort by ratio (default)
+    r = client.get(
+        f"{settings.API_V1_STR}/projects/{project_id}/results/export?format=json&sort_by=ratio",
+        headers=superuser_token_headers,
+    )
+    assert r.status_code == 200
+
+
+def test_export_results_csv_with_sort(
+    client: TestClient, superuser_token_headers: dict
+) -> None:
+    """Test CSV export with different sort options."""
+    # Create project with features
+    project_data = {"name": "CSV Sort Test", "description": "Test"}
+    r = client.post(
+        f"{settings.API_V1_STR}/projects/",
+        headers=superuser_token_headers,
+        json=project_data,
+    )
+    project_id = r.json()["id"]
+
+    # Add features
+    for i in range(2):
+        feature_data = {"name": f"CSV Feature {i}", "description": f"Desc {i}"}
+        client.post(
+            f"{settings.API_V1_STR}/projects/{project_id}/features",
+            headers=superuser_token_headers,
+            json=feature_data,
+        )
+
+    # Test CSV export with complexity sort
+    r = client.get(
+        f"{settings.API_V1_STR}/projects/{project_id}/results/export?format=csv&sort_by=complexity",
+        headers=superuser_token_headers,
+    )
+    assert r.status_code == 200
+    assert "text/csv" in r.headers.get("content-type", "")
+
+
+def test_export_results_invalid_format(
+    client: TestClient, superuser_token_headers: dict
+) -> None:
+    """Test export with invalid format parameter."""
+    project_data = {"name": "Invalid Format Test", "description": "Test"}
+    r = client.post(
+        f"{settings.API_V1_STR}/projects/",
+        headers=superuser_token_headers,
+        json=project_data,
+    )
+    project_id = r.json()["id"]
+
+    r = client.get(
+        f"{settings.API_V1_STR}/projects/{project_id}/results/export?format=xml",
+        headers=superuser_token_headers,
+    )
+    assert r.status_code == 400
+
+
+def test_export_results_invalid_sort(
+    client: TestClient, superuser_token_headers: dict
+) -> None:
+    """Test export with invalid sort_by parameter."""
+    project_data = {"name": "Invalid Sort Test", "description": "Test"}
+    r = client.post(
+        f"{settings.API_V1_STR}/projects/",
+        headers=superuser_token_headers,
+        json=project_data,
+    )
+    project_id = r.json()["id"]
+
+    r = client.get(
+        f"{settings.API_V1_STR}/projects/{project_id}/results/export?format=json&sort_by=invalid",
+        headers=superuser_token_headers,
+    )
+    assert r.status_code == 400
+
+
+def test_get_ranked_results_with_all_sorts(
+    client: TestClient, superuser_token_headers: dict
+) -> None:
+    """Test ranked results with all sort options."""
+    project_data = {"name": "Ranked Sort Test", "description": "Test"}
+    r = client.post(
+        f"{settings.API_V1_STR}/projects/",
+        headers=superuser_token_headers,
+        json=project_data,
+    )
+    project_id = r.json()["id"]
+
+    # Add features
+    for i in range(3):
+        feature_data = {"name": f"Rank Feature {i}", "description": f"Desc {i}"}
+        client.post(
+            f"{settings.API_V1_STR}/projects/{project_id}/features",
+            headers=superuser_token_headers,
+            json=feature_data,
+        )
+
+    # Test all sort options
+    for sort_by in ["complexity", "value", "ratio"]:
+        r = client.get(
+            f"{settings.API_V1_STR}/projects/{project_id}/results?sort_by={sort_by}",
+            headers=superuser_token_headers,
+        )
+        assert r.status_code == 200
+        data = r.json()
+        assert isinstance(data, list)
+
+
+def test_get_ranked_results_invalid_sort(
+    client: TestClient, superuser_token_headers: dict
+) -> None:
+    """Test ranked results with invalid sort parameter."""
+    project_data = {"name": "Invalid Rank Sort", "description": "Test"}
+    r = client.post(
+        f"{settings.API_V1_STR}/projects/",
+        headers=superuser_token_headers,
+        json=project_data,
+    )
+    project_id = r.json()["id"]
+
+    r = client.get(
+        f"{settings.API_V1_STR}/projects/{project_id}/results?sort_by=invalid",
+        headers=superuser_token_headers,
+    )
+    assert r.status_code == 400
+
+
+def test_quadrant_analysis_with_features(
+    client: TestClient, superuser_token_headers: dict
+) -> None:
+    """Test quadrant analysis with actual features."""
+    project_data = {"name": "Quadrant Feature Test", "description": "Test"}
+    r = client.post(
+        f"{settings.API_V1_STR}/projects/",
+        headers=superuser_token_headers,
+        json=project_data,
+    )
+    project_id = r.json()["id"]
+
+    # Add multiple features
+    for i in range(5):
+        feature_data = {"name": f"Quadrant Feature {i}", "description": f"Desc {i}"}
+        client.post(
+            f"{settings.API_V1_STR}/projects/{project_id}/features",
+            headers=superuser_token_headers,
+            json=feature_data,
+        )
+
+    r = client.get(
+        f"{settings.API_V1_STR}/projects/{project_id}/results/quadrants",
+        headers=superuser_token_headers,
+    )
+    assert r.status_code == 200
+    data = r.json()
+    assert "quick_wins" in data
+    assert "strategic" in data
+    assert "fill_ins" in data
+    assert "avoid" in data
+    # Verify lists contain features
+    total_categorized = (
+        len(data["quick_wins"]) + 
+        len(data["strategic"]) + 
+        len(data["fill_ins"]) + 
+        len(data["avoid"])
+    )
+    assert total_categorized == 5
+

@@ -459,3 +459,312 @@ def test_delete_nonexistent_feature(
         headers=superuser_token_headers,
     )
     assert r.status_code == 404
+
+
+def test_create_feature_updates_variance(
+    client: TestClient, superuser_token_headers: dict
+) -> None:
+    """Test that creating a feature updates project variance when comparisons exist."""
+    # Create project with features
+    project_data = {"name": "Variance Update Test", "description": "Test"}
+    r = client.post(
+        f"{settings.API_V1_STR}/projects/",
+        headers=superuser_token_headers,
+        json=project_data,
+    )
+    project_id = r.json()["id"]
+
+    # Add features
+    feature_ids = []
+    for i in range(2):
+        feature_data = {"name": f"Variance Feature {i}", "description": f"Desc {i}"}
+        r = client.post(
+            f"{settings.API_V1_STR}/projects/{project_id}/features",
+            headers=superuser_token_headers,
+            json=feature_data,
+        )
+        feature_ids.append(r.json()["id"])
+
+    # Create comparison to trigger variance updates
+    comparison_data = {
+        "feature_a_id": feature_ids[0],
+        "feature_b_id": feature_ids[1],
+        "dimension": "complexity",
+        "choice": "feature_a",
+    }
+    client.post(
+        f"{settings.API_V1_STR}/projects/{project_id}/comparisons",
+        headers=superuser_token_headers,
+        json=comparison_data,
+    )
+
+    # Add another feature - should update variance
+    feature_data = {"name": "New Variance Feature", "description": "Test"}
+    r = client.post(
+        f"{settings.API_V1_STR}/projects/{project_id}/features",
+        headers=superuser_token_headers,
+        json=feature_data,
+    )
+    assert r.status_code == 201
+
+
+def test_bulk_create_updates_variance(
+    client: TestClient, superuser_token_headers: dict
+) -> None:
+    """Test that bulk creating features updates project variance when comparisons exist."""
+    # Create project with features
+    project_data = {"name": "Bulk Variance Update Test", "description": "Test"}
+    r = client.post(
+        f"{settings.API_V1_STR}/projects/",
+        headers=superuser_token_headers,
+        json=project_data,
+    )
+    project_id = r.json()["id"]
+
+    # Add features
+    feature_ids = []
+    for i in range(2):
+        feature_data = {"name": f"Bulk Variance Feature {i}", "description": f"Desc {i}"}
+        r = client.post(
+            f"{settings.API_V1_STR}/projects/{project_id}/features",
+            headers=superuser_token_headers,
+            json=feature_data,
+        )
+        feature_ids.append(r.json()["id"])
+
+    # Create comparison
+    comparison_data = {
+        "feature_a_id": feature_ids[0],
+        "feature_b_id": feature_ids[1],
+        "dimension": "complexity",
+        "choice": "feature_a",
+    }
+    client.post(
+        f"{settings.API_V1_STR}/projects/{project_id}/comparisons",
+        headers=superuser_token_headers,
+        json=comparison_data,
+    )
+
+    # Bulk add features
+    bulk_data = [
+        {"name": "Bulk New Feature 1", "description": "Desc 1"},
+        {"name": "Bulk New Feature 2", "description": "Desc 2"},
+    ]
+    r = client.post(
+        f"{settings.API_V1_STR}/projects/{project_id}/features/bulk",
+        headers=superuser_token_headers,
+        json=bulk_data,
+    )
+    assert r.status_code == 201
+    assert r.json()["count"] == 2
+
+
+def test_bulk_delete_updates_variance(
+    client: TestClient, superuser_token_headers: dict
+) -> None:
+    """Test that bulk deleting features updates project variance when comparisons exist."""
+    # Create project with features
+    project_data = {"name": "Bulk Delete Variance Test", "description": "Test"}
+    r = client.post(
+        f"{settings.API_V1_STR}/projects/",
+        headers=superuser_token_headers,
+        json=project_data,
+    )
+    project_id = r.json()["id"]
+
+    # Add features
+    feature_ids = []
+    for i in range(4):
+        feature_data = {"name": f"Delete Variance Feature {i}", "description": f"Desc {i}"}
+        r = client.post(
+            f"{settings.API_V1_STR}/projects/{project_id}/features",
+            headers=superuser_token_headers,
+            json=feature_data,
+        )
+        feature_ids.append(r.json()["id"])
+
+    # Create comparison
+    comparison_data = {
+        "feature_a_id": feature_ids[0],
+        "feature_b_id": feature_ids[1],
+        "dimension": "complexity",
+        "choice": "feature_a",
+    }
+    client.post(
+        f"{settings.API_V1_STR}/projects/{project_id}/comparisons",
+        headers=superuser_token_headers,
+        json=comparison_data,
+    )
+
+    # Bulk delete some features
+    to_delete = [feature_ids[2], feature_ids[3]]
+    r = client.post(
+        f"{settings.API_V1_STR}/projects/{project_id}/features/bulk-delete",
+        headers=superuser_token_headers,
+        json=to_delete,
+    )
+    assert r.status_code == 200
+    assert r.json()["deleted_count"] == 2
+
+
+def test_bulk_delete_all_features(
+    client: TestClient, superuser_token_headers: dict
+) -> None:
+    """Test bulk deleting all features resets variance."""
+    # Create project with features
+    project_data = {"name": "Delete All Features Test", "description": "Test"}
+    r = client.post(
+        f"{settings.API_V1_STR}/projects/",
+        headers=superuser_token_headers,
+        json=project_data,
+    )
+    project_id = r.json()["id"]
+
+    # Add features
+    feature_ids = []
+    for i in range(2):
+        feature_data = {"name": f"Delete All Feature {i}", "description": f"Desc {i}"}
+        r = client.post(
+            f"{settings.API_V1_STR}/projects/{project_id}/features",
+            headers=superuser_token_headers,
+            json=feature_data,
+        )
+        feature_ids.append(r.json()["id"])
+
+    # Create comparison
+    comparison_data = {
+        "feature_a_id": feature_ids[0],
+        "feature_b_id": feature_ids[1],
+        "dimension": "complexity",
+        "choice": "feature_a",
+    }
+    client.post(
+        f"{settings.API_V1_STR}/projects/{project_id}/comparisons",
+        headers=superuser_token_headers,
+        json=comparison_data,
+    )
+
+    # Bulk delete all features
+    r = client.post(
+        f"{settings.API_V1_STR}/projects/{project_id}/features/bulk-delete",
+        headers=superuser_token_headers,
+        json=feature_ids,
+    )
+    assert r.status_code == 200
+
+
+def test_get_feature_mismatch_project(
+    client: TestClient, superuser_token_headers: dict
+) -> None:
+    """Test getting feature with wrong project ID."""
+    # Create two projects
+    project_data1 = {"name": "Mismatch Project 1", "description": "Test"}
+    r = client.post(
+        f"{settings.API_V1_STR}/projects/",
+        headers=superuser_token_headers,
+        json=project_data1,
+    )
+    project_id1 = r.json()["id"]
+
+    project_data2 = {"name": "Mismatch Project 2", "description": "Test"}
+    r = client.post(
+        f"{settings.API_V1_STR}/projects/",
+        headers=superuser_token_headers,
+        json=project_data2,
+    )
+    project_id2 = r.json()["id"]
+
+    # Add feature to project 1
+    feature_data = {"name": "Mismatch Feature", "description": "Test"}
+    r = client.post(
+        f"{settings.API_V1_STR}/projects/{project_id1}/features",
+        headers=superuser_token_headers,
+        json=feature_data,
+    )
+    feature_id = r.json()["id"]
+
+    # Try to get feature from project 2
+    r = client.get(
+        f"{settings.API_V1_STR}/projects/{project_id2}/features/{feature_id}",
+        headers=superuser_token_headers,
+    )
+    assert r.status_code == 400
+
+
+def test_update_feature_mismatch_project(
+    client: TestClient, superuser_token_headers: dict
+) -> None:
+    """Test updating feature with wrong project ID."""
+    # Create two projects
+    project_data1 = {"name": "Update Mismatch Project 1", "description": "Test"}
+    r = client.post(
+        f"{settings.API_V1_STR}/projects/",
+        headers=superuser_token_headers,
+        json=project_data1,
+    )
+    project_id1 = r.json()["id"]
+
+    project_data2 = {"name": "Update Mismatch Project 2", "description": "Test"}
+    r = client.post(
+        f"{settings.API_V1_STR}/projects/",
+        headers=superuser_token_headers,
+        json=project_data2,
+    )
+    project_id2 = r.json()["id"]
+
+    # Add feature to project 1
+    feature_data = {"name": "Update Mismatch Feature", "description": "Test"}
+    r = client.post(
+        f"{settings.API_V1_STR}/projects/{project_id1}/features",
+        headers=superuser_token_headers,
+        json=feature_data,
+    )
+    feature_id = r.json()["id"]
+
+    # Try to update feature via project 2
+    update_data = {"name": "Updated Name", "description": "Updated"}
+    r = client.put(
+        f"{settings.API_V1_STR}/projects/{project_id2}/features/{feature_id}",
+        headers=superuser_token_headers,
+        json=update_data,
+    )
+    assert r.status_code == 400
+
+
+def test_delete_feature_mismatch_project(
+    client: TestClient, superuser_token_headers: dict
+) -> None:
+    """Test deleting feature with wrong project ID."""
+    # Create two projects
+    project_data1 = {"name": "Delete Mismatch Project 1", "description": "Test"}
+    r = client.post(
+        f"{settings.API_V1_STR}/projects/",
+        headers=superuser_token_headers,
+        json=project_data1,
+    )
+    project_id1 = r.json()["id"]
+
+    project_data2 = {"name": "Delete Mismatch Project 2", "description": "Test"}
+    r = client.post(
+        f"{settings.API_V1_STR}/projects/",
+        headers=superuser_token_headers,
+        json=project_data2,
+    )
+    project_id2 = r.json()["id"]
+
+    # Add feature to project 1
+    feature_data = {"name": "Delete Mismatch Feature", "description": "Test"}
+    r = client.post(
+        f"{settings.API_V1_STR}/projects/{project_id1}/features",
+        headers=superuser_token_headers,
+        json=feature_data,
+    )
+    feature_id = r.json()["id"]
+
+    # Try to delete feature via project 2
+    r = client.delete(
+        f"{settings.API_V1_STR}/projects/{project_id2}/features/{feature_id}",
+        headers=superuser_token_headers,
+    )
+    assert r.status_code == 400
+
