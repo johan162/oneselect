@@ -413,3 +413,209 @@ def test_get_user_projects_without_authentication(client: TestClient) -> None:
     fake_user_id = "00000000-0000-0000-0000-000000000000"
     r = client.get(f"{settings.API_V1_STR}/users/{fake_user_id}/projects")
     assert r.status_code == 401
+
+
+def test_assign_nonexistent_user(
+    client: TestClient, superuser_token_headers: dict
+) -> None:
+    """Test assigning project to non-existent user."""
+    fake_user_id = "00000000-0000-0000-0000-000000000000"
+    
+    # Create a project
+    project_data = {"name": "Assignment Test", "description": "Test"}
+    r = client.post(
+        f"{settings.API_V1_STR}/projects/",
+        headers=superuser_token_headers,
+        json=project_data,
+    )
+    project_id = r.json()["id"]
+    
+    assignment_data = {"projectId": project_id}
+    r = client.post(
+        f"{settings.API_V1_STR}/users/{fake_user_id}/assignments",
+        headers=superuser_token_headers,
+        json=assignment_data,
+    )
+    assert r.status_code == 404
+
+
+def test_assign_nonexistent_project(
+    client: TestClient, superuser_token_headers: dict
+) -> None:
+    """Test assigning non-existent project to user."""
+    # Create a user first
+    user_data = {
+        "username": "assignnonexistent",
+        "email": "assignnonexistent@example.com",
+        "password": "password123",
+    }
+    r = client.post(
+        f"{settings.API_V1_STR}/users/",
+        headers=superuser_token_headers,
+        json=user_data,
+    )
+    user_id = r.json()["id"]
+
+    fake_project_id = "00000000-0000-0000-0000-000000000000"
+    assignment_data = {"projectId": fake_project_id}
+    r = client.post(
+        f"{settings.API_V1_STR}/users/{user_id}/assignments",
+        headers=superuser_token_headers,
+        json=assignment_data,
+    )
+    assert r.status_code == 404
+
+
+def test_assign_project_success(
+    client: TestClient, superuser_token_headers: dict
+) -> None:
+    """Test successfully assigning project to user."""
+    # Create a user
+    user_data = {
+        "username": "assignsuccess",
+        "email": "assignsuccess@example.com",
+        "password": "password123",
+    }
+    r = client.post(
+        f"{settings.API_V1_STR}/users/",
+        headers=superuser_token_headers,
+        json=user_data,
+    )
+    user_id = r.json()["id"]
+
+    # Create a project
+    project_data = {"name": "Assignment Success Test", "description": "Test"}
+    r = client.post(
+        f"{settings.API_V1_STR}/projects/",
+        headers=superuser_token_headers,
+        json=project_data,
+    )
+    project_id = r.json()["id"]
+
+    # Assign project
+    assignment_data = {"projectId": project_id}
+    r = client.post(
+        f"{settings.API_V1_STR}/users/{user_id}/assignments",
+        headers=superuser_token_headers,
+        json=assignment_data,
+    )
+    assert r.status_code == 200
+
+
+def test_update_user_nonexistent(
+    client: TestClient, superuser_token_headers: dict
+) -> None:
+    """Test updating non-existent user."""
+    fake_user_id = "00000000-0000-0000-0000-000000000000"
+    update_data = {"username": "newusername"}
+    r = client.put(
+        f"{settings.API_V1_STR}/users/{fake_user_id}",
+        headers=superuser_token_headers,
+        json=update_data,
+    )
+    assert r.status_code == 404
+
+
+def test_delete_user_nonexistent(
+    client: TestClient, superuser_token_headers: dict
+) -> None:
+    """Test deleting non-existent user."""
+    fake_user_id = "00000000-0000-0000-0000-000000000000"
+    r = client.delete(
+        f"{settings.API_V1_STR}/users/{fake_user_id}",
+        headers=superuser_token_headers,
+    )
+    assert r.status_code == 404
+
+
+def test_get_user_by_id_as_regular_user(
+    client: TestClient, superuser_token_headers: dict
+) -> None:
+    """Test getting another user's data as regular user."""
+    # Create a target user
+    user_data = {
+        "username": "targetuser",
+        "email": "targetuser@example.com",
+        "password": "password123",
+    }
+    r = client.post(
+        f"{settings.API_V1_STR}/users/",
+        headers=superuser_token_headers,
+        json=user_data,
+    )
+    target_user_id = r.json()["id"]
+
+    # Create and login as another regular user
+    from tests.utils.utils import get_user_token_headers
+
+    regular_user_data = {
+        "username": "regularviewer",
+        "email": "regularviewer@example.com",
+        "password": "password123",
+    }
+    client.post(f"{settings.API_V1_STR}/auth/register", json=regular_user_data)
+    regular_headers = get_user_token_headers(client, "regularviewer", "password123")
+
+    # Try to access target user's data
+    r = client.get(
+        f"{settings.API_V1_STR}/users/{target_user_id}",
+        headers=regular_headers,
+    )
+    # Should fail - regular user can't see other users
+    assert r.status_code == 400
+
+
+def test_delete_user_success(
+    client: TestClient, superuser_token_headers: dict
+) -> None:
+    """Test successfully deleting a user."""
+    # Create a user
+    user_data = {
+        "username": "todelete",
+        "email": "todelete@example.com",
+        "password": "password123",
+    }
+    r = client.post(
+        f"{settings.API_V1_STR}/users/",
+        headers=superuser_token_headers,
+        json=user_data,
+    )
+    user_id = r.json()["id"]
+
+    # Delete user
+    r = client.delete(
+        f"{settings.API_V1_STR}/users/{user_id}",
+        headers=superuser_token_headers,
+    )
+    assert r.status_code in [200, 204]
+
+
+def test_update_user_by_id(
+    client: TestClient, superuser_token_headers: dict
+) -> None:
+    """Test updating a user by ID."""
+    import random
+    suffix = random.randint(1000, 9999)
+    
+    # Create a user
+    user_data = {
+        "username": f"toupdate{suffix}",
+        "email": f"toupdate{suffix}@example.com",
+        "password": "password123",
+    }
+    r = client.post(
+        f"{settings.API_V1_STR}/users/",
+        headers=superuser_token_headers,
+        json=user_data,
+    )
+    user_id = r.json()["id"]
+
+    # Update user
+    update_data = {"email": f"updated{suffix}@example.com"}
+    r = client.put(
+        f"{settings.API_V1_STR}/users/{user_id}",
+        headers=superuser_token_headers,
+        json=update_data,
+    )
+    assert r.status_code == 200
+

@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 
 from app import crud, models
 from app.api import deps
+from app.schemas.feature import Feature as FeatureSchema
 
 router = APIRouter()
 
@@ -74,7 +75,7 @@ def get_ranked_results(
         results.append(
             {
                 "rank": rank,
-                "feature": feature,
+                "feature": FeatureSchema.model_validate(feature),
                 "score": score,
                 "variance": variance,
                 "confidence_interval": [ci_lower, ci_upper],
@@ -135,14 +136,15 @@ def get_quadrant_analysis(
         high_value = feature.value_mu >= median_value
         high_complexity = feature.complexity_mu >= median_complexity
         
+        feature_schema = FeatureSchema.model_validate(feature)
         if high_value and not high_complexity:
-            quick_wins.append(feature)
+            quick_wins.append(feature_schema)
         elif high_value and high_complexity:
-            strategic.append(feature)
+            strategic.append(feature_schema)
         elif not high_value and not high_complexity:
-            fill_ins.append(feature)
+            fill_ins.append(feature_schema)
         else:  # low value, high complexity
-            avoid.append(feature)
+            avoid.append(feature_schema)
     
     return {
         "quick_wins": quick_wins,
