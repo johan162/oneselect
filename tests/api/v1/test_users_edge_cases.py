@@ -420,7 +420,7 @@ def test_assign_nonexistent_user(
 ) -> None:
     """Test assigning project to non-existent user."""
     fake_user_id = "00000000-0000-0000-0000-000000000000"
-    
+
     # Create a project
     project_data = {"name": "Assignment Test", "description": "Test"}
     r = client.post(
@@ -429,7 +429,7 @@ def test_assign_nonexistent_user(
         json=project_data,
     )
     project_id = r.json()["id"]
-    
+
     assignment_data = {"projectId": project_id}
     r = client.post(
         f"{settings.API_V1_STR}/users/{fake_user_id}/assignments",
@@ -565,9 +565,7 @@ def test_get_user_by_id_as_regular_user(
     assert r.status_code == 400
 
 
-def test_delete_user_success(
-    client: TestClient, superuser_token_headers: dict
-) -> None:
+def test_delete_user_success(client: TestClient, superuser_token_headers: dict) -> None:
     """Test successfully deleting a user."""
     # Create a user
     user_data = {
@@ -590,13 +588,12 @@ def test_delete_user_success(
     assert r.status_code in [200, 204]
 
 
-def test_update_user_by_id(
-    client: TestClient, superuser_token_headers: dict
-) -> None:
+def test_update_user_by_id(client: TestClient, superuser_token_headers: dict) -> None:
     """Test updating a user by ID."""
     import random
+
     suffix = random.randint(1000, 9999)
-    
+
     # Create a user
     user_data = {
         "username": f"toupdate{suffix}",
@@ -618,4 +615,3 @@ def test_update_user_by_id(
         json=update_data,
     )
     assert r.status_code == 200
-

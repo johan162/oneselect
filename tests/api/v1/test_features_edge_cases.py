@@ -524,7 +524,10 @@ def test_bulk_create_updates_variance(
     # Add features
     feature_ids = []
     for i in range(2):
-        feature_data = {"name": f"Bulk Variance Feature {i}", "description": f"Desc {i}"}
+        feature_data = {
+            "name": f"Bulk Variance Feature {i}",
+            "description": f"Desc {i}",
+        }
         r = client.post(
             f"{settings.API_V1_STR}/projects/{project_id}/features",
             headers=superuser_token_headers,
@@ -575,7 +578,10 @@ def test_bulk_delete_updates_variance(
     # Add features
     feature_ids = []
     for i in range(4):
-        feature_data = {"name": f"Delete Variance Feature {i}", "description": f"Desc {i}"}
+        feature_data = {
+            "name": f"Delete Variance Feature {i}",
+            "description": f"Desc {i}",
+        }
         r = client.post(
             f"{settings.API_V1_STR}/projects/{project_id}/features",
             headers=superuser_token_headers,
@@ -767,4 +773,3 @@ def test_delete_feature_mismatch_project(
         headers=superuser_token_headers,
     )
     assert r.status_code == 400
-

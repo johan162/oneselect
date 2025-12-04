@@ -606,10 +606,9 @@ def test_quadrant_analysis_with_features(
     assert "avoid" in data
     # Verify lists contain features
     total_categorized = (
-        len(data["quick_wins"]) + 
-        len(data["strategic"]) + 
-        len(data["fill_ins"]) + 
-        len(data["avoid"])
+        len(data["quick_wins"])
+        + len(data["strategic"])
+        + len(data["fill_ins"])
+        + len(data["avoid"])
     )
     assert total_categorized == 5
-

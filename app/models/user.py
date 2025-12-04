@@ -15,7 +15,7 @@ class User(Base):
     role = Column(String, default="user")  # "root" or "user"
     display_name = Column(String, nullable=True)
     avatar_url = Column(String, nullable=True)
-    
+
     # OAuth fields
     google_id = Column(String, unique=True, index=True, nullable=True)
     auth_provider = Column(String, default="local")  # "local" or "google"

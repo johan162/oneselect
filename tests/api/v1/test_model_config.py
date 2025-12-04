@@ -169,11 +169,7 @@ def test_update_model_config_nonexistent_project(
 ) -> None:
     """Test updating model config for non-existent project."""
     fake_id = "00000000-0000-0000-0000-000000000000"
-    config_data = {
-        "dimensions": {
-            "complexity": {"prior_mean": 0.5}
-        }
-    }
+    config_data = {"dimensions": {"complexity": {"prior_mean": 0.5}}}
     r = client.put(
         f"{settings.API_V1_STR}/projects/{fake_id}/model-config",
         json=config_data,
@@ -199,15 +195,10 @@ def test_preview_model_config_nonexistent_project(
 ) -> None:
     """Test previewing model config for non-existent project."""
     fake_id = "00000000-0000-0000-0000-000000000000"
-    config_data = {
-        "dimensions": {
-            "complexity": {"prior_mean": 0.5}
-        }
-    }
+    config_data = {"dimensions": {"complexity": {"prior_mean": 0.5}}}
     r = client.post(
         f"{settings.API_V1_STR}/projects/{fake_id}/model-config/preview",
         json=config_data,
         headers=superuser_token_headers,
     )
     assert r.status_code == 404
-

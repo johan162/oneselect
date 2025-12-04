@@ -16,7 +16,7 @@ class CRUDComparison(CRUDBase[Comparison, ComparisonCreate, ComparisonUpdate]):
             .filter(Comparison.id == id, Comparison.deleted_at.is_(None))
             .first()
         )
-    
+
     def get_multi(
         self, db: Session, *, skip: int = 0, limit: int = 100
     ) -> List[Comparison]:
@@ -28,26 +28,25 @@ class CRUDComparison(CRUDBase[Comparison, ComparisonCreate, ComparisonUpdate]):
             .limit(limit)
             .all()
         )
-    
+
     def get_multi_by_project(
         self, db: Session, *, project_id: str, skip: int = 0, limit: int = 10000
     ) -> List[Comparison]:
         """Get active (non-deleted) comparisons for a project.
-        
+
         Note: Default limit is high (10000) because this is typically used
         for analysis operations that need ALL comparisons for a project.
         """
         return (
             db.query(self.model)
             .filter(
-                Comparison.project_id == project_id,
-                Comparison.deleted_at.is_(None)
+                Comparison.project_id == project_id, Comparison.deleted_at.is_(None)
             )
             .offset(skip)
             .limit(limit)
             .all()
         )
-    
+
     def get_all_by_project_including_deleted(
         self, db: Session, *, project_id: str
     ) -> List[Comparison]:
@@ -69,8 +68,10 @@ class CRUDComparison(CRUDBase[Comparison, ComparisonCreate, ComparisonUpdate]):
         db.commit()
         db.refresh(db_obj)
         return db_obj
-    
-    def soft_delete(self, db: Session, *, id: str, deleted_by: str) -> Optional[Comparison]:
+
+    def soft_delete(
+        self, db: Session, *, id: str, deleted_by: str
+    ) -> Optional[Comparison]:
         """Soft delete a comparison by setting deleted_at and deleted_by"""
         obj = self.get(db=db, id=id)
         if obj:
@@ -83,4 +84,3 @@ class CRUDComparison(CRUDBase[Comparison, ComparisonCreate, ComparisonUpdate]):
 
 
 comparison = CRUDComparison(Comparison)
-
