@@ -1,4 +1,4 @@
-.PHONY: install setup clean-venv reinstall run test lint format typecheck migrate init-db check clean docs docs-serve
+.PHONY: install setup clean-venv reinstall run test test-param lint format typecheck migrate init-db check clean docs docs-serve
 VERSION := $(shell grep '^version' pyproject.toml | head -1 | cut -d'"' -f2)
 
 install:
@@ -19,6 +19,9 @@ run:
 
 test:
 	PYTHONPATH=. poetry run pytest
+
+test-param:
+	PYTHONPATH=. poetry run pytest tests/test_integration_parametrized.py::TestParameterizedWorkflow -v -s
 
 lint:
 	poetry run flake8 app tests

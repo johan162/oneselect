@@ -1,6 +1,7 @@
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Dict, Set, Tuple
 import random
 import math
+from collections import defaultdict
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -9,6 +10,219 @@ from app import crud, models, schemas
 from app.api import deps
 
 router = APIRouter()
+
+
+def _compute_transitive_closure(
+    comparisons: list, 
+    feature_ids: List[str]
+) -> Dict[str, Set[str]]:
+    """
+    Compute the transitive closure of comparison relationships.
+    
+    Given direct comparisons A>B and B>C, infers that A>C.
+    Uses Floyd-Warshall-style approach for transitive closure.
+    
+    Args:
+        comparisons: List of comparison objects with feature_a_id, feature_b_id, choice
+        feature_ids: List of all feature IDs in the project
+        
+    Returns:
+        Dict mapping each feature to the set of features it is greater than (transitively)
+        e.g., {"A": {"B", "C", "D"}, "B": {"C", "D"}, ...}
+    """
+    # Build direct "greater than" relationships from comparisons
+    # greater_than[X] = set of features that X beats directly
+    greater_than: Dict[str, Set[str]] = defaultdict(set)
+    
+    for comp in comparisons:
+        if comp.choice == "tie":
+            continue
+            
+        if comp.choice == "feature_a":
+            winner = str(comp.feature_a_id)
+            loser = str(comp.feature_b_id)
+        else:
+            winner = str(comp.feature_b_id)
+            loser = str(comp.feature_a_id)
+        
+        greater_than[winner].add(loser)
+    
+    # Compute transitive closure using Warshall's algorithm
+    # If A > B and B > C, then A > C
+    feature_set = set(str(fid) for fid in feature_ids)
+    
+    # Keep expanding until no new relationships found
+    changed = True
+    while changed:
+        changed = False
+        for a in feature_set:
+            # For each feature B that A beats
+            for b in list(greater_than[a]):
+                # A also beats everything that B beats
+                for c in greater_than[b]:
+                    if c not in greater_than[a] and c != a:
+                        greater_than[a].add(c)
+                        changed = True
+    
+    return dict(greater_than)
+
+
+def _compute_transitive_knowledge(
+    comparisons: list,
+    feature_ids: List[str]
+) -> Tuple[Set[Tuple[str, str]], Set[Tuple[str, str]], int]:
+    """
+    Compute what we know about feature ordering via direct and transitive relationships.
+    
+    Returns:
+        Tuple of:
+        - direct_pairs: Set of (winner, loser) from direct comparisons
+        - known_pairs: Set of all (higher, lower) pairs including transitive inferences
+        - uncertain_pairs_count: Number of pairs we still don't know the ordering for
+    """
+    n = len(feature_ids)
+    total_pairs = n * (n - 1) // 2
+    
+    if total_pairs == 0:
+        return set(), set(), 0
+    
+    # Get direct comparison pairs
+    direct_pairs: Set[Tuple[str, str]] = set()
+    for comp in comparisons:
+        if comp.choice == "tie":
+            continue
+        if comp.choice == "feature_a":
+            direct_pairs.add((str(comp.feature_a_id), str(comp.feature_b_id)))
+        else:
+            direct_pairs.add((str(comp.feature_b_id), str(comp.feature_a_id)))
+    
+    # Compute transitive closure
+    greater_than = _compute_transitive_closure(comparisons, feature_ids)
+    
+    # Build set of all known ordered pairs (including transitive)
+    known_pairs: Set[Tuple[str, str]] = set()
+    for winner, losers in greater_than.items():
+        for loser in losers:
+            # Normalize pair as (higher, lower)
+            known_pairs.add((winner, loser))
+    
+    # Count pairs where we know the ordering
+    # We count each unordered pair once (either (A,B) or (B,A) tells us the order)
+    known_unordered_pairs: Set[Tuple[str, str]] = set()
+    for winner, loser in known_pairs:
+        pair = tuple(sorted([winner, loser]))
+        known_unordered_pairs.add(pair)
+    
+    known_pair_count = len(known_unordered_pairs)
+    uncertain_pairs_count = total_pairs - known_pair_count
+    
+    return direct_pairs, known_pairs, uncertain_pairs_count
+
+
+def _get_optimal_next_pair_transitive(
+    feature_ids: List[str],
+    features_by_id: Dict[str, Any],
+    comparisons: list,
+    dimension: str
+) -> Optional[Tuple[Any, Any, float]]:
+    """
+    Use transitive knowledge to find the most informative pair to compare next.
+    
+    Prioritizes pairs where:
+    1. We don't know the ordering (not determined by transitivity)
+    2. Comparing would maximize transitive information gain
+    
+    This is inspired by merge-sort: compare items that are "adjacent" in our
+    current knowledge to efficiently determine the full ordering.
+    
+    Returns:
+        Tuple of (feature_a, feature_b, selection_score) or None if all pairs known
+    """
+    if len(feature_ids) < 2:
+        return None
+    
+    # Get current transitive knowledge
+    greater_than = _compute_transitive_closure(comparisons, feature_ids)
+    
+    # Build set of pairs where we know the ordering
+    known_pairs: Set[Tuple[str, str]] = set()
+    for winner, losers in greater_than.items():
+        for loser in losers:
+            pair = tuple(sorted([winner, loser]))
+            known_pairs.add(pair)
+    
+    # Find pairs where we DON'T know the ordering
+    unknown_pairs: List[Tuple[str, str]] = []
+    for i, a in enumerate(feature_ids):
+        for b in feature_ids[i + 1:]:
+            pair = tuple(sorted([a, b]))
+            if pair not in known_pairs:
+                unknown_pairs.append((a, b))
+    
+    if not unknown_pairs:
+        return None  # All pairs determined!
+    
+    # Score each unknown pair by expected information gain
+    # 
+    # We use a hybrid approach:
+    # 1. Traditional active learning (uncertainty × closeness) for ranking quality
+    # 2. Connectivity bonus to encourage chain building for transitivity
+    #
+    # The key insight: features with existing comparisons have more reliable mu values,
+    # so comparing them gives better information. But we also need to eventually 
+    # compare all features to build complete chains.
+    
+    # Count how many direct comparisons each feature has participated in
+    comparison_count = defaultdict(int)
+    for comp in comparisons:
+        comparison_count[str(comp.feature_a_id)] += 1
+        comparison_count[str(comp.feature_b_id)] += 1
+    
+    best_pair = None
+    best_score = -1.0
+    c = 2.0  # Scaling factor for closeness
+    
+    for a_id, b_id in unknown_pairs:
+        feat_a = features_by_id[a_id]
+        feat_b = features_by_id[b_id]
+        
+        # Get current mu and sigma
+        if dimension == "complexity":
+            mu_a, sigma_a = feat_a.complexity_mu, feat_a.complexity_sigma
+            mu_b, sigma_b = feat_b.complexity_mu, feat_b.complexity_sigma
+        else:
+            mu_a, sigma_a = feat_a.value_mu, feat_a.value_sigma
+            mu_b, sigma_b = feat_b.value_mu, feat_b.value_sigma
+        
+        # Traditional active learning score
+        uncertainty = sigma_a + sigma_b
+        mu_diff = mu_a - mu_b
+        closeness = math.exp(-(mu_diff ** 2) / (2 * c ** 2))
+        active_learning_score = uncertainty * closeness
+        
+        # Connectivity bonus: prefer pairs where at least one feature has comparisons
+        # This helps build connected knowledge that enables transitivity
+        a_comps = comparison_count[a_id]
+        b_comps = comparison_count[b_id]
+        
+        # Prioritize: one has comparisons, other doesn't (extends knowledge)
+        # Secondary: both have comparisons (links existing knowledge)
+        # Tertiary: neither has comparisons (cold start)
+        if (a_comps > 0) != (b_comps > 0):  # XOR - one has, one doesn't
+            connectivity_bonus = 1.2  # Extends a chain
+        elif a_comps > 0 and b_comps > 0:
+            connectivity_bonus = 1.1  # Links existing knowledge
+        else:
+            connectivity_bonus = 1.0  # Cold start
+        
+        # Combined score
+        selection_score = active_learning_score * connectivity_bonus
+        
+        if selection_score > best_score:
+            best_score = selection_score
+            best_pair = (feat_a, feat_b, selection_score)
+    
+    return best_pair
 
 
 def _calculate_inconsistency_stats(db: Session, project_id: str, dimension: Optional[str] = None) -> dict:
@@ -144,11 +358,32 @@ def get_next_comparison_pair(
     db: Session = Depends(deps.get_db),
     project_id: str,
     dimension: str,
+    target_certainty: float = 1.0,
     current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
     """
     Get the next pair of features to compare (highest information gain).
+    
+    Args:
+        dimension: "complexity" or "value"
+        target_certainty: Target confidence level (0.0-1.0). Returns 204 when reached.
+                         Default 1.0 means continue until all orderings are known.
+    
+    Returns:
+        - 200 with ComparisonPair if there are useful comparisons to make
+        - 204 No Content if target certainty is reached or ordering is fully determined
+        - 200 with resolution pair if cycles exist that need resolution
+    
+    The endpoint uses active learning with transitive inference to select
+    the pair that will provide the most information gain:
+    1. Pairs whose ordering is unknown (not determinable by transitivity)
+    2. Among unknown pairs, those that would transitively determine the most other pairs
+    
+    Key insight: We don't need to compare all N*(N-1)/2 pairs. With transitivity,
+    ~N*log(N) comparisons suffice. If A>B and B>C, we know A>C without asking.
     """
+    from fastapi import Response
+    
     project = crud.project.get(db=db, id=project_id)
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
@@ -168,70 +403,195 @@ def get_next_comparison_pair(
             status_code=400, detail="Not enough features for comparison"
         )
 
+    feature_ids = [str(f.id) for f in features]
+    features_by_id = {str(f.id): f for f in features}
+
     # Get existing comparisons for this dimension
     all_comparisons = crud.comparison.get_multi_by_project(db=db, project_id=project_id)
-    compared_pairs = set()
-    for comp in all_comparisons:
-        if comp.dimension == dimension:
-            pair = tuple(sorted([str(comp.feature_a_id), str(comp.feature_b_id)]))
-            compared_pairs.add(pair)
-
-    # Find unpaired combinations and calculate selection scores
-    available_pairs = []
-    for i, feat_a in enumerate(features):
-        for feat_b in features[i + 1 :]:
-            pair = tuple(sorted([str(feat_a.id), str(feat_b.id)]))
-            if pair not in compared_pairs:
-                available_pairs.append((feat_a, feat_b))
-
-    if not available_pairs:
-        raise HTTPException(status_code=400, detail="No useful comparisons left")
-
-    # Active Learning: Select pair with maximum expected information gain
-    # Based on the formula from theory_background.md:
-    # Selection Score = (σ_i + σ_j) * exp(-(μ_i - μ_j)² / (2c²))
-    #
-    # This combines two factors:
-    # 1. Uncertainty (σ_i + σ_j): Prioritize features we're uncertain about
-    # 2. Closeness: Prioritize pairs where outcome is uncertain (close scores)
+    dimension_comparisons = [c for c in all_comparisons if c.dimension == dimension]
     
-    best_score = -1.0
-    best_pair = None
+    # Check if we have inconsistencies (cycles)
+    inconsistency_stats = _calculate_inconsistency_stats(db, project_id, dimension)
+    has_cycles = inconsistency_stats["cycle_count"] > 0
     
-    # Scaling factor for closeness term (controls how much we favor close pairs)
-    c = 2.0
+    # Compute transitive knowledge - what pairs do we already know the ordering for?
+    direct_pairs, known_pairs, uncertain_count = _compute_transitive_knowledge(
+        dimension_comparisons, feature_ids
+    )
     
-    for feat_a, feat_b in available_pairs:
-        # Get current mu and sigma for this dimension
-        if dimension == "complexity":
-            mu_a, sigma_a = feat_a.complexity_mu, feat_a.complexity_sigma
-            mu_b, sigma_b = feat_b.complexity_mu, feat_b.complexity_sigma
-        else:  # value
-            mu_a, sigma_a = feat_a.value_mu, feat_a.value_sigma
-            mu_b, sigma_b = feat_b.value_mu, feat_b.value_sigma
-        
-        # Calculate selection score
-        uncertainty = sigma_a + sigma_b
-        mu_diff = mu_a - mu_b
-        closeness = math.exp(-(mu_diff ** 2) / (2 * c ** 2))
-        
-        selection_score = uncertainty * closeness
-        
-        if selection_score > best_score:
-            best_score = selection_score
-            best_pair = (feat_a, feat_b)
+    n = len(features)
+    total_possible_pairs = n * (n - 1) // 2
     
-    if best_pair is None:
-        # Fallback to random if scoring fails
-        best_pair = random.choice(available_pairs)
+    # Calculate transitive coverage (same as in /progress endpoint)
+    if total_possible_pairs > 0:
+        transitive_known_pairs = total_possible_pairs - uncertain_count
+        transitive_coverage = transitive_known_pairs / total_possible_pairs
+    else:
+        transitive_coverage = 1.0
     
-    feature_a, feature_b = best_pair
+    # Calculate effective confidence (same formula as /progress endpoint)
+    # Get Bayesian confidence from project variance
+    current_variance = (
+        project.complexity_avg_variance if dimension == "complexity" 
+        else project.value_avg_variance
+    )
+    bayesian_confidence = max(0.0, min(1.0, 1.0 - current_variance))
+    
+    # Consistency score
+    if len(dimension_comparisons) > 0:
+        consistency_score = max(0.5, 1.0 - (inconsistency_stats["cycle_count"] / len(dimension_comparisons)))
+    else:
+        consistency_score = 1.0
+    
+    # Effective confidence formula (must match /progress endpoint)
+    if transitive_coverage >= 1.0 and consistency_score >= 1.0:
+        effective_confidence = 1.0
+    elif transitive_coverage >= 1.0:
+        effective_confidence = min(0.95, consistency_score)
+    else:
+        bayesian_boost = 0.05 * bayesian_confidence
+        effective_confidence = min(1.0, transitive_coverage + bayesian_boost) * consistency_score
+    
+    # Check if we've reached the target certainty - return 204 if so
+    # Only check if target_certainty > 0 (explicitly requested)
+    if target_certainty > 0:
+        if transitive_coverage >= target_certainty and not has_cycles:
+            return Response(status_code=204)
+    
+    # If all orderings are known (via transitivity) and no cycles, we're done!
+    if uncertain_count == 0 and not has_cycles:
+        return Response(status_code=204)
+    
+    # If cycles exist and we've directly compared enough pairs, offer resolution
+    if has_cycles:
+        resolution_result = _get_resolution_pair_internal(
+            db, project_id, dimension, features
+        )
+        if resolution_result:
+            return resolution_result
+    
+    # Find the best pair to compare using transitive-aware selection
+    best_result = _get_optimal_next_pair_transitive(
+        feature_ids, features_by_id, dimension_comparisons, dimension
+    )
+    
+    if best_result is None:
+        # All orderings known but might have cycles - try resolution
+        if has_cycles:
+            resolution_result = _get_resolution_pair_internal(
+                db, project_id, dimension, features
+            )
+            if resolution_result:
+                return resolution_result
+        # Truly complete
+        return Response(status_code=204)
+    
+    feature_a, feature_b, selection_score = best_result
 
     return {
         "comparison_id": None,  # Generated on submission
         "feature_a": feature_a,
         "feature_b": feature_b,
         "dimension": dimension,
+    }
+
+
+def _get_resolution_pair_internal(db: Session, project_id: str, dimension: str, features: list) -> Optional[dict]:
+    """
+    Internal helper to find the weakest link in detected cycles.
+    
+    Returns a comparison pair dict or None if no suitable pair found.
+    """
+    comparisons = crud.comparison.get_multi_by_project(db=db, project_id=project_id)
+    comparisons = [c for c in comparisons if c.dimension == dimension]
+    
+    # Build graph
+    graph = {}
+    comparison_map = {}  # Map (winner, loser) -> comparison object
+    
+    for comp in comparisons:
+        if comp.choice == "tie":
+            continue
+        
+        winner_id = str(comp.feature_a_id if comp.choice == "feature_a" else comp.feature_b_id)
+        loser_id = str(comp.feature_b_id if comp.choice == "feature_a" else comp.feature_a_id)
+        
+        if winner_id not in graph:
+            graph[winner_id] = set()
+        if loser_id not in graph:
+            graph[loser_id] = set()
+        
+        graph[winner_id].add(loser_id)
+        comparison_map[(winner_id, loser_id)] = comp
+    
+    # Find cycles
+    def find_cycles_dfs(node, path, visited, rec_stack, all_cycles):
+        visited.add(node)
+        rec_stack.add(node)
+        path.append(node)
+        
+        for neighbor in graph.get(node, []):
+            if neighbor not in visited:
+                find_cycles_dfs(neighbor, path, visited, rec_stack, all_cycles)
+            elif neighbor in rec_stack:
+                cycle_start_idx = path.index(neighbor)
+                cycle = path[cycle_start_idx:]
+                min_idx = cycle.index(min(cycle))
+                normalized = cycle[min_idx:] + cycle[:min_idx]
+                if normalized not in all_cycles:
+                    all_cycles.append(normalized)
+        
+        path.pop()
+        rec_stack.remove(node)
+    
+    cycles_found = []
+    visited_global = set()
+    
+    for node in graph:
+        if node not in visited_global:
+            find_cycles_dfs(node, [], visited_global, set(), cycles_found)
+    
+    if not cycles_found:
+        return None
+    
+    # Find the "weakest link" - the pair with highest uncertainty
+    weakest_pair = None
+    max_uncertainty = -1.0
+    
+    # Create feature lookup
+    feature_map = {str(f.id): f for f in features}
+    
+    for cycle in cycles_found:
+        for i in range(len(cycle)):
+            winner = cycle[i]
+            loser = cycle[(i + 1) % len(cycle)]
+            
+            feature_winner = feature_map.get(winner)
+            feature_loser = feature_map.get(loser)
+            
+            if not feature_winner or not feature_loser:
+                continue
+            
+            if dimension == "complexity":
+                uncertainty = feature_winner.complexity_sigma + feature_loser.complexity_sigma
+            else:
+                uncertainty = feature_winner.value_sigma + feature_loser.value_sigma
+            
+            if uncertainty > max_uncertainty:
+                max_uncertainty = uncertainty
+                weakest_pair = (feature_winner, feature_loser)
+    
+    if not weakest_pair:
+        return None
+    
+    feature_a, feature_b = weakest_pair
+    
+    return {
+        "comparison_id": None,
+        "feature_a": feature_a,
+        "feature_b": feature_b,
+        "dimension": dimension,
+        "reason": "This pair is involved in a logical cycle. Re-comparing may help resolve the inconsistency.",
     }
 
 
@@ -730,7 +1090,22 @@ def get_comparison_progress(
     current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
     """
-    Get current comparison progress as percentage toward target certainty.
+    Get current comparison progress using a hybrid confidence model with transitive inference.
+    
+    The hybrid model combines:
+    1. Transitive Coverage: What fraction of pairs have known ordering (direct OR inferred)
+    2. Direct Coverage: What fraction of unique pairs have been directly compared
+    3. Bayesian Confidence: How certain the model is about score magnitudes
+    4. Consistency Score: Whether comparisons are logically consistent (no cycles)
+    
+    Key insight: With transitivity, we don't need to compare ALL n*(n-1)/2 pairs.
+    If A>B and B>C, we know A>C without direct comparison.
+    For n features, ~n*log(n) comparisons suffice to determine complete ordering.
+    
+    Example: For 30 features:
+    - O(N²) approach: 435 comparisons
+    - O(N log N) with transitivity: ~150 comparisons
+    - Theoretical minimum: ~107 comparisons (ceiling of log₂(30!))
     """
     project = crud.project.get(db=db, id=project_id)
     if not project:
@@ -740,55 +1115,134 @@ def get_comparison_progress(
     ):
         raise HTTPException(status_code=400, detail="Not enough permissions")
 
-    # Get comparisons for dimension
-    all_comparisons = crud.comparison.get_multi_by_project(db=db, project_id=project_id)
-    comparisons_done = sum(1 for c in all_comparisons if c.dimension == dimension)
+    # Get features and calculate total possible pairs
+    features = crud.feature.get_multi_by_project(db=db, project_id=project_id)
+    n = len(features)
+    total_possible_pairs = n * (n - 1) // 2 if n >= 2 else 0
+    feature_ids = [str(f.id) for f in features]
 
-    # Use actual average variance to determine progress
-    # Target variance for different certainty levels:
-    # 90% certainty ≈ σ < 0.5
-    # 95% certainty ≈ σ < 0.3
-    # 99% certainty ≈ σ < 0.2
-    target_variance_map = {
-        0.70: 0.7,
-        0.80: 0.6,
-        0.90: 0.5,
-        0.95: 0.3,
-        0.99: 0.2,
-    }
-    target_variance = target_variance_map.get(target_certainty, 0.5)
+    # Get comparisons for this dimension
+    all_comparisons = crud.comparison.get_multi_by_project(db=db, project_id=project_id)
+    dimension_comparisons = [c for c in all_comparisons if c.dimension == dimension]
+    total_comparisons_done = len(dimension_comparisons)
     
-    # Get current average variance for the dimension
+    # Count unique pairs directly compared
+    compared_pairs = set()
+    for comp in dimension_comparisons:
+        pair = tuple(sorted([str(comp.feature_a_id), str(comp.feature_b_id)]))
+        compared_pairs.add(pair)
+    unique_pairs_compared = len(compared_pairs)
+    
+    # 1. Direct Coverage: fraction of pairs directly compared
+    direct_coverage = unique_pairs_compared / total_possible_pairs if total_possible_pairs > 0 else 0.0
+    
+    # 2. Transitive Coverage: fraction of pairs with known ordering (direct OR inferred)
+    if total_possible_pairs > 0:
+        direct_pairs, known_pairs, uncertain_count = _compute_transitive_knowledge(
+            dimension_comparisons, feature_ids
+        )
+        transitive_known_pairs = total_possible_pairs - uncertain_count
+        transitive_coverage = transitive_known_pairs / total_possible_pairs
+    else:
+        transitive_known_pairs = 0
+        transitive_coverage = 0.0
+        uncertain_count = 0
+    
+    # 3. Bayesian Confidence: based on variance reduction
     current_variance = (
         project.complexity_avg_variance if dimension == "complexity" 
         else project.value_avg_variance
     )
+    bayesian_confidence = max(0.0, min(1.0, 1.0 - current_variance))
     
-    # Calculate progress based on variance reduction
-    # Starting variance is 1.0, we measure how much we've reduced it
-    initial_variance = 1.0
-    variance_reduction = (initial_variance - current_variance) / (initial_variance - target_variance)
-    progress_percent = min(100.0, max(0.0, variance_reduction * 100))
-    current_certainty = min(1.0, max(0.0, variance_reduction))
+    # 4. Consistency Score: penalize for logical cycles
+    inconsistency_stats = _calculate_inconsistency_stats(db, project_id, dimension)
+    cycle_count = inconsistency_stats["cycle_count"]
+    if unique_pairs_compared > 0:
+        consistency_score = max(0.5, 1.0 - (cycle_count / unique_pairs_compared))
+    else:
+        consistency_score = 1.0
     
-    # Estimate remaining comparisons needed (heuristic: ~2-3 comparisons per feature to converge)
-    features = crud.feature.get_multi_by_project(db=db, project_id=project_id)
-    n = len(features)
-    if current_variance <= target_variance:
+    # 5. Calculate Effective Confidence using TRANSITIVE coverage
+    # This is the key optimization - we're done when we transitively know all orderings
+    #
+    # IMPORTANT: The formula must be able to REACH the target confidence!
+    # Key insight: transitive_coverage directly measures "what fraction of the ranking do we know"
+    # 
+    # Mapping strategy:
+    # - transitive_coverage >= 1.0 → effective = 1.0 (complete)
+    # - transitive_coverage ~0.90 → effective should be ~0.90 (close to target)
+    # - Apply consistency_score as a multiplier to penalize cycles
+    
+    if transitive_coverage >= 1.0 and consistency_score >= 1.0:
+        # All orderings known (via transitivity) with no inconsistencies
+        effective_confidence = 1.0
+    elif transitive_coverage >= 1.0:
+        # All orderings known but with inconsistencies - cap at 95%
+        effective_confidence = min(0.95, consistency_score)
+    else:
+        # Use transitive coverage as the primary signal, slightly boosted by Bayesian confidence
+        # The boost is small (max 5%) to ensure transitive=90% → effective≈90%
+        bayesian_boost = 0.05 * bayesian_confidence  # 0-5% boost
+        effective_confidence = min(1.0, transitive_coverage + bayesian_boost) * consistency_score
+    
+    # Calculate progress percent and estimate remaining comparisons
+    progress_percent = effective_confidence * 100.0
+    
+    # Estimate remaining comparisons needed
+    # With transitivity, we estimate ~n*log₂(n) comparisons for n features
+    if effective_confidence >= target_certainty:
         comparisons_remaining = 0
     else:
-        # Rough estimate: need more comparisons if variance is still high
-        comparisons_remaining = max(0, int(n * (current_variance / target_variance - 1)))
+        # Estimate based on uncertain pairs - each comparison resolves ~2 pairs on average
+        comparisons_remaining = max(0, int(uncertain_count / 2))
+    
+    # Calculate theoretical minimum and practical estimate
+    if n >= 2:
+        import math as math_module
+        # Theoretical minimum: log₂(n!) - information theoretic lower bound for complete ordering
+        if n <= 20:
+            theoretical_minimum = int(math_module.ceil(math_module.log2(math_module.factorial(n))))
+        else:
+            # Stirling's approximation: log₂(n!) ≈ n*log₂(n) - n*log₂(e) + 0.5*log₂(2πn)
+            theoretical_minimum = int(n * math_module.log2(n) - n * 0.4427 + 0.5 * math_module.log2(2 * 3.14159 * n))
+        
+        # Practical estimate for reaching target_certainty coverage
+        # Based on observed performance: ~0.7 * n * log₂(n) for 90% coverage
+        # Scale by target: lower targets need fewer comparisons
+        coverage_factor = 0.5 + 0.3 * target_certainty  # 0.77 at 90%, 0.74 at 80%, 0.71 at 70%
+        practical_estimate = int(coverage_factor * n * math_module.log2(n))
+    else:
+        theoretical_minimum = 0
+        practical_estimate = 0
 
     return {
         "dimension": dimension,
         "target_certainty": target_certainty,
-        "current_certainty": current_certainty,
-        "progress_percent": progress_percent,
-        "comparisons_done": comparisons_done,
+        # Transitive confidence metrics (NEW - key for O(N log N) efficiency)
+        "transitive_coverage": round(transitive_coverage, 4),
+        "transitive_known_pairs": transitive_known_pairs,
+        "uncertain_pairs": uncertain_count,
+        # Direct comparison metrics
+        "direct_coverage": round(direct_coverage, 4),
+        "unique_pairs_compared": unique_pairs_compared,
+        "total_possible_pairs": total_possible_pairs,
+        # Hybrid confidence metrics
+        "coverage_confidence": round(direct_coverage, 4),  # Legacy: same as direct_coverage
+        "bayesian_confidence": round(bayesian_confidence, 4),
+        "consistency_score": round(consistency_score, 4),
+        "effective_confidence": round(effective_confidence, 4),
+        "progress_percent": round(progress_percent, 2),
+        # Comparison counts and estimates
+        "total_comparisons_done": total_comparisons_done,
         "comparisons_remaining": comparisons_remaining,
-        "current_avg_variance": current_variance,
-        "target_variance": target_variance,
+        "theoretical_minimum": theoretical_minimum,
+        "practical_estimate": practical_estimate,  # NEW: realistic estimate for good results
+        # Legacy fields for backward compatibility
+        "current_avg_variance": round(current_variance, 4),
+        "comparisons_done": total_comparisons_done,
+        # Inconsistency info
+        "cycle_count": cycle_count,
     }
 
 

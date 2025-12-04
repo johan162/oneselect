@@ -30,9 +30,13 @@ class CRUDComparison(CRUDBase[Comparison, ComparisonCreate, ComparisonUpdate]):
         )
     
     def get_multi_by_project(
-        self, db: Session, *, project_id: str, skip: int = 0, limit: int = 100
+        self, db: Session, *, project_id: str, skip: int = 0, limit: int = 10000
     ) -> List[Comparison]:
-        """Get active (non-deleted) comparisons for a project"""
+        """Get active (non-deleted) comparisons for a project.
+        
+        Note: Default limit is high (10000) because this is typically used
+        for analysis operations that need ALL comparisons for a project.
+        """
         return (
             db.query(self.model)
             .filter(
