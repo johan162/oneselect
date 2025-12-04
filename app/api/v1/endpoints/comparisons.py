@@ -321,6 +321,130 @@ def _calculate_inconsistency_stats(db: Session, project_id: str, dimension: Opti
     }
 
 
+def _recalculate_bayesian_scores(
+    db: Session,
+    project_id: str,
+    dimension: str
+) -> None:
+    """
+    Reset and recalculate all Bayesian scores for a dimension by replaying comparisons.
+    
+    This function should be called after removing a comparison (undo or delete)
+    to ensure feature scores and project variance are consistent with the
+    remaining comparisons.
+    
+    Args:
+        db: Database session
+        project_id: Project ID
+        dimension: "complexity" or "value"
+    """
+    from app import crud
+    
+    # Get project and features
+    project = crud.project.get(db=db, id=project_id)
+    if not project:
+        return
+    
+    features = crud.feature.get_multi_by_project(db=db, project_id=project_id)
+    if not features:
+        return
+    
+    # Reset all features to initial state for this dimension
+    for feature in features:
+        if dimension == "complexity":
+            feature.complexity_mu = 0.0
+            feature.complexity_sigma = 1.0
+        else:  # value
+            feature.value_mu = 0.0
+            feature.value_sigma = 1.0
+        db.add(feature)
+    
+    # Get remaining comparisons for this dimension
+    remaining_comparisons = crud.comparison.get_multi_by_project(db=db, project_id=project_id)
+    remaining_filtered = [c for c in remaining_comparisons if c.dimension == dimension]
+    
+    # Sort by created_at ascending to replay in order
+    remaining_filtered = sorted(remaining_filtered, key=lambda c: c.created_at)
+    
+    # Replay all comparisons to rebuild scores
+    features_by_id = {str(f.id): f for f in features}
+    
+    LAMBDA = math.pi / 8
+    KAPPA = 0.01
+    
+    for comp in remaining_filtered:
+        feature_a = features_by_id.get(str(comp.feature_a_id))
+        feature_b = features_by_id.get(str(comp.feature_b_id))
+        
+        if not feature_a or not feature_b:
+            continue
+        
+        # Get current scores
+        if dimension == "complexity":
+            mu_a, sigma_a = feature_a.complexity_mu, feature_a.complexity_sigma
+            mu_b, sigma_b = feature_b.complexity_mu, feature_b.complexity_sigma
+        else:
+            mu_a, sigma_a = feature_a.value_mu, feature_a.value_sigma
+            mu_b, sigma_b = feature_b.value_mu, feature_b.value_sigma
+        
+        # Determine outcome
+        if comp.choice == "feature_a":
+            y = 1.0
+        elif comp.choice == "feature_b":
+            y = 0.0
+        else:
+            y = 0.5
+        
+        # Bayesian update
+        try:
+            p_hat = 1.0 / (1.0 + math.exp(-(mu_a - mu_b)))
+        except OverflowError:
+            p_hat = 1.0 if mu_a > mu_b else 0.0
+        
+        delta = y - p_hat
+        variance_term = p_hat * (1.0 - p_hat)
+        if variance_term < 1e-10:
+            variance_term = 1e-10
+        
+        denominator = math.sqrt(1.0 + LAMBDA * variance_term)
+        sigma_a_squared = sigma_a ** 2
+        sigma_b_squared = sigma_b ** 2
+        
+        new_mu_a = mu_a + (sigma_a_squared * delta) / denominator
+        new_mu_b = mu_b - (sigma_b_squared * delta) / denominator
+        
+        variance_reduction_a = 1.0 - (sigma_a_squared * variance_term) / (1.0 + LAMBDA * variance_term)
+        variance_reduction_b = 1.0 - (sigma_b_squared * variance_term) / (1.0 + LAMBDA * variance_term)
+        
+        new_sigma_a = math.sqrt(max(sigma_a_squared * variance_reduction_a, KAPPA))
+        new_sigma_b = math.sqrt(max(sigma_b_squared * variance_reduction_b, KAPPA))
+        
+        # Apply updates
+        if dimension == "complexity":
+            feature_a.complexity_mu = new_mu_a
+            feature_a.complexity_sigma = new_sigma_a
+            feature_b.complexity_mu = new_mu_b
+            feature_b.complexity_sigma = new_sigma_b
+        else:
+            feature_a.value_mu = new_mu_a
+            feature_a.value_sigma = new_sigma_a
+            feature_b.value_mu = new_mu_b
+            feature_b.value_sigma = new_sigma_b
+        
+        db.add(feature_a)
+        db.add(feature_b)
+    
+    # Update project average variance
+    if features:
+        if dimension == "complexity":
+            avg_variance = sum(f.complexity_sigma for f in features) / len(features)
+            project.complexity_avg_variance = avg_variance
+        else:
+            avg_variance = sum(f.value_sigma for f in features) / len(features)
+            project.value_avg_variance = avg_variance
+        db.add(project)
+
+
 @router.get("/{project_id}/comparisons", response_model=List[schemas.Comparison])
 def read_comparisons(
     *,
@@ -1072,8 +1196,16 @@ def get_resolution_pair(
     
     return {
         "comparison_id": None,
-        "feature_a": feature_a,
-        "feature_b": feature_b,
+        "feature_a": {
+            "id": str(feature_a.id),
+            "name": feature_a.name,
+            "description": feature_a.description,
+        },
+        "feature_b": {
+            "id": str(feature_b.id),
+            "name": feature_b.name,
+            "description": feature_b.description,
+        },
         "dimension": dimension,
         "reason": "This pair is involved in a logical cycle and has high uncertainty. Re-comparing may help resolve the inconsistency.",
         "combined_uncertainty": max_uncertainty,
@@ -1293,6 +1425,9 @@ def undo_last_comparison(
 ) -> Any:
     """
     Undo the most recent comparison for a dimension.
+    
+    This removes the comparison and recalculates all feature scores
+    by replaying the remaining comparisons from scratch.
     """
     project = crud.project.get(db=db, id=project_id)
     if not project:
@@ -1311,16 +1446,22 @@ def undo_last_comparison(
 
     # Sort by created_at descending and get first
     last_comparison = sorted(filtered, key=lambda c: c.created_at, reverse=True)[0]
+    undone_id = str(last_comparison.id)
 
+    # Remove the comparison
     crud.comparison.remove(db=db, id=last_comparison.id)
     
     # Decrement project comparison counter
     project.total_comparisons = max(0, project.total_comparisons - 1)
     db.add(project)
+    
+    # Recalculate all Bayesian scores for this dimension
+    _recalculate_bayesian_scores(db=db, project_id=project_id, dimension=dimension)
+    
     db.commit()
 
     return {
-        "undone_comparison_id": str(last_comparison.id),
+        "undone_comparison_id": undone_id,
         "message": "Comparison undone",
     }
 
@@ -1428,6 +1569,9 @@ def delete_comparison(
 ) -> None:
     """
     Delete a comparison (soft delete - marks as deleted but preserves for audit trail).
+    
+    This also recalculates all feature scores for the affected dimension
+    by replaying the remaining comparisons from scratch.
     """
     comparison = crud.comparison.get(db=db, id=comparison_id)
     if not comparison:
@@ -1446,6 +1590,18 @@ def delete_comparison(
     ):
         raise HTTPException(status_code=400, detail="Not enough permissions")
 
+    # Store dimension before soft delete
+    dimension = comparison.dimension
+    
     # Soft delete instead of hard delete
     crud.comparison.soft_delete(db=db, id=comparison_id, deleted_by=str(current_user.id))  # type: ignore
+    
+    # Decrement project comparison counter
+    project.total_comparisons = max(0, project.total_comparisons - 1)
+    db.add(project)
+    
+    # Recalculate all Bayesian scores for this dimension
+    _recalculate_bayesian_scores(db=db, project_id=project_id, dimension=dimension)
+    
+    db.commit()
     return None

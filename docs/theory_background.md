@@ -51,18 +51,41 @@ We use approximate Bayesian inference (specifically **Expectation Propagation** 
 
 ## Active Learning: Selecting the Next Pair
 
-To minimize the number of comparisons needed, OneSelect uses an **Active Learning** strategy. Instead of picking random pairs, it calculates which pair will provide the most **Information Gain**.
+To minimize the number of comparisons needed, OneSelect uses an **Active Learning** strategy combined with **Transitive Inference**. Instead of picking random pairs, it calculates which pair will provide the most **Information Gain** while leveraging transitivity to skip redundant comparisons.
+
+### Transitive Closure Optimization
+
+The key insight is that pairwise comparisons form a directed graph, and we can infer orderings through **transitivity**:
+
+*   If A > B and B > C, then we know A > C without needing to ask.
+*   This reduces the required comparisons from O(N²) to approximately O(N log N).
+
+For N features:
+*   **Naïve approach**: N(N-1)/2 comparisons (e.g., 435 for 30 features)
+*   **With transitivity**: ~N × log₂(N) comparisons (e.g., ~150 for 30 features)
+*   **Theoretical minimum**: ⌈log₂(N!)⌉ (information-theoretic lower bound)
 
 ### Selection Strategies
 
-1.  **Entropy (Maximum Information Gain)**:
-    *   The system looks for the pair where the outcome is most uncertain (closest to 50/50 probability).
-    *   Mathematically, this maximizes the expected reduction in the joint entropy of the system.
-    *   This is the most efficient strategy for sorting the entire list.
+The system uses a **hybrid scoring** approach that combines:
 
-2.  **Variance Reduction**:
-    *   Selects pairs involving items with the highest current variance ($\sigma^2$).
-    *   Useful if you want to increase certainty about specific "fuzzy" items.
+1.  **Traditional Active Learning (Uncertainty × Closeness)**:
+    $$
+    \text{ActiveLearningScore}(i, j) = (\sigma_i + \sigma_j) \cdot \exp\left(-\frac{(\hat{\mu}_i - \hat{\mu}_j)^2}{2c^2}\right)
+    $$
+    Where $c = 2.0$ is a scaling factor. This prioritizes uncertain features with similar scores.
+
+2.  **Connectivity Bonus** (for chain building):
+    *   **1.2×** if exactly one feature has prior comparisons (extends a chain)
+    *   **1.1×** if both features have prior comparisons (links existing knowledge)
+    *   **1.0×** if neither has comparisons (cold start)
+
+3.  **Transitive Filtering**: Only considers pairs whose ordering is **not already known** via transitivity.
+
+The final selection score is:
+$$
+\text{SelectionScore}(i, j) = \text{ActiveLearningScore}(i, j) \times \text{ConnectivityBonus}
+$$
 
 ## Model Configuration Parameters
 
@@ -88,12 +111,66 @@ The API allows fine-tuning the mathematical model via the `model-config` endpoin
 *   **Effect**: In a strict Bradley-Terry model, ties are not natively supported. We handle ties by treating them as an observation that the difference $|\mu_i - \mu_j|$ is smaller than some threshold $\epsilon$. This parameter defines that threshold width.
 
 ### `target_variance`
-*   **Description**: The stopping criterion.
-*   **Effect**: The system considers the ranking "complete" (or sufficiently accurate) when the average variance of all features drops below this threshold.
+*   **Description**: Legacy stopping criterion based on Bayesian variance.
+*   **Effect**: Originally, the system considered the ranking "complete" when the average variance dropped below this threshold. **Note**: The current implementation primarily uses **transitive coverage** for determining completion (see Confidence Calculation below).
 
 ### `max_parallel_pairs`
 *   **Description**: For multi-user sessions, how many distinct pairs can be "checked out" for comparison simultaneously.
 *   **Effect**: Prevents race conditions where multiple users judge the exact same pair at the same time, which wastes effort.
+
+## Confidence and Progress Calculation
+
+The system uses a **hybrid confidence model** to determine progress and when comparisons are complete.
+
+### Key Metrics
+
+1.  **Direct Coverage**: Fraction of pairs directly compared.
+    $$
+    \text{DirectCoverage} = \frac{\text{UniquePairsCompared}}{\text{TotalPossiblePairs}}
+    $$
+
+2.  **Transitive Coverage**: Fraction of pairs with known ordering (direct OR inferred via transitivity).
+    $$
+    \text{TransitiveCoverage} = \frac{\text{TotalPossiblePairs} - \text{UncertainPairs}}{\text{TotalPossiblePairs}}
+    $$
+
+3.  **Bayesian Confidence**: Derived from variance reduction.
+    $$
+    \text{BayesianConfidence} = \max(0, \min(1, 1 - \bar{\sigma}))
+    $$
+    Where $\bar{\sigma}$ is the average sigma across all features.
+
+4.  **Consistency Score**: Penalizes logical cycles (inconsistencies).
+    $$
+    \text{ConsistencyScore} = \max(0.5, 1 - \frac{\text{CycleCount}}{\text{UniquePairsCompared}})
+    $$
+
+### Effective Confidence Formula
+
+The **effective confidence** determines overall progress:
+
+*   If transitive coverage = 100% and no cycles:
+    $$\text{EffectiveConfidence} = 1.0$$
+
+*   If transitive coverage = 100% but cycles exist:
+    $$\text{EffectiveConfidence} = \min(0.95, \text{ConsistencyScore})$$
+
+*   Otherwise:
+    $$\text{EffectiveConfidence} = \min(1, \text{TransitiveCoverage} + 0.05 \times \text{BayesianConfidence}) \times \text{ConsistencyScore}$$
+
+### Practical Comparison Estimates
+
+For N features, the practical number of comparisons needed is approximately:
+$$
+\text{PracticalEstimate} \approx (0.5 + 0.3 \times \text{TargetCertainty}) \times N \times \log_2(N)
+$$
+
+| Features | 70% Target | 80% Target | 90% Target | Theoretical Min |
+|----------|------------|------------|------------|-----------------|
+| 10       | 24         | 27         | 29         | 22              |
+| 20       | 61         | 67         | 73         | 62              |
+| 30       | 105        | 115        | 125        | 107             |
+| 50       | 198        | 217        | 236        | 214             |
 
 ### Theoretical Foundation: The Bayesian Thurstone-Mosteller Model
 
@@ -203,10 +280,13 @@ where $c$ is a scaling factor. The pair with the highest score is chosen for the
     d. The tool performs the Bayesian update for features A and B, adjusting their scores and uncertainties.
     e. **Repeat.** The tool might show a live ranking list (ordered by current mean score $\hat{\mu}_i$) with confidence intervals (e.g., $\hat{\mu}_i \pm 2\sigma_i$).
 
-3.  **Stopping Condition:** You stop when:
-    *   A timebox expires (e.g., 60 minutes).
-    *   The average uncertainty ($\frac{1}{N}\sum \sigma_i$) falls below a threshold (e.g., 0.2).
-    *   The "most informative" pair has a score below a threshold, meaning no more comparisons are very useful.
+3.  **Stopping Condition:** The system stops requesting comparisons when any of these conditions are met:
+    *   **Transitive coverage reaches target**: All (or target percentage of) pair orderings are known via direct comparison or transitivity.
+    *   **No uncertain pairs remain**: Every pair's ordering can be determined from existing comparisons.
+    *   **Cycles detected**: If inconsistencies exist, the system offers resolution pairs instead.
+    *   A timebox expires (e.g., 60 minutes) - application-level control.
+
+    The `/next` endpoint returns **HTTP 204 No Content** when comparisons are complete.
 
 4.  **Handling Inconsistencies:**
     *   The model **automatically handles minor inconsistencies** because it's probabilistic. A single "upset" (a lower-rated feature winning) will not drastically change the rankings but will slightly increase the uncertainty of the involved features.
