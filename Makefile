@@ -1,4 +1,5 @@
 .PHONY: install setup clean-venv reinstall run test lint format typecheck migrate init-db check clean docs docs-serve
+VERSION := $(shell grep '^version' pyproject.toml | head -1 | cut -d'"' -f2)
 
 install:
 	poetry install
@@ -55,6 +56,7 @@ docs-serve:
 
 container-build:
 	podman-compose build
+	podman tag oneselect-backend:latest oneselect-backend:$(VERSION)
 
 container-up:
 	podman-compose up -d
