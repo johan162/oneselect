@@ -72,6 +72,7 @@ check_untyped_defs = false
 
 [tool.pytest.ini_options]
 addopts = "--cov=app --cov-report=term-missing"
+pythonpath = ["."]
 testpaths = ["tests"]
 filterwarnings = [
     "ignore:'asyncio.iscoroutinefunction' is deprecated:DeprecationWarning",

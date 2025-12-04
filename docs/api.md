@@ -933,24 +933,51 @@ The weakest link approach assumes that pairs with high uncertainty are more like
 
 `GET /api/v1/projects/{project_id}/comparisons/progress`
 
-Get progress metrics for comparisons in a project.
+Get progress metrics for comparisons in a project using a hybrid confidence model that combines transitive coverage, Bayesian confidence, and consistency scoring.
 
 **Parameters:**
 *   `project_id` (string, required): The UUID of the project.
-*   `dimension` (string, query, optional): Filter by dimension.
-*   `target_certainty` (number, query, optional, default=0.90): Target certainty level.
+*   `dimension` (string, query, required): One of "complexity", "value".
+*   `target_certainty` (number, query, optional, default=0.90): Target certainty level (0.0-1.0).
 
 **Response (200 OK):**
 ```json
 {
-  "dimension": "complexity" | "value",
-  "total_comparisons": 0,
-  "comparisons_made": 0,
-  "progress_percentage": 0.0,
-  "average_variance": 0.0,
-  "comparisons_remaining": 0
+  "dimension": "complexity",
+  "target_certainty": 0.90,
+  
+  "transitive_coverage": 0.85,
+  "transitive_known_pairs": 34,
+  "uncertain_pairs": 6,
+  
+  "direct_coverage": 0.45,
+  "unique_pairs_compared": 18,
+  "total_possible_pairs": 40,
+  
+  "coverage_confidence": 0.45,
+  "bayesian_confidence": 0.72,
+  "consistency_score": 1.0,
+  "effective_confidence": 0.88,
+  "progress_percent": 88.0,
+  
+  "total_comparisons_done": 22,
+  "comparisons_remaining": 3,
+  "theoretical_minimum": 22,
+  "practical_estimate": 27,
+  
+  "current_avg_variance": 0.28,
+  "comparisons_done": 22,
+  "cycle_count": 0
 }
 ```
+
+**Key Fields:**
+*   `transitive_coverage`: Fraction of pairs with known ordering (0.0-1.0), including those inferred via transitivity. **Primary progress metric.**
+*   `effective_confidence`: Combined confidence score considering transitivity, Bayesian updates, and consistency.
+*   `uncertain_pairs`: Number of pairs whose ordering is still unknown.
+*   `theoretical_minimum`: Information-theoretic lower bound: ⌈log₂(N!)⌉
+*   `practical_estimate`: Expected comparisons needed for target: ~0.77 × N × log₂(N) for 90% target.
+*   `cycle_count`: Number of detected logical inconsistencies (A>B>C>A cycles).
 
 ### Reset Comparisons
 
