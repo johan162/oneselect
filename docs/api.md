@@ -713,9 +713,12 @@ All comparison endpoints are nested under projects: `/api/v1/projects/{project_i
 
 Get the next pair of features to compare. This is the primary endpoint for the comparison workflow.
 
+The endpoint uses a chain-building algorithm that leverages transitive closure for O(N log N) efficiency. When `target_certainty` is specified, the endpoint returns 204 once the transitive coverage reaches that threshold, enabling early stopping without exhaustive comparisons.
+
 **Parameters:**
 *   `project_id` (string, required): The UUID of the project.
 *   `dimension` (string, query, required): One of "complexity", "value".
+*   `target_certainty` (number, query, optional, default=0.0): Target transitive coverage level (0.0-1.0). When set to a value > 0, the endpoint returns 204 No Content once transitive coverage reaches this threshold. Common values: 0.7 (70%), 0.8 (80%), 0.9 (90%). When set to 0.0 (default), comparisons continue until all orderings are known via transitivity.
 
 **Response (200 OK):**
 ```json
@@ -728,7 +731,18 @@ Get the next pair of features to compare. This is the primary endpoint for the c
 ```
 
 **Response (204 No Content):**
+*   Target certainty reached (when `target_certainty` > 0 and transitive coverage ≥ target), or
+*   All orderings are known via transitive inference, or
 *   No useful comparisons left to make.
+
+**Usage Example:**
+```
+GET /api/v1/projects/{id}/comparisons/next?dimension=complexity&target_certainty=0.9
+```
+This requests the next comparison pair and will return 204 once 90% transitive coverage is achieved.
+
+**Efficiency:**
+With transitive closure optimization, reaching 90% certainty for N features typically requires approximately N × log₂(N) comparisons per dimension, rather than the theoretical maximum of N×(N-1)/2 pairwise comparisons.
 
 ### Get Comparisons
 
