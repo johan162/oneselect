@@ -18,10 +18,10 @@ run:
 	poetry run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 test:
-	poetry run pytest
+	poetry run pytest -n auto -v -s
 
 test-param:
-	poetry run pytest tests/test_integration_parametrized.py::TestParameterizedWorkflow -v -s
+	poetry run pytest -n 0 tests/test_integration_parametrized.py::TestParameterizedWorkflow -v -s
 
 lint:
 	poetry run flake8 app tests

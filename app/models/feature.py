@@ -12,16 +12,22 @@ class Feature(Base):
     description = Column(String, nullable=True)
     project_id = Column(String, ForeignKey("projects.id"), nullable=False)
     tags = Column(JSON, default=list)
-    
+
     # Bayesian Bradley-Terry model parameters
     # Complexity dimension
-    complexity_mu = Column(Float, default=0.0, nullable=False)  # Mean score for complexity
-    complexity_sigma = Column(Float, default=1.0, nullable=False)  # Uncertainty (std dev) for complexity
-    
+    complexity_mu = Column(
+        Float, default=0.0, nullable=False
+    )  # Mean score for complexity
+    complexity_sigma = Column(
+        Float, default=1.0, nullable=False
+    )  # Uncertainty (std dev) for complexity
+
     # Value dimension
     value_mu = Column(Float, default=0.0, nullable=False)  # Mean score for value
-    value_sigma = Column(Float, default=1.0, nullable=False)  # Uncertainty (std dev) for value
-    
+    value_sigma = Column(
+        Float, default=1.0, nullable=False
+    )  # Uncertainty (std dev) for value
+
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 

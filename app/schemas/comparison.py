@@ -43,6 +43,7 @@ class Comparison(ComparisonBase):
 
 class ComparisonWithStats(Comparison):
     """Comparison response with inconsistency statistics."""
+
     inconsistency_stats: dict
 
 
@@ -60,6 +61,7 @@ class ComparisonPair(BaseModel):
 
 class InconsistencyCycle(BaseModel):
     """Represents a detected cycle in comparison graph (e.g., A>B, B>C, C>A)."""
+
     feature_ids: list[str]
     feature_names: list[str]
     length: int
@@ -68,6 +70,7 @@ class InconsistencyCycle(BaseModel):
 
 class InconsistencyResponse(BaseModel):
     """Response containing all detected cycles and inconsistencies."""
+
     cycles: list[InconsistencyCycle]
     count: int
     message: str

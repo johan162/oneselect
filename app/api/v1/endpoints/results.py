@@ -45,9 +45,7 @@ def get_ranked_results(
     else:  # ratio
         # Value/Complexity ratio (handle division by zero)
         sorted_features = sorted(
-            features,
-            key=lambda f: f.value_mu / max(f.complexity_mu, 0.1),
-            reverse=True
+            features, key=lambda f: f.value_mu / max(f.complexity_mu, 0.1), reverse=True
         )
 
     # Build ranked results with Bayesian scores
@@ -56,22 +54,22 @@ def get_ranked_results(
         # Select the appropriate mu and sigma based on sort dimension
         if sort_by == "complexity":
             score = feature.complexity_mu
-            variance = feature.complexity_sigma ** 2
+            variance = feature.complexity_sigma**2
             sigma = feature.complexity_sigma
         elif sort_by == "value":
             score = feature.value_mu
-            variance = feature.value_sigma ** 2
+            variance = feature.value_sigma**2
             sigma = feature.value_sigma
         else:  # ratio
             score = feature.value_mu / max(feature.complexity_mu, 0.1)
             # Propagate uncertainty for ratio (simplified)
-            variance = (feature.value_sigma ** 2 + feature.complexity_sigma ** 2)
-            sigma = variance ** 0.5
-        
+            variance = feature.value_sigma**2 + feature.complexity_sigma**2
+            sigma = variance**0.5
+
         # 95% confidence interval (±1.96 sigma)
         ci_lower = score - 1.96 * sigma
         ci_upper = score + 1.96 * sigma
-        
+
         results.append(
             {
                 "rank": rank,
@@ -114,28 +112,32 @@ def get_quadrant_analysis(
             "fill_ins": [],
             "avoid": [],
         }
-    
+
     value_scores = [f.value_mu for f in features]
     complexity_scores = [f.complexity_mu for f in features]
-    
+
     median_value = sorted(value_scores)[len(value_scores) // 2] if value_scores else 0
-    median_complexity = sorted(complexity_scores)[len(complexity_scores) // 2] if complexity_scores else 0
-    
+    median_complexity = (
+        sorted(complexity_scores)[len(complexity_scores) // 2]
+        if complexity_scores
+        else 0
+    )
+
     # Categorize features into quadrants
     # Quick Wins: High Value, Low Complexity
     # Strategic: High Value, High Complexity
     # Fill-Ins: Low Value, Low Complexity
     # Avoid: Low Value, High Complexity
-    
+
     quick_wins = []
     strategic = []
     fill_ins = []
     avoid = []
-    
+
     for feature in features:
         high_value = feature.value_mu >= median_value
         high_complexity = feature.complexity_mu >= median_complexity
-        
+
         feature_schema = FeatureSchema.model_validate(feature)
         if high_value and not high_complexity:
             quick_wins.append(feature_schema)
@@ -145,7 +147,7 @@ def get_quadrant_analysis(
             fill_ins.append(feature_schema)
         else:  # low value, high complexity
             avoid.append(feature_schema)
-    
+
     return {
         "quick_wins": quick_wins,
         "strategic": strategic,
@@ -185,16 +187,18 @@ def export_results(
     if format == "json":
         # Sort features based on dimension
         if sort_by == "complexity":
-            sorted_features = sorted(features, key=lambda f: f.complexity_mu, reverse=True)
+            sorted_features = sorted(
+                features, key=lambda f: f.complexity_mu, reverse=True
+            )
         elif sort_by == "value":
             sorted_features = sorted(features, key=lambda f: f.value_mu, reverse=True)
         else:  # ratio
             sorted_features = sorted(
                 features,
                 key=lambda f: f.value_mu / max(f.complexity_mu, 0.1),
-                reverse=True
+                reverse=True,
             )
-        
+
         # Return JSON array with actual Bayesian scores
         results = []
         for rank, feature in enumerate(sorted_features, start=1):
@@ -216,21 +220,32 @@ def export_results(
     else:  # CSV
         # Sort features based on dimension
         if sort_by == "complexity":
-            sorted_features = sorted(features, key=lambda f: f.complexity_mu, reverse=True)
+            sorted_features = sorted(
+                features, key=lambda f: f.complexity_mu, reverse=True
+            )
         elif sort_by == "value":
             sorted_features = sorted(features, key=lambda f: f.value_mu, reverse=True)
         else:  # ratio
             sorted_features = sorted(
                 features,
                 key=lambda f: f.value_mu / max(f.complexity_mu, 0.1),
-                reverse=True
+                reverse=True,
             )
-        
+
         output = io.StringIO()
         writer = csv.writer(output)
         writer.writerow(
-            ["Rank", "ID", "Name", "Description", "Complexity μ", "Complexity σ", 
-             "Value μ", "Value σ", "Value/Complexity Ratio"]
+            [
+                "Rank",
+                "ID",
+                "Name",
+                "Description",
+                "Complexity μ",
+                "Complexity σ",
+                "Value μ",
+                "Value σ",
+                "Value/Complexity Ratio",
+            ]
         )
 
         for rank, feature in enumerate(sorted_features, start=1):

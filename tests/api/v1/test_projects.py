@@ -292,4 +292,3 @@ def test_get_project_history_with_comparisons(
     data = r.json()
     assert len(data["comparisons"]) >= 1
     assert len(data["deleted_comparisons"]) == 0
-

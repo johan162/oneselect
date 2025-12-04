@@ -258,7 +258,7 @@ def get_project_history(
     """
     Get complete audit trail of all comparisons made in a project.
     PROJ-11: Get Comparison History
-    
+
     Returns all active comparisons and soft-deleted comparisons with full details.
     """
     project = crud.project.get(db=db, id=id)
@@ -300,13 +300,17 @@ def get_project_history(
 
         if comp.deleted_at:
             # This is a deleted comparison
-            comparison_data.update({
-                "deleted_at": comp.deleted_at,
-                "deleted_by": {
-                    "id": str(comp.deleted_by) if comp.deleted_by else "unknown",
-                    "username": comp.deleter.username if comp.deleter else "unknown",
+            comparison_data.update(
+                {
+                    "deleted_at": comp.deleted_at,
+                    "deleted_by": {
+                        "id": str(comp.deleted_by) if comp.deleted_by else "unknown",
+                        "username": (
+                            comp.deleter.username if comp.deleter else "unknown"
+                        ),
+                    },
                 }
-            })
+            )
             deleted_comparisons.append(comparison_data)
         else:
             # This is an active comparison

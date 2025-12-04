@@ -167,4 +167,3 @@ def test_test_token_endpoint(client: TestClient, superuser_token_headers: dict) 
     data = r.json()
     assert "id" in data
     assert "email" in data
-

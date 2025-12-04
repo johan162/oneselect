@@ -59,6 +59,7 @@ class UserInDB(UserInDBBase):
 
 class GoogleUserInfo(BaseModel):
     """Schema for Google OAuth user information"""
+
     email: EmailStr
     name: str
     picture: Optional[str] = None

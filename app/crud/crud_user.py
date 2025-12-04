@@ -45,8 +45,14 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         return db.query(User).filter(User.google_id == google_id).first()
 
     def create_google_user(
-        self, db: Session, *, email: str, google_id: str, username: str, 
-        display_name: Optional[str] = None, avatar_url: Optional[str] = None
+        self,
+        db: Session,
+        *,
+        email: str,
+        google_id: str,
+        username: str,
+        display_name: Optional[str] = None,
+        avatar_url: Optional[str] = None,
     ) -> User:
         db_obj = User(
             email=email,
