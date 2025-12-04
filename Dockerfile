@@ -1,14 +1,15 @@
 # Multi-stage build for smaller final image
-FROM python:3.13-slim as builder
+FROM python:3.13-alpine as builder
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
+# Install build dependencies
+RUN apk add --no-cache \
+    build-base \
     curl \
-    && rm -rf /var/lib/apt/lists/*
+    libffi-dev
 
-# Install Poetry
-RUN curl -sSL https://install.python-poetry.org | python3 -
+# Install Poetry and export plugin
+RUN curl -sSL https://install.python-poetry.org | python3 - \
+    && /root/.local/bin/poetry self add poetry-plugin-export
 ENV PATH="/root/.local/bin:$PATH"
 
 # Set working directory
@@ -17,20 +18,18 @@ WORKDIR /app
 # Copy dependency files
 COPY pyproject.toml poetry.lock* ./
 
-# Install dependencies (without dev dependencies)
-RUN poetry config virtualenvs.create false \
-    && poetry install --no-interaction --no-ansi --no-root --only main
+# Export requirements and install to a target directory
+RUN poetry export -f requirements.txt --without-hashes --only main -o requirements.txt \
+    && pip install --no-cache-dir --target=/app/dependencies -r requirements.txt
 
-# Final stage
-FROM python:3.13-slim
+# Final stage - minimal Alpine image
+FROM python:3.13-alpine
 
-# Install runtime dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libpq5 \
-    && rm -rf /var/lib/apt/lists/*
+# Install only runtime dependencies if needed
+# RUN apk add --no-cache postgresql-libs  # Uncomment if using PostgreSQL
 
 # Create non-root user
-RUN useradd -m -u 1000 oneselect && \
+RUN adduser -D -u 1000 oneselect && \
     mkdir -p /app/data && \
     chown -R oneselect:oneselect /app
 
@@ -38,14 +37,18 @@ RUN useradd -m -u 1000 oneselect && \
 WORKDIR /app
 
 # Copy installed packages from builder
-COPY --from=builder /usr/local/lib/python3.13/site-packages /usr/local/lib/python3.13/site-packages
-COPY --from=builder /usr/local/bin /usr/local/bin
+COPY --from=builder /app/dependencies /usr/local/lib/python3.13/site-packages
 
-# Copy application code
-COPY --chown=oneselect:oneselect . .
+# Copy only application code (not tests, docs, etc.)
+COPY --chown=oneselect:oneselect app/ ./app/
+COPY --chown=oneselect:oneselect alembic/ ./alembic/
+COPY --chown=oneselect:oneselect alembic.ini ./
 
 # Switch to non-root user
 USER oneselect
+
+# Set Python path
+ENV PYTHONPATH=/app
 
 # Expose port
 EXPOSE 8000
@@ -55,4 +58,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/docs').read()"
 
 # Run the application
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
