@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import Any, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -9,17 +9,23 @@ from app.api import deps
 router = APIRouter()
 
 
-@router.get("/{project_id}/features", response_model=List[schemas.Feature])
+@router.get("/{project_id}/features", response_model=None)
 def read_features(
     *,
     db: Session = Depends(deps.get_db),
     project_id: str,
     skip: int = 0,
     limit: int = 100,
+    include_scores: bool = False,
     current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
     """
     Retrieve features for a project.
+
+    Args:
+        include_scores: If True, includes Bayesian scores (mu, sigma) for each feature.
+                       This eliminates the need to call /statistics/scores separately.
+                       **UI Efficiency**: Reduces round-trips for feature table views.
     """
     project = crud.project.get(db=db, id=project_id)
     if not project:
@@ -32,7 +38,32 @@ def read_features(
     features = crud.feature.get_multi_by_project(
         db=db, project_id=project_id, skip=skip, limit=limit
     )
-    return features
+
+    if not include_scores:
+        return features
+
+    # Include Bayesian scores with each feature
+    result = []
+    for feature in features:
+        feature_dict = {
+            "id": str(feature.id),
+            "name": feature.name,
+            "description": feature.description,
+            "project_id": str(feature.project_id),
+            "scores": {
+                "complexity": {
+                    "mu": feature.complexity_mu,
+                    "sigma": feature.complexity_sigma,
+                },
+                "value": {
+                    "mu": feature.value_mu,
+                    "sigma": feature.value_sigma,
+                },
+            },
+        }
+        result.append(feature_dict)
+
+    return result
 
 
 @router.post("/{project_id}/features", response_model=schemas.Feature, status_code=201)
