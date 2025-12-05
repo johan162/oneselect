@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import Any, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -9,15 +9,22 @@ from app.api import deps
 router = APIRouter()
 
 
-@router.get("/", response_model=List[schemas.Project])
+@router.get("/", response_model=None)
 def read_projects(
     db: Session = Depends(deps.get_db),
     skip: int = 0,
     limit: int = 100,
+    include_stats: bool = False,
     current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
     """
     Retrieve projects.
+
+    Args:
+        include_stats: If True, includes quick stats for each project (feature count,
+                       comparison counts, progress %). Eliminates need to call
+                       /summary for each project in dashboard views.
+                       **UI Efficiency**: Reduces N+1 API calls for project list dashboards.
     """
     if crud.user.is_superuser(current_user):
         projects = crud.project.get_multi(db, skip=skip, limit=limit)
@@ -25,7 +32,60 @@ def read_projects(
         projects = crud.project.get_multi_by_owner(
             db=db, owner_id=str(current_user.id), skip=skip, limit=limit  # type: ignore
         )
-    return projects
+
+    if not include_stats:
+        return projects
+
+    # Include quick stats for each project
+    result = []
+    for project in projects:
+        # Get feature count
+        features = crud.feature.get_multi_by_project(db=db, project_id=str(project.id))
+        feature_count = len(features)
+
+        # Get comparison counts by dimension
+        comparisons = crud.comparison.get_multi_by_project(
+            db=db, project_id=str(project.id)
+        )
+        complexity_count = sum(1 for c in comparisons if c.dimension == "complexity")
+        value_count = sum(1 for c in comparisons if c.dimension == "value")
+
+        # Calculate simple progress (percentage of possible pairs compared)
+        n = feature_count
+        total_possible = n * (n - 1) // 2 if n >= 2 else 0
+        complexity_progress = (
+            round(complexity_count / total_possible * 100, 1)
+            if total_possible > 0
+            else 0.0
+        )
+        value_progress = (
+            round(value_count / total_possible * 100, 1) if total_possible > 0 else 0.0
+        )
+
+        result.append(
+            {
+                "id": str(project.id),
+                "name": project.name,
+                "description": project.description,
+                "created_at": project.created_at.isoformat()
+                if project.created_at
+                else None,
+                "owner_id": str(project.owner_id),
+                "stats": {
+                    "feature_count": feature_count,
+                    "comparisons": {
+                        "complexity": complexity_count,
+                        "value": value_count,
+                    },
+                    "progress": {
+                        "complexity": complexity_progress,
+                        "value": value_progress,
+                    },
+                },
+            }
+        )
+
+    return result
 
 
 @router.post("/", response_model=schemas.Project, status_code=201)

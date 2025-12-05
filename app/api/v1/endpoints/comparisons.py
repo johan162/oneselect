@@ -455,7 +455,7 @@ def _recalculate_bayesian_scores(db: Session, project_id: str, dimension: str) -
         db.add(project)
 
 
-@router.get("/{project_id}/comparisons", response_model=List[schemas.Comparison])
+@router.get("/{project_id}/comparisons", response_model=None)
 def read_comparisons(
     *,
     db: Session = Depends(deps.get_db),
@@ -463,10 +463,16 @@ def read_comparisons(
     skip: int = 0,
     limit: int = 100,
     dimension: Optional[str] = None,
+    ids: Optional[str] = None,
     current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
     """
     Retrieve comparisons for a project.
+
+    Args:
+        dimension: Filter by dimension ("complexity" or "value")
+        ids: Comma-separated list of comparison UUIDs to fetch (batch fetch).
+             **UI Efficiency**: Fetch multiple specific comparisons in one request.
     """
     project = crud.project.get(db=db, id=project_id)
     if not project:
@@ -475,6 +481,16 @@ def read_comparisons(
         project.owner_id != current_user.id
     ):
         raise HTTPException(status_code=400, detail="Not enough permissions")
+
+    # Batch fetch by IDs if provided
+    if ids:
+        id_list = [id.strip() for id in ids.split(",") if id.strip()]
+        comparisons = []
+        for comp_id in id_list:
+            comp = crud.comparison.get(db=db, id=comp_id)
+            if comp and str(comp.project_id) == project_id:
+                comparisons.append(comp)
+        return comparisons
 
     comparisons = crud.comparison.get_multi_by_project(
         db=db, project_id=project_id, skip=skip, limit=limit
@@ -486,13 +502,14 @@ def read_comparisons(
     return comparisons
 
 
-@router.get("/{project_id}/comparisons/next", response_model=schemas.ComparisonPair)
+@router.get("/{project_id}/comparisons/next", response_model=None)
 def get_next_comparison_pair(
     *,
     db: Session = Depends(deps.get_db),
     project_id: str,
     dimension: str,
     target_certainty: float = 1.0,
+    include_progress: bool = False,
     current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
     """
@@ -502,6 +519,8 @@ def get_next_comparison_pair(
         dimension: "complexity" or "value"
         target_certainty: Target confidence level (0.0-1.0). Returns 204 when reached.
                          Default 1.0 means continue until all orderings are known.
+        include_progress: If True, includes progress metrics in the response.
+                         **UI Efficiency**: Eliminates separate /progress call during comparison workflow.
 
     Returns:
         - 200 with ComparisonPair if there are useful comparisons to make
@@ -543,6 +562,7 @@ def get_next_comparison_pair(
     # Get existing comparisons for this dimension
     all_comparisons = crud.comparison.get_multi_by_project(db=db, project_id=project_id)
     dimension_comparisons = [c for c in all_comparisons if c.dimension == dimension]
+    total_comparisons_done = len(dimension_comparisons)
 
     # Check if we have inconsistencies (cycles)
     inconsistency_stats = _calculate_inconsistency_stats(db, project_id, dimension)
@@ -627,12 +647,29 @@ def get_next_comparison_pair(
 
     feature_a, feature_b, selection_score = best_result
 
-    return {
+    result = {
         "comparison_id": None,  # Generated on submission
         "feature_a": feature_a,
         "feature_b": feature_b,
         "dimension": dimension,
     }
+
+    # Include progress metrics if requested (UI efficiency optimization)
+    if include_progress:
+        comparisons_remaining = max(
+            0, int(0.77 * n * math.log2(max(n, 2))) - total_comparisons_done
+        )
+        result["progress"] = {
+            "progress_percent": round(effective_confidence * 100 / target_certainty, 1)
+            if target_certainty > 0
+            else round(transitive_coverage * 100, 1),
+            "comparisons_done": total_comparisons_done,
+            "comparisons_remaining": comparisons_remaining,
+            "transitive_coverage": round(transitive_coverage, 4),
+            "effective_confidence": round(effective_confidence, 4),
+        }
+
+    return result
 
 
 def _get_resolution_pair_internal(
@@ -1249,6 +1286,40 @@ def get_resolution_pair(
 
     feature_a, feature_b = weakest_pair
 
+    # Build cycle context for UI (helps user understand what they're resolving)
+    # Find the cycle containing this pair
+    containing_cycle = None
+    for cycle in cycles_found:
+        for i in range(len(cycle)):
+            if (
+                cycle[i] == str(feature_a.id)
+                and cycle[(i + 1) % len(cycle)] == str(feature_b.id)
+            ) or (
+                cycle[i] == str(feature_b.id)
+                and cycle[(i + 1) % len(cycle)] == str(feature_a.id)
+            ):
+                containing_cycle = cycle
+                break
+        if containing_cycle:
+            break
+
+    cycle_context = None
+    if containing_cycle:
+        # Get feature names for the cycle
+        cycle_feature_names = []
+        for fid in containing_cycle:
+            feat = crud.feature.get(db=db, id=fid)
+            if feat:
+                cycle_feature_names.append(feat.name)
+            else:
+                cycle_feature_names.append(f"Unknown ({fid[:8]})")
+
+        cycle_context = {
+            "cycle_length": len(containing_cycle),
+            "features_in_cycle": cycle_feature_names,
+            "feature_ids_in_cycle": containing_cycle,
+        }
+
     return {
         "comparison_id": None,
         "feature_a": {
@@ -1264,6 +1335,7 @@ def get_resolution_pair(
         "dimension": dimension,
         "reason": "This pair is involved in a logical cycle and has high uncertainty. Re-comparing may help resolve the inconsistency.",
         "combined_uncertainty": max_uncertainty,
+        "cycle_context": cycle_context,
     }
 
 
@@ -1533,9 +1605,39 @@ def undo_last_comparison(
 
     db.commit()
 
+    # Calculate updated progress for UI efficiency
+    features = crud.feature.get_multi_by_project(db=db, project_id=project_id)
+    n = len(features)
+    feature_ids = [str(f.id) for f in features]
+
+    remaining_comparisons = crud.comparison.get_multi_by_project(
+        db=db, project_id=project_id
+    )
+    remaining_filtered = [c for c in remaining_comparisons if c.dimension == dimension]
+    comparisons_done = len(remaining_filtered)
+
+    # Calculate transitive coverage
+    direct_pairs, known_pairs, uncertain_count = _compute_transitive_knowledge(
+        remaining_filtered, feature_ids
+    )
+    total_possible = n * (n - 1) // 2 if n >= 2 else 0
+    transitive_coverage = (
+        (total_possible - uncertain_count) / total_possible if total_possible > 0 else 1.0
+    )
+
+    # Estimate comparisons remaining
+    practical_estimate = int(0.77 * n * math.log2(max(n, 2))) if n >= 2 else 0
+    comparisons_remaining = max(0, practical_estimate - comparisons_done)
+
     return {
         "undone_comparison_id": undone_id,
         "message": "Comparison undone",
+        "updated_progress": {
+            "comparisons_done": comparisons_done,
+            "comparisons_remaining": comparisons_remaining,
+            "transitive_coverage": round(transitive_coverage, 4),
+            "progress_percent": round(transitive_coverage * 100, 1),
+        },
     }
 
 

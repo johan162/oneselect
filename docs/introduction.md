@@ -34,6 +34,61 @@ OneSelect uses **Bayesian Inference** and **Active Learning** to:
 
 This allows you to rank a large backlog with a fraction of the effort required for full manual sorting, while maintaining high mathematical rigor.
 
+## API Design Principles for UI Efficiency
+
+The OneSelect API is designed with UI client efficiency in mind, minimizing round-trips and providing flexible data fetching patterns.
+
+### Embedded Data with `include_*` Parameters
+
+Many endpoints support optional `include_*` query parameters that embed related data in the response, eliminating the need for separate API calls:
+
+| Endpoint | Parameter | Embeds |
+|----------|-----------|--------|
+| `GET /projects` | `include_stats=true` | Feature counts, comparison counts, progress per dimension |
+| `GET /features` | `include_scores=true` | Bayesian scores (mu, sigma) for complexity and value |
+| `GET /comparisons/next` | `include_progress=true` | Current progress metrics toward target certainty |
+| `GET /results` | `include_quadrants=true` | Quadrant categorization alongside ranked results |
+
+**Example - Efficient Dashboard Load:**
+```
+GET /api/v1/projects?include_stats=true
+```
+Returns all projects with their statistics in a single call, rather than requiring N+1 requests.
+
+### Inline Response Data
+
+Several mutation endpoints return updated state directly in the response, allowing immediate UI updates without refetching:
+
+- **Submit Comparison** (`POST /comparisons`): Returns `inconsistency_stats` showing current cycle count and inconsistency percentage
+- **Undo Comparison** (`POST /comparisons/undo`): Returns `updated_progress` with new comparison count and progress percentage
+- **Resolve Inconsistency** (`GET /resolve-inconsistency`): Returns `cycle_context` with cycle count and affected feature names
+
+### Batch Operations
+
+For bulk data needs, the API supports batch fetching:
+
+```
+GET /api/v1/projects/{id}/comparisons?ids=uuid1,uuid2,uuid3
+```
+
+This retrieves specific comparisons by ID in a single request, useful for audit trails or undo history displays.
+
+### Recommended UI Patterns
+
+1. **Comparison Flow**: Use `include_progress=true` on `/next` to show progress bar updates without extra calls
+2. **Project List**: Use `include_stats=true` to show feature counts and progress indicators on project cards
+3. **Results View**: Use `include_quadrants=true` to render both the ranked list and quadrant chart from one response
+4. **Feature Table**: Use `include_scores=true` when displaying uncertainty or confidence indicators
+
+### Pagination Defaults
+
+List endpoints use sensible defaults to balance payload size and usability:
+- Features: 50 per page
+- Comparisons: 20 per page
+- Projects: 100 per page
+
+For infinite scroll UIs, these can be adjusted via `per_page` or `limit` parameters.
+
 ## Authentication and Security
 
 OneSelect uses industry-standard authentication mechanisms to protect your data and ensure secure access to the API.

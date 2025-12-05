@@ -337,9 +337,35 @@ Retrieve projects for the current user.
 **Parameters:**
 *   `skip` (integer, optional, default=0)
 *   `limit` (integer, optional, default=100)
+*   `include_stats` (boolean, optional): When true, includes statistics for each project (feature_count, comparison_count, progress for each dimension).
 
 **Response (200 OK):**
 *   List of [Project](#project-object) objects.
+
+When `include_stats=true`, each project includes additional fields:
+```json
+{
+  "id": "uuid",
+  "name": "string",
+  "description": "string",
+  "created_at": "datetime",
+  "feature_count": 10,
+  "comparison_count": {
+    "complexity": 15,
+    "value": 12
+  },
+  "progress": {
+    "complexity": {
+      "progress_percent": 75.5,
+      "transitive_coverage": 0.8
+    },
+    "value": {
+      "progress_percent": 60.0,
+      "transitive_coverage": 0.65
+    }
+  }
+}
+```
 
 ### Create Project
 
@@ -567,6 +593,7 @@ Retrieve features for a project.
 *   `page` (integer, query, optional, default=1)
 *   `per_page` (integer, query, optional, default=50)
 *   `search` (string, query, optional): Search term to filter features.
+*   `include_scores` (boolean, query, optional): When true, includes Bayesian scores (mu, sigma) for each feature in both dimensions.
 
 **Response (200 OK):**
 ```json
@@ -575,6 +602,26 @@ Retrieve features for a project.
   "total": 0,
   "page": 1,
   "per_page": 50
+}
+```
+
+When `include_scores=true`, each feature includes additional score fields:
+```json
+{
+  "id": "uuid",
+  "name": "string",
+  "description": "string",
+  "tags": ["string"],
+  "scores": {
+    "complexity": {
+      "mu": 0.5,
+      "sigma": 1.2
+    },
+    "value": {
+      "mu": 0.8,
+      "sigma": 0.9
+    }
+  }
 }
 ```
 
@@ -719,6 +766,7 @@ The endpoint uses a chain-building algorithm that leverages transitive closure f
 *   `project_id` (string, required): The UUID of the project.
 *   `dimension` (string, query, required): One of "complexity", "value".
 *   `target_certainty` (number, query, optional, default=0.0): Target transitive coverage level (0.0-1.0). When set to a value > 0, the endpoint returns 204 No Content once transitive coverage reaches this threshold. Common values: 0.7 (70%), 0.8 (80%), 0.9 (90%). When set to 0.0 (default), comparisons continue until all orderings are known via transitivity.
+*   `include_progress` (boolean, query, optional): When true, includes progress metrics in the response to avoid a separate round-trip to the progress endpoint.
 
 **Response (200 OK):**
 ```json
@@ -726,7 +774,16 @@ The endpoint uses a chain-building algorithm that leverages transitive closure f
   "comparison_id": "uuid",
   "feature_a": { ...Feature Object... },
   "feature_b": { ...Feature Object... },
-  "dimension": "complexity" | "value"
+  "dimension": "complexity" | "value",
+  "progress": {  // Only included when include_progress=true
+    "dimension": "complexity",
+    "target_certainty": 0.9,
+    "transitive_coverage": 0.75,
+    "effective_confidence": 0.72,
+    "progress_percent": 80.0,
+    "comparisons_done": 15,
+    "comparisons_remaining": 5
+  }
 }
 ```
 
@@ -737,9 +794,9 @@ The endpoint uses a chain-building algorithm that leverages transitive closure f
 
 **Usage Example:**
 ```
-GET /api/v1/projects/{id}/comparisons/next?dimension=complexity&target_certainty=0.9
+GET /api/v1/projects/{id}/comparisons/next?dimension=complexity&target_certainty=0.9&include_progress=true
 ```
-This requests the next comparison pair and will return 204 once 90% transitive coverage is achieved.
+This requests the next comparison pair with progress metrics and will return 204 once 90% transitive coverage is achieved.
 
 **Efficiency:**
 With transitive closure optimization, reaching 90% certainty for N features typically requires approximately N × log₂(N) comparisons per dimension, rather than the theoretical maximum of N×(N-1)/2 pairwise comparisons.
@@ -755,6 +812,7 @@ Retrieve comparison history for a project.
 *   `dimension` (string, query, optional): Filter by dimension.
 *   `page` (integer, query, optional)
 *   `per_page` (integer, query, optional)
+*   `ids` (string, query, optional): Comma-separated list of comparison UUIDs to fetch specific comparisons. When provided, pagination parameters are ignored.
 
 **Response (200 OK):**
 ```json
@@ -765,6 +823,12 @@ Retrieve comparison history for a project.
   "per_page": 20
 }
 ```
+
+**Batch Fetch Example:**
+```
+GET /api/v1/projects/{id}/comparisons?ids=uuid1,uuid2,uuid3
+```
+Returns only the specified comparisons for efficient bulk retrieval.
 
 ### Create Comparison
 
@@ -919,9 +983,17 @@ Get a specific pair of features to compare to resolve detected inconsistencies. 
   },
   "dimension": "complexity" | "value",
   "reason": "Weakest link in cycle: highest combined uncertainty",
-  "combined_uncertainty": 2.5
+  "combined_uncertainty": 2.5,
+  "cycle_context": {
+    "cycle_count": 2,
+    "features_in_cycles": ["Feature A", "Feature B", "Feature C", "Feature D"]
+  }
 }
 ```
+
+The `cycle_context` field provides additional information about the inconsistency state:
+- `cycle_count`: Total number of cycles detected in the comparison graph
+- `features_in_cycles`: List of unique feature names involved in any cycle, helping users understand which features have conflicting rankings
 
 **Response (204 No Content):**
 *   No inconsistencies detected in the specified dimension.
@@ -1007,7 +1079,7 @@ Reset all comparisons for a project or dimension.
 
 `POST /api/v1/projects/{project_id}/comparisons/undo`
 
-Undo the last comparison made.
+Undo the last comparison made. Returns updated progress metrics for immediate UI feedback.
 
 **Parameters:**
 *   `project_id` (string, required): The UUID of the project.
@@ -1023,9 +1095,17 @@ Undo the last comparison made.
 ```json
 {
   "undone_comparison_id": "uuid",
-  "message": "string"
+  "message": "Comparison undone",
+  "updated_progress": {
+    "comparisons_done": 14,
+    "progress_percent": 75.5
+  }
 }
 ```
+
+The `updated_progress` field provides post-undo progress metrics so the UI can update without an additional API call:
+- `comparisons_done`: Number of comparisons remaining after undo
+- `progress_percent`: Current progress percentage toward target certainty
 
 **Response (404 Not Found):**
 *   No comparisons to undo.
@@ -1165,6 +1245,7 @@ Get ranked and scored results for all features.
 **Parameters:**
 *   `project_id` (string, required): The UUID of the project.
 *   `sort_by` (string, query, optional): One of "complexity", "value", "ratio".
+*   `include_quadrants` (boolean, query, optional): When true, includes quadrant analysis in the response.
 
 **Response (200 OK):**
 ```json
@@ -1178,6 +1259,29 @@ Get ranked and scored results for all features.
   }
 ]
 ```
+
+When `include_quadrants=true`, the response format changes to include both results and quadrant analysis:
+```json
+{
+  "results": [
+    {
+      "feature": { ...Feature Object... },
+      "complexity": 0.0,
+      "value": 0.0,
+      "ratio": 0.0,
+      "rank": 1
+    }
+  ],
+  "quadrants": {
+    "quick_wins": [ ...Feature Objects... ],
+    "major_projects": [ ...Feature Objects... ],
+    "fill_ins": [ ...Feature Objects... ],
+    "thankless_tasks": [ ...Feature Objects... ]
+  }
+}
+```
+
+This allows fetching both ranked results and quadrant categorization in a single API call.
 
 ### Get Quadrant Analysis
 
