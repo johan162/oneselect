@@ -89,6 +89,79 @@ List endpoints use sensible defaults to balance payload size and usability:
 
 For infinite scroll UIs, these can be adjusted via `per_page` or `limit` parameters.
 
+## Audit Trail and Data Integrity
+
+OneSelect maintains a complete audit trail of all comparison activity, ensuring transparency and enabling analysis of decision-making patterns.
+
+### What is Tracked
+
+Every comparison records:
+- **Who**: The user who made the comparison (`user_id`)
+- **What**: The features compared, the choice made, and the dimension
+- **When**: Timestamp of creation (`created_at`)
+
+For deleted or undone comparisons:
+- **Deleted At**: When the comparison was removed
+- **Deleted By**: Which user performed the deletion/undo
+
+### Soft Deletes
+
+Comparisons are never permanently deleted from the database. Both explicit deletions and undo operations use **soft deletes**:
+
+```
+DELETE /api/v1/projects/{id}/comparisons/{comparison_id}  → Soft delete
+POST /api/v1/projects/{id}/comparisons/undo               → Soft delete
+```
+
+This preserves the complete history of all decisions, including those later reconsidered.
+
+### Accessing the Audit Trail
+
+Use the project history endpoint to retrieve the full audit trail:
+
+```
+GET /api/v1/projects/{id}/history
+```
+
+**Response:**
+```json
+{
+  "project": { "id": "...", "name": "..." },
+  "comparisons": [
+    {
+      "id": "uuid",
+      "feature_a": { "id": "...", "name": "Feature A" },
+      "feature_b": { "id": "...", "name": "Feature B" },
+      "choice": "feature_a",
+      "dimension": "complexity",
+      "user": { "id": "...", "username": "alice" },
+      "created_at": "2025-01-15T10:30:00Z"
+    }
+  ],
+  "deleted_comparisons": [
+    {
+      "id": "uuid",
+      "feature_a": { "id": "...", "name": "Feature C" },
+      "feature_b": { "id": "...", "name": "Feature D" },
+      "choice": "feature_b",
+      "dimension": "value",
+      "user": { "id": "...", "username": "alice" },
+      "created_at": "2025-01-15T09:00:00Z",
+      "deleted_at": "2025-01-15T11:00:00Z",
+      "deleted_by": { "id": "...", "username": "bob" }
+    }
+  ]
+}
+```
+
+### Use Cases for Audit Trail
+
+1. **Compliance**: Demonstrate how prioritization decisions were made
+2. **Debugging Inconsistencies**: Understand why certain cycles exist by reviewing comparison history
+3. **User Activity Analysis**: Track who contributed which comparisons
+4. **Undo Analysis**: See what was changed and by whom
+5. **Data Recovery**: Soft-deleted comparisons can potentially be restored if needed
+
 ## Authentication and Security
 
 OneSelect uses industry-standard authentication mechanisms to protect your data and ensure secure access to the API.
