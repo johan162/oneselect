@@ -1593,15 +1593,18 @@ def undo_last_comparison(
     last_comparison = sorted(filtered, key=lambda c: c.created_at, reverse=True)[0]
     undone_id = str(last_comparison.id)
 
-    # Remove the comparison
-    crud.comparison.remove(db=db, id=last_comparison.id)
+    # Store dimension before soft delete
+    dimension_for_recalc = last_comparison.dimension
+
+    # Soft delete the comparison (preserves audit trail)
+    crud.comparison.soft_delete(db=db, id=last_comparison.id, deleted_by=str(current_user.id))
 
     # Decrement project comparison counter
     project.total_comparisons = max(0, project.total_comparisons - 1)
     db.add(project)
 
     # Recalculate all Bayesian scores for this dimension
-    _recalculate_bayesian_scores(db=db, project_id=project_id, dimension=dimension)
+    _recalculate_bayesian_scores(db=db, project_id=project_id, dimension=dimension_for_recalc)
 
     db.commit()
 
