@@ -1,4 +1,8 @@
-# OneSelect Backend
+# ⚠️ OneSelect Backend — Under Active Development
+
+> ⚠️ **Under heavy development — not ready for production / no release yet.**
+>
+> This repository is currently under active development. Important functionality and tests are still being implemented and validated. There is no stable release yet — do not use this code in production.
 
 | Category | Link |
 |----------|--------|
@@ -9,6 +13,7 @@
 |**Release**|[![GitHub release](https://img.shields.io/github/v/release/johan162/oneselect?include_prereleases)](https://github.com/johan162/oneselect/releases)|
 |**Code Quality**|[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black) [![Checked with mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/) [![Linting: flake8](https://img.shields.io/badge/linting-flake8-yellowgreen)](https://flake8.pycqa.org/)|
 |Repo URL|[![GitHub](https://img.shields.io/badge/GitHub-100000?style=flat-square&logo=github&logoColor=white)](https://github.com/johan162/oneselect)|
+
 
 
 ## Introduction
