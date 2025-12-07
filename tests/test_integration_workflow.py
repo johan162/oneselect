@@ -10,7 +10,6 @@ This test simulates a real-world usage scenario:
 6. Check quadrant analysis (Quick Wins, Strategic, Fill-ins, Avoid)
 """
 
-import pytest
 from fastapi.testclient import TestClient
 from app.core.config import settings
 
@@ -166,7 +165,7 @@ class TestIntegrationWorkflow:
         # - For 5 features, we have 10 unique pairs (5*4/2)
 
         complexity_comparisons = 0
-        feature_names = list(feature_ids.keys())
+        # feature_names = list(feature_ids.keys())
         max_iterations = 11  # Safety limit (should complete in 10 for 5 features)
 
         # Helper function to determine the winner based on expected order
@@ -190,7 +189,7 @@ class TestIntegrationWorkflow:
             if r.status_code == 204:
                 # All pairs compared consistently - ranking complete!
                 print(
-                    f"✓ Complexity: Ranking complete! (all pairs compared, 204 returned)"
+                    "✓ Complexity: Ranking complete! (all pairs compared, 204 returned)"
                 )
                 break
 
@@ -251,7 +250,7 @@ class TestIntegrationWorkflow:
 
             if r.status_code == 204:
                 # All pairs compared consistently - ranking complete!
-                print(f"✓ Value: Ranking complete! (all pairs compared, 204 returned)")
+                print("✓ Value: Ranking complete! (all pairs compared, 204 returned)")
                 break
 
             assert (
@@ -490,7 +489,7 @@ class TestIntegrationWorkflow:
 
         print("\n📊 Hybrid Confidence Model Results:")
         print("-" * 60)
-        print(f"  Complexity:")
+        print("  Complexity:")
         print(
             f"    Direct Coverage:   {complexity_progress['direct_coverage']:.0%} ({complexity_progress['unique_pairs_compared']}/{complexity_progress['total_possible_pairs']} pairs)"
         )
@@ -502,7 +501,7 @@ class TestIntegrationWorkflow:
             f"    Consistency: {complexity_progress['consistency_score']:.0%} ({complexity_progress['cycle_count']} cycles)"
         )
         print(f"    Effective:  {complexity_progress['effective_confidence']:.0%}")
-        print(f"  Value:")
+        print("  Value:")
         print(
             f"    Direct Coverage:   {value_progress['direct_coverage']:.0%} ({value_progress['unique_pairs_compared']}/{value_progress['total_possible_pairs']} pairs)"
         )
@@ -562,8 +561,8 @@ class TestIntegrationWorkflow:
         print("\n" + "=" * 70)
         print("✅ INTEGRATION TEST SUMMARY")
         print("=" * 70)
-        print(f"  • User created: user1")
-        print(f"  • Project created: project1")
+        print("  • User created: user1")
+        print("  • Project created: project1")
         print(f"  • Features: {len(feature_ids)}")
         print(
             f"  • Total comparisons: {total_comparisons} (max would be {max_comparisons * 2})"
@@ -576,8 +575,8 @@ class TestIntegrationWorkflow:
         print(f"  • Strategic: {strategic}")
         print(f"  • Fill-ins: {fill_ins}")
         print(f"  • Avoid: {avoid}")
-        print(f"  • Coverage confidence: 100% (all pairs compared)")
-        print(f"  • Effective confidence: 100% (perfect ranking information)")
+        print("  • Coverage confidence: 100% (all pairs compared)")
+        print("  • Effective confidence: 100% (perfect ranking information)")
         print("=" * 70)
 
 

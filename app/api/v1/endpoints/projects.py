@@ -1,4 +1,4 @@
-from typing import Any, List, Optional
+from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -67,9 +67,9 @@ def read_projects(
                 "id": str(project.id),
                 "name": project.name,
                 "description": project.description,
-                "created_at": project.created_at.isoformat()
-                if project.created_at
-                else None,
+                "created_at": (
+                    project.created_at.isoformat() if project.created_at else None
+                ),
                 "owner_id": str(project.owner_id),
                 "stats": {
                     "feature_count": feature_count,

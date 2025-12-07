@@ -22,6 +22,18 @@ class Settings(BaseSettings):
     GOOGLE_REDIRECT_URI: str = "http://localhost:8000/api/v1/auth/google/callback"
     FRONTEND_URL: str = "http://localhost:3000"
 
+    # Bayesian Comparison Settings
+    # Multiplier for "much better" graded comparisons (a_much_better, b_much_better).
+    # A value of 2.0 means "much better" provides twice the information of "better".
+    # This accelerates score convergence for strong preferences.
+    GRADED_MUCH_BETTER_MULTIPLIER: float = 2.0
+
+    # Multiplier for "equal" graded comparisons.
+    # A value of 1.0 treats "equal" as equally informative as "better".
+    # A lower value (e.g., 0.5) would treat ties as less informative,
+    # useful if users tend to select "equal" when uncertain rather than confident.
+    GRADED_EQUAL_MULTIPLIER: float = 0.8
+
     model_config = SettingsConfigDict(case_sensitive=True)
 
 

@@ -239,10 +239,10 @@ class TestParameterizedWorkflow:
                 headers=superuser_token_headers,
             )
             assert r.status_code == 200
-            progress = r.json()
+            # progress = r.json()
 
-            effective_conf = progress["effective_confidence"]
-            transitive_cov = progress["transitive_coverage"]
+            # effective_conf = progress["effective_confidence"]
+            # transitive_cov = progress["transitive_coverage"]
 
             # Get the next optimal pair - API will return 204 when target is reached
             r = client.get(
@@ -407,7 +407,7 @@ class TestParameterizedWorkflow:
         )
         print(f"{'─'*70}")
 
-        print(f"\n  Comparisons:")
+        print("\n  Comparisons:")
         print(
             f"    Complexity:  {complexity_comparisons:4d} / {total_pairs} pairs ({complexity_comparisons/total_pairs:.1%})"
         )
@@ -416,7 +416,7 @@ class TestParameterizedWorkflow:
         )
         print(f"    Total:       {total_comparisons:4d}")
 
-        print(f"\n  Confidence Achieved:")
+        print("\n  Confidence Achieved:")
         print(
             f"    Complexity: Direct={complexity_progress['direct_coverage']:.1%}, Transitive={complexity_progress['transitive_coverage']:.1%}, Effective={complexity_progress['effective_confidence']:.1%}"
         )
@@ -424,7 +424,7 @@ class TestParameterizedWorkflow:
             f"    Value:      Direct={value_progress['direct_coverage']:.1%}, Transitive={value_progress['transitive_coverage']:.1%}, Effective={value_progress['effective_confidence']:.1%}"
         )
 
-        print(f"\n  Ranking Accuracy (Kendall tau):")
+        print("\n  Ranking Accuracy (Kendall tau):")
         print(
             f"    Complexity: {complexity_inversions} inversions, goodness={complexity_goodness:.4f}"
         )
@@ -436,12 +436,12 @@ class TestParameterizedWorkflow:
         print(f"\n  ⭐ AVERAGE GOODNESS SCORE: {avg_goodness:.4f}")
 
         # Show top-5 comparison for complexity
-        print(f"\n  Complexity Top-5:")
+        print("\n  Complexity Top-5:")
         print(f"    Expected: {expected_complexity[:5]}")
         print(f"    Actual:   {complexity_ranking[:5]}")
 
         # Show top-5 comparison for value
-        print(f"\n  Value Top-5:")
+        print("\n  Value Top-5:")
         print(f"    Expected: {expected_value[:5]}")
         print(f"    Actual:   {value_ranking[:5]}")
 
@@ -617,7 +617,7 @@ def print_summary_table():
                 f"     Explanation: More comparisons ({r1['total_comparisons']} vs {r2['total_comparisons']}) can cause score convergence,"
             )
             print(
-                f"                  making rankings less distinguishable due to numerical precision.\n"
+                "                  making rankings less distinguishable due to numerical precision.\n"
             )
 
     # Find cases where value needed all pairs
@@ -708,8 +708,7 @@ class TestGoodnessScoreCalculation:
 
         assert calculate_inversions(actual, expected) == 2
 
-        n = 10
-        max_inversions = n * (n - 1) // 2  # 45
+        # max_inversions = n * (n - 1) // 2  # 45
         expected_goodness = 1.0 - (2 / 45)
         assert (
             abs(calculate_goodness_score(actual, expected) - expected_goodness) < 0.0001

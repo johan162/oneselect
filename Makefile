@@ -1,5 +1,6 @@
 .PHONY: install setup clean-venv reinstall run test test-param lint format typecheck migrate init-db check clean docs docs-serve
 VERSION := $(shell grep '^version' pyproject.toml | head -1 | cut -d'"' -f2)
+PROJECT := oneselect
 
 install:
 	poetry install
@@ -79,6 +80,10 @@ container-shell:
 container-clean:
 	podman-compose down -v
 	podman system prune -f
+
+container-volume:
+	podman volume ls
+	podman volume inspect $(PROJECT)_oneselect-data
 
 # Alternative: using podman directly
 .PHONY: podman-build podman-run podman-stop

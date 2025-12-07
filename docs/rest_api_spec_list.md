@@ -11,6 +11,8 @@ This document provides a comprehensive list of all REST API endpoints in the One
 *   **UUID**: String format uuid (e.g., `550e8400-e29b-41d4-a716-446655440000`).
 *   **Dimension**: Enum `["complexity", "value"]`.
 *   **ComparisonChoice**: Enum `["feature_a", "feature_b", "tie"]`.
+*   **ComparisonMode**: Enum `["binary", "graded"]` - Project-level comparison mode.
+*   **ComparisonStrength**: Enum `["a_much_better", "a_better", "equal", "b_better", "b_much_better"]` - 5-point scale for graded comparisons.
 
 ## 1. Authentication & Authorization
 
@@ -56,7 +58,7 @@ OneSelect supports two authentication methods: **Username/Password** (traditiona
 | ID | Name | Description | Method | Endpoint | Parameters | Responses |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | **PROJ-01** | List Projects | Get all projects visible to the current user. Supports `include_stats` for dashboard efficiency. | `GET` | `/projects` | **Query**: `include_stats` (bool, optional, default false) - includes feature count, comparison counts, progress % per project | **200 OK**: `[ { "id": "uuid", "name": "string", "description": "string", "created_at": "datetime", "stats": { ... } (if include_stats=true) } ]` |
-| **PROJ-02** | Create Project | Create a new project. | `POST` | `/projects` | **Body**: `{ "name": "string", "description": "string" }` | **201 Created**: `{ "id": "uuid", "name": "string", "description": "string", "created_at": "datetime" }` |
+| **PROJ-02** | Create Project | Create a new project with optional comparison mode. | `POST` | `/projects` | **Body**: `{ "name": "string", "description": "string", "comparison_mode": "binary" \| "graded" (optional, default "binary") }` | **201 Created**: `{ "id": "uuid", "name": "string", "description": "string", "comparison_mode": "binary" \| "graded", "created_at": "datetime" }` |
 | **PROJ-03** | Get Project | Get details of a specific project. | `GET` | `/projects/{projectId}` | **Path**: `projectId` | **200 OK**: `{ "id": "uuid", "name": "string", "description": "string", "created_at": "datetime" }`<br>**404 Not Found** |
 | **PROJ-04** | Update Project | Update project metadata. | `PUT` | `/projects/{projectId}` | **Path**: `projectId`<br>**Body**: `{ "name": "string", "description": "string" }` | **200 OK**: `{ "id": "uuid", "name": "string", ... }` |
 | **PROJ-05** | Delete Project | Delete a project and all associated data. | `DELETE` | `/projects/{projectId}` | **Path**: `projectId` | **204 No Content** |
@@ -97,6 +99,8 @@ OneSelect supports two authentication methods: **Username/Password** (traditiona
 | **COMP-11** | Skip Comparison | Skip a comparison pair if the user is unsure. The pair may be presented again later. | `POST` | `/projects/{projectId}/comparisons/skip` | **Path**: `projectId`<br>**Body**: `{ "comparison_id": "uuid" }` | **200 OK**: `{ "status": "skipped" }` |
 | **COMP-12** | Get Comparison | Get details of a specific comparison. | `GET` | `/projects/{projectId}/comparisons/{comparisonId}` | **Path**: `projectId`, `comparisonId` | **200 OK**: `{ "id": "uuid", "feature_a": { "id": "uuid", "name": "string" }, "feature_b": { "id": "uuid", "name": "string" }, "choice": "string", "dimension": "string", "created_at": "datetime" }`<br>**404 Not Found** |
 | **COMP-13** | Update Comparison | Update an existing comparison result. | `PUT` | `/projects/{projectId}/comparisons/{comparisonId}` | **Path**: `projectId`, `comparisonId`<br>**Body**: `{ "choice": "feature_a" \| "feature_b" \| "tie" }` | **200 OK**: `{ "id": "uuid", "choice": "string", "updated_at": "datetime" }`<br>**404 Not Found** |
+| **COMP-14** | Submit Binary Comparison | Submit a binary comparison (A beats B, B beats A, or tie). Only for projects in binary mode. | `POST` | `/projects/{projectId}/comparisons/binary` | **Path**: `projectId`<br>**Body**: `{ "feature_a_id": "uuid", "feature_b_id": "uuid", "choice": "feature_a" \| "feature_b" \| "tie", "dimension": "complexity" \| "value" }` | **201 Created**: `{ "id": "uuid", "project_id": "uuid", "feature_a": { ... }, "feature_b": { ... }, "choice": "string", "dimension": "string", "created_at": "datetime", "inconsistency_stats": { ... } }`<br>**400 Bad Request** (if project is in graded mode) |
+| **COMP-15** | Submit Graded Comparison | Submit a graded comparison using a 5-point scale. Only for projects in graded mode. Graded comparisons provide more information per comparison, allowing faster convergence with 30-40% fewer total comparisons needed. | `POST` | `/projects/{projectId}/comparisons/graded` | **Path**: `projectId`<br>**Body**: `{ "feature_a_id": "uuid", "feature_b_id": "uuid", "dimension": "complexity" \| "value", "strength": "a_much_better" \| "a_better" \| "equal" \| "b_better" \| "b_much_better" }` | **201 Created**: `{ "id": "uuid", "project_id": "uuid", "feature_a": { ... }, "feature_b": { ... }, "dimension": "string", "strength": "string", "choice": "string", "created_at": "datetime", "inconsistency_stats": { ... } }`<br>**400 Bad Request** (if project is in binary mode) |
 
 ## 6. Statistics & Analysis
 

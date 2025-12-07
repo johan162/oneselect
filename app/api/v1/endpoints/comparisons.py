@@ -1,5 +1,4 @@
 from typing import Any, List, Optional, Dict, Set, Tuple
-import random
 import math
 from collections import defaultdict
 
@@ -8,6 +7,7 @@ from sqlalchemy.orm import Session
 
 from app import crud, models, schemas
 from app.api import deps
+from app.core.config import settings
 
 router = APIRouter()
 
@@ -18,8 +18,72 @@ def _compute_transitive_closure(
     """
     Compute the transitive closure of comparison relationships.
 
-    Given direct comparisons A>B and B>C, infers that A>C.
-    Uses Floyd-Warshall-style approach for transitive closure.
+    PURPOSE & MOTIVATION:
+    ---------------------
+    This is the core algorithm that makes efficient feature ranking possible.
+    It implements the mathematical concept of "transitive closure" - expanding
+    a set of direct relationships to include all implied indirect relationships.
+
+    The key insight: humans naturally understand transitivity. If you know that:
+    - Alice is taller than Bob
+    - Bob is taller than Charlie
+    Then you automatically know Alice is taller than Charlie WITHOUT measuring.
+
+    This function automates that inference for feature comparisons, dramatically
+    reducing the number of comparisons users need to make.
+
+    COMPLEXITY REDUCTION:
+    ---------------------
+    Without transitivity: n*(n-1)/2 comparisons needed (all pairs)
+    With transitivity:    ~n*log₂(n) comparisons needed (like merge sort)
+
+    | Features | Naive O(n²) | With Transitivity | Savings |
+    |----------|-------------|-------------------|---------|
+    | 10       | 45          | ~33               | 27%     |
+    | 30       | 435         | ~147              | 66%     |
+    | 100      | 4,950       | ~664              | 87%     |
+
+    THE ALGORITHM (Warshall's Algorithm):
+    -------------------------------------
+    1. Start with direct edges: A→B means "A beats B directly"
+    2. Iterate until no changes:
+       - For each feature A that beats B
+       - And each feature C that B beats
+       - Add edge A→C (A transitively beats C)
+
+    Example walkthrough:
+        Input comparisons: A>B, B>C, B>D
+
+        Initial graph:     A → B → C
+                               ↓
+                               D
+
+        Iteration 1:
+        - A beats B, B beats C → Add A→C
+        - A beats B, B beats D → Add A→D
+
+        Final graph:       A → B → C
+                           ↓   ↓
+                           C   D
+                           ↓
+                           D
+
+        Result: greater_than = {
+            "A": {"B", "C", "D"},  # A beats all three
+            "B": {"C", "D"},       # B beats C and D
+        }
+
+    WHERE IT'S USED:
+    ----------------
+    1. _compute_transitive_knowledge(): Wraps this to count known vs unknown pairs
+    2. _get_optimal_next_pair_transitive(): Uses it to find pairs NOT yet determined
+    3. Indirectly powers the /next and /progress endpoints
+
+    IMPORTANT NOTES:
+    ----------------
+    - Ties are skipped (they don't establish ordering)
+    - Cycles (A>B>C>A) indicate user inconsistency, handled separately
+    - Time complexity: O(n³) worst case, but typically much faster with sparse graphs
 
     Args:
         comparisons: List of comparison objects with feature_a_id, feature_b_id, choice
@@ -71,6 +135,49 @@ def _compute_transitive_knowledge(
 ) -> Tuple[Set[Tuple[str, str]], Set[Tuple[str, str]], int]:
     """
     Compute what we know about feature ordering via direct and transitive relationships.
+
+    PURPOSE & MOTIVATION:
+    ---------------------
+    This function is a key optimization that enables the comparison system to determine
+    feature rankings with far fewer comparisons than a naive approach would require.
+
+    Without transitivity, ranking n features requires comparing every possible pair:
+    n*(n-1)/2 comparisons (e.g., 435 comparisons for 30 features).
+
+    But humans naturally understand transitivity: if A > B and B > C, then A > C.
+    This function leverages that property to infer orderings without asking the user.
+
+    With transitivity, only ~n*log₂(n) comparisons are needed (e.g., ~147 for 30 features),
+    representing a 66% reduction in user effort.
+
+    HOW IT WORKS:
+    -------------
+    1. Extracts direct comparison pairs from user input (who beat whom)
+    2. Calls _compute_transitive_closure() to infer all implied orderings using
+       Warshall's algorithm (if A>B and B>C, infer A>C)
+    3. Counts how many of the n*(n-1)/2 possible pairs have known orderings
+    4. Returns the count of pairs we still DON'T know about (uncertain_pairs_count)
+
+    Example:
+        User comparisons:     A > B,  B > C,  D > E
+        Direct pairs:         {(A,B), (B,C), (D,E)}
+        Transitive inference: A > C  (inferred!)
+        Known pairs:          {(A,B), (B,C), (A,C), (D,E)}  -- 4 pairs known
+        Total possible:       5*(5-1)/2 = 10 pairs
+        Uncertain:            6 pairs (A vs D, A vs E, B vs D, B vs E, C vs D, C vs E)
+
+    WHERE IT'S USED:
+    ----------------
+    1. get_next_comparison_pair(): Checks if target certainty is reached via
+       transitive_coverage; returns 204 when uncertain_count == 0
+    2. _get_optimal_next_pair_transitive(): Only suggests comparing pairs that
+       will provide NEW information (not already known via transitivity)
+    3. get_comparison_progress(): Calculates transitive_coverage as the key
+       metric showing "what fraction of the ranking do we know"
+
+    Args:
+        comparisons: List of comparison objects with feature_a_id, feature_b_id, choice
+        feature_ids: List of all feature IDs in the project
 
     Returns:
         Tuple of:
@@ -255,7 +362,6 @@ def _calculate_inconsistency_stats(
 
     # Build directed graph
     graph = {}
-    comparison_edges = set()  # Track which comparisons are involved in cycles
     comparison_map = {}  # Map (winner, loser) -> comparison id
 
     for comp in comparisons:
@@ -660,9 +766,11 @@ def get_next_comparison_pair(
             0, int(0.77 * n * math.log2(max(n, 2))) - total_comparisons_done
         )
         result["progress"] = {
-            "progress_percent": round(effective_confidence * 100 / target_certainty, 1)
-            if target_certainty > 0
-            else round(transitive_coverage * 100, 1),
+            "progress_percent": (
+                round(effective_confidence * 100 / target_certainty, 1)
+                if target_certainty > 0
+                else round(transitive_coverage * 100, 1)
+            ),
             "comparisons_done": total_comparisons_done,
             "comparisons_remaining": comparisons_remaining,
             "transitive_coverage": round(transitive_coverage, 4),
@@ -945,6 +1053,322 @@ def create_comparison(
     return comparison_dict
 
 
+def _apply_bayesian_update(
+    feature_a: models.Feature,
+    feature_b: models.Feature,
+    dimension: str,
+    y: float,  # 1.0=A wins, 0.0=B wins, 0.5=tie
+    strength_multiplier: float = 1.0,  # For graded: see settings.GRADED_MUCH_BETTER_MULTIPLIER
+) -> None:
+    """
+    Apply Bayesian Bradley-Terry update to feature scores.
+
+    Args:
+        feature_a: First feature in comparison
+        feature_b: Second feature in comparison
+        dimension: "complexity" or "value"
+        y: Outcome (1.0=A wins, 0.0=B wins, 0.5=tie)
+        strength_multiplier: Multiplier for graded comparisons (default 1.0)
+            - 1.0 for binary comparisons or "a_better"/"b_better" graded
+            - settings.GRADED_MUCH_BETTER_MULTIPLIER for "a_much_better"/"b_much_better"
+    """
+    # Tuning parameters
+    LAMBDA = math.pi / 8  # ≈ 0.39 - standard for logistic model
+    KAPPA = 0.01  # Minimum variance to prevent overconfidence
+
+    # Get current scores for the relevant dimension
+    if dimension == "complexity":
+        mu_a = feature_a.complexity_mu
+        sigma_a = feature_a.complexity_sigma
+        mu_b = feature_b.complexity_mu
+        sigma_b = feature_b.complexity_sigma
+    else:  # value
+        mu_a = feature_a.value_mu
+        sigma_a = feature_a.value_sigma
+        mu_b = feature_b.value_mu
+        sigma_b = feature_b.value_sigma
+
+    # Step 1: Compute expected outcome probability
+    try:
+        p_hat = 1.0 / (1.0 + math.exp(-(mu_a - mu_b)))
+    except OverflowError:
+        p_hat = 1.0 if mu_a > mu_b else 0.0
+
+    # Step 2: Calculate prediction error with strength multiplier
+    delta = (y - p_hat) * strength_multiplier
+
+    # Step 3: Calculate variance of outcome
+    variance_term = p_hat * (1.0 - p_hat)
+    if variance_term < 1e-10:
+        variance_term = 1e-10
+
+    # Step 4: Update means
+    denominator = math.sqrt(1.0 + LAMBDA * variance_term)
+    sigma_a_squared = sigma_a**2
+    sigma_b_squared = sigma_b**2
+
+    new_mu_a = mu_a + (sigma_a_squared * delta) / denominator
+    new_mu_b = mu_b - (sigma_b_squared * delta) / denominator
+
+    # Step 5: Update variances (reduce uncertainty)
+    # Apply strength multiplier to variance reduction for stronger convergence
+    variance_reduction_a = 1.0 - (
+        sigma_a_squared * variance_term * strength_multiplier
+    ) / (1.0 + LAMBDA * variance_term)
+    variance_reduction_b = 1.0 - (
+        sigma_b_squared * variance_term * strength_multiplier
+    ) / (1.0 + LAMBDA * variance_term)
+
+    new_sigma_a_squared = max(sigma_a_squared * variance_reduction_a, KAPPA)
+    new_sigma_b_squared = max(sigma_b_squared * variance_reduction_b, KAPPA)
+
+    new_sigma_a = math.sqrt(new_sigma_a_squared)
+    new_sigma_b = math.sqrt(new_sigma_b_squared)
+
+    # Step 6: Apply updates to features
+    if dimension == "complexity":
+        feature_a.complexity_mu = new_mu_a
+        feature_a.complexity_sigma = new_sigma_a
+        feature_b.complexity_mu = new_mu_b
+        feature_b.complexity_sigma = new_sigma_b
+    else:  # value
+        feature_a.value_mu = new_mu_a
+        feature_a.value_sigma = new_sigma_a
+        feature_b.value_mu = new_mu_b
+        feature_b.value_sigma = new_sigma_b
+
+
+@router.post(
+    "/{project_id}/comparisons/binary",
+    response_model=schemas.ComparisonWithStats,
+    status_code=201,
+)
+def create_binary_comparison(
+    *,
+    db: Session = Depends(deps.get_db),
+    project_id: str,
+    comparison_in: schemas.BinaryComparisonCreate,
+    current_user: models.User = Depends(deps.get_current_active_user),
+) -> Any:
+    """
+    Submit a binary comparison (A beats B, B beats A, or tie).
+
+    This endpoint is for projects in binary comparison mode.
+    For graded comparisons, use POST /{project_id}/comparisons/graded.
+    """
+    project = crud.project.get(db=db, id=project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    if not crud.user.is_superuser(current_user) and project.owner_id != current_user.id:
+        raise HTTPException(status_code=400, detail="Not enough permissions")
+
+    # Validate project is in binary mode
+    if project.comparison_mode != "binary":
+        raise HTTPException(
+            status_code=400,
+            detail=f"Project is in '{project.comparison_mode}' mode. Use the graded comparison endpoint.",
+        )
+
+    # Validate features exist
+    feature_a = crud.feature.get(db=db, id=str(comparison_in.feature_a_id))
+    feature_b = crud.feature.get(db=db, id=str(comparison_in.feature_b_id))
+    if not feature_a or not feature_b:
+        raise HTTPException(status_code=404, detail="One or both features not found")
+
+    if str(comparison_in.feature_a_id) == str(comparison_in.feature_b_id):
+        raise HTTPException(
+            status_code=400, detail="Cannot compare a feature with itself"
+        )
+
+    # Create comparison record (convert to ComparisonCreate for CRUD)
+    comparison_data = schemas.ComparisonCreate(
+        feature_a_id=comparison_in.feature_a_id,
+        feature_b_id=comparison_in.feature_b_id,
+        choice=comparison_in.choice,
+        dimension=comparison_in.dimension,
+        strength=None,
+    )
+    comparison = crud.comparison.create_with_project(
+        db=db, obj_in=comparison_data, project_id=project_id, user_id=str(current_user.id)  # type: ignore
+    )
+
+    # Increment project comparison counter
+    project.total_comparisons += 1
+    db.add(project)
+
+    # Determine outcome for Bayesian update
+    if comparison_in.choice == schemas.ComparisonChoice.feature_a:
+        y = 1.0
+    elif comparison_in.choice == schemas.ComparisonChoice.feature_b:
+        y = 0.0
+    else:  # tie
+        y = 0.5
+
+    # Apply Bayesian update
+    _apply_bayesian_update(feature_a, feature_b, comparison_in.dimension.value, y)
+    db.add(feature_a)
+    db.add(feature_b)
+
+    # Update project average variance
+    features = crud.feature.get_multi_by_project(db=db, project_id=project_id)
+    if features:
+        if comparison_in.dimension.value == "complexity":
+            avg_variance = sum(f.complexity_sigma for f in features) / len(features)
+            project.complexity_avg_variance = avg_variance
+        else:
+            avg_variance = sum(f.value_sigma for f in features) / len(features)
+            project.value_avg_variance = avg_variance
+
+    db.commit()
+    db.refresh(comparison)
+
+    # Calculate inconsistency stats
+    inconsistency_stats = _calculate_inconsistency_stats(
+        db=db, project_id=project_id, dimension=comparison_in.dimension.value
+    )
+
+    return {
+        "id": comparison.id,
+        "project_id": comparison.project_id,
+        "feature_a": comparison.feature_a,
+        "feature_b": comparison.feature_b,
+        "choice": comparison.choice,
+        "dimension": comparison.dimension,
+        "created_at": comparison.created_at,
+        "inconsistency_stats": inconsistency_stats,
+    }
+
+
+@router.post(
+    "/{project_id}/comparisons/graded",
+    response_model=schemas.GradedComparisonWithStats,
+    status_code=201,
+)
+def create_graded_comparison(
+    *,
+    db: Session = Depends(deps.get_db),
+    project_id: str,
+    comparison_in: schemas.GradedComparisonCreate,
+    current_user: models.User = Depends(deps.get_current_active_user),
+) -> Any:
+    """
+    Submit a graded comparison using a 5-point scale.
+
+    Strength options:
+    - a_much_better: Feature A is much better than B
+    - a_better: Feature A is better than B
+    - equal: Features are roughly equal
+    - b_better: Feature B is better than A
+    - b_much_better: Feature B is much better than A
+
+    Graded comparisons provide more information per comparison, allowing
+    faster convergence with 30-40% fewer total comparisons needed.
+
+    This endpoint is for projects in graded comparison mode.
+    For binary comparisons, use POST /{project_id}/comparisons/binary.
+    """
+    project = crud.project.get(db=db, id=project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    if not crud.user.is_superuser(current_user) and project.owner_id != current_user.id:
+        raise HTTPException(status_code=400, detail="Not enough permissions")
+
+    # Validate project is in graded mode
+    if project.comparison_mode != "graded":
+        raise HTTPException(
+            status_code=400,
+            detail=f"Project is in '{project.comparison_mode}' mode. Use the binary comparison endpoint.",
+        )
+
+    # Validate features exist
+    feature_a = crud.feature.get(db=db, id=str(comparison_in.feature_a_id))
+    feature_b = crud.feature.get(db=db, id=str(comparison_in.feature_b_id))
+    if not feature_a or not feature_b:
+        raise HTTPException(status_code=404, detail="One or both features not found")
+
+    if str(comparison_in.feature_a_id) == str(comparison_in.feature_b_id):
+        raise HTTPException(
+            status_code=400, detail="Cannot compare a feature with itself"
+        )
+
+    # Map strength to choice and multiplier
+    # Multipliers are configured in settings: GRADED_MUCH_BETTER_MULTIPLIER, GRADED_EQUAL_MULTIPLIER
+    strength = comparison_in.strength
+    if strength == schemas.ComparisonStrength.a_much_better:
+        choice = schemas.ComparisonChoice.feature_a
+        y = 1.0
+        strength_multiplier = settings.GRADED_MUCH_BETTER_MULTIPLIER
+    elif strength == schemas.ComparisonStrength.a_better:
+        choice = schemas.ComparisonChoice.feature_a
+        y = 1.0
+        strength_multiplier = 1.0
+    elif strength == schemas.ComparisonStrength.equal:
+        choice = schemas.ComparisonChoice.tie
+        y = 0.5
+        strength_multiplier = settings.GRADED_EQUAL_MULTIPLIER
+    elif strength == schemas.ComparisonStrength.b_better:
+        choice = schemas.ComparisonChoice.feature_b
+        y = 0.0
+        strength_multiplier = 1.0
+    else:  # b_much_better
+        choice = schemas.ComparisonChoice.feature_b
+        y = 0.0
+        strength_multiplier = settings.GRADED_MUCH_BETTER_MULTIPLIER
+
+    # Create comparison record
+    comparison_data = schemas.ComparisonCreate(
+        feature_a_id=comparison_in.feature_a_id,
+        feature_b_id=comparison_in.feature_b_id,
+        choice=choice,
+        dimension=comparison_in.dimension,
+        strength=strength,
+    )
+    comparison = crud.comparison.create_with_project(
+        db=db, obj_in=comparison_data, project_id=project_id, user_id=str(current_user.id)  # type: ignore
+    )
+
+    # Increment project comparison counter
+    project.total_comparisons += 1
+    db.add(project)
+
+    # Apply strength-weighted Bayesian update
+    _apply_bayesian_update(
+        feature_a, feature_b, comparison_in.dimension.value, y, strength_multiplier
+    )
+    db.add(feature_a)
+    db.add(feature_b)
+
+    # Update project average variance
+    features = crud.feature.get_multi_by_project(db=db, project_id=project_id)
+    if features:
+        if comparison_in.dimension.value == "complexity":
+            avg_variance = sum(f.complexity_sigma for f in features) / len(features)
+            project.complexity_avg_variance = avg_variance
+        else:
+            avg_variance = sum(f.value_sigma for f in features) / len(features)
+            project.value_avg_variance = avg_variance
+
+    db.commit()
+    db.refresh(comparison)
+
+    # Calculate inconsistency stats
+    inconsistency_stats = _calculate_inconsistency_stats(
+        db=db, project_id=project_id, dimension=comparison_in.dimension.value
+    )
+
+    return {
+        "id": comparison.id,
+        "project_id": comparison.project_id,
+        "feature_a": comparison.feature_a,
+        "feature_b": comparison.feature_b,
+        "dimension": comparison.dimension,
+        "strength": comparison.strength,
+        "choice": comparison.choice,
+        "created_at": comparison.created_at,
+        "inconsistency_stats": inconsistency_stats,
+    }
+
+
 @router.get("/{project_id}/comparisons/estimates")
 def get_comparison_estimates(
     *,
@@ -1092,6 +1516,44 @@ def get_inconsistencies(
             )
 
     # Detect cycles using DFS with cycle tracking
+    #
+    # DFS CYCLE DETECTION PRINCIPLES:
+    # ================================
+    # This algorithm detects cycles in a directed graph using Depth-First Search
+    # with a "recursion stack" (rec_stack) to track the current DFS path.
+    #
+    # KEY INSIGHT: A cycle exists if and only if we encounter a node that is
+    # already in our current recursion path (not just visited before).
+    #
+    # Why two sets (visited vs rec_stack)?
+    # ------------------------------------
+    # - `visited`: All nodes we've ever seen (prevents re-exploring finished subtrees)
+    # - `rec_stack`: Nodes in the CURRENT path from root to current node
+    #
+    # Consider this graph:  A → B → C
+    #                       ↓
+    #                       D → C
+    #
+    # When exploring A→B→C, we mark B,C as visited. Later exploring A→D→C,
+    # C is visited but NOT in rec_stack (we backtracked from C already).
+    # This is NOT a cycle - C is just reachable via two paths.
+    #
+    # But in:  A → B → C → A  (cycle!)
+    #
+    # When we reach C and see edge C→A, A IS in rec_stack (we're still in the
+    # path A→B→C), so this IS a cycle.
+    #
+    # Algorithm steps:
+    # 1. Add current node to both visited and rec_stack
+    # 2. For each neighbor:
+    #    - If unvisited: recurse
+    #    - If in rec_stack: CYCLE FOUND! Extract cycle from path
+    #    - If visited but not in rec_stack: skip (already explored, no cycle)
+    # 3. Backtrack: remove from rec_stack (but keep in visited)
+    #
+    # Time complexity: O(V + E) where V=vertices, E=edges
+    # Space complexity: O(V) for the recursion stack and tracking sets
+    #
     def find_cycles_dfs(node, path, visited, rec_stack, all_cycles):
         """
         DFS-based cycle detection.
@@ -1597,14 +2059,18 @@ def undo_last_comparison(
     dimension_for_recalc = last_comparison.dimension
 
     # Soft delete the comparison (preserves audit trail)
-    crud.comparison.soft_delete(db=db, id=last_comparison.id, deleted_by=str(current_user.id))
+    crud.comparison.soft_delete(
+        db=db, id=last_comparison.id, deleted_by=str(current_user.id)
+    )
 
     # Decrement project comparison counter
     project.total_comparisons = max(0, project.total_comparisons - 1)
     db.add(project)
 
     # Recalculate all Bayesian scores for this dimension
-    _recalculate_bayesian_scores(db=db, project_id=project_id, dimension=dimension_for_recalc)
+    _recalculate_bayesian_scores(
+        db=db, project_id=project_id, dimension=dimension_for_recalc
+    )
 
     db.commit()
 
@@ -1625,7 +2091,9 @@ def undo_last_comparison(
     )
     total_possible = n * (n - 1) // 2 if n >= 2 else 0
     transitive_coverage = (
-        (total_possible - uncertain_count) / total_possible if total_possible > 0 else 1.0
+        (total_possible - uncertain_count) / total_possible
+        if total_possible > 0
+        else 1.0
     )
 
     # Estimate comparisons remaining

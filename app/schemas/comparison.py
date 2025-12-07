@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from typing import Optional
 from datetime import datetime
 import uuid
@@ -17,18 +17,53 @@ class ComparisonChoice(str, Enum):
     tie = "tie"
 
 
+class ComparisonStrength(str, Enum):
+    """Strength for graded comparisons (5-point scale)."""
+
+    a_much_better = "a_much_better"  # Feature A is much better than B
+    a_better = "a_better"  # Feature A is better than B
+    equal = "equal"  # Features are equal
+    b_better = "b_better"  # Feature B is better than A
+    b_much_better = "b_much_better"  # Feature B is much better than A
+
+
 class ComparisonBase(BaseModel):
     choice: ComparisonChoice
     dimension: Dimension
 
 
 class ComparisonCreate(ComparisonBase):
+    """Standard comparison creation (for backward compatibility)."""
+
     feature_a_id: str
     feature_b_id: str
+    strength: Optional[ComparisonStrength] = None  # Only used for graded mode
+
+
+class BinaryComparisonCreate(BaseModel):
+    """Binary comparison: simple A vs B choice."""
+
+    feature_a_id: str
+    feature_b_id: str
+    choice: ComparisonChoice
+    dimension: Dimension
+
+
+class GradedComparisonCreate(BaseModel):
+    """Graded comparison: 5-point scale."""
+
+    feature_a_id: str
+    feature_b_id: str
+    dimension: Dimension
+    strength: ComparisonStrength = Field(
+        ...,
+        description="Which feature is better: a_much_better, a_better, equal, b_better, b_much_better",
+    )
 
 
 class ComparisonUpdate(BaseModel):
     choice: Optional[ComparisonChoice] = None
+    strength: Optional[ComparisonStrength] = None  # For graded mode updates
 
 
 class Comparison(ComparisonBase):
@@ -37,6 +72,7 @@ class Comparison(ComparisonBase):
     feature_a: Feature
     feature_b: Feature
     created_at: datetime
+    strength: Optional[str] = None  # Strength for graded comparisons
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -45,6 +81,22 @@ class ComparisonWithStats(Comparison):
     """Comparison response with inconsistency statistics."""
 
     inconsistency_stats: dict
+
+
+class GradedComparisonWithStats(BaseModel):
+    """Graded comparison response with statistics."""
+
+    id: uuid.UUID
+    project_id: str
+    feature_a: Feature
+    feature_b: Feature
+    dimension: str
+    strength: str
+    choice: str  # Derived from strength
+    created_at: datetime
+    inconsistency_stats: dict
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ComparisonResult(BaseModel):

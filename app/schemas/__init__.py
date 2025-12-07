@@ -9,5 +9,11 @@ from .comparison import (  # noqa: F401
     ComparisonWithStats,
     InconsistencyCycle,
     InconsistencyResponse,
+    BinaryComparisonCreate,
+    GradedComparisonCreate,
+    GradedComparisonWithStats,
+    ComparisonStrength,
+    ComparisonChoice,
+    Dimension,
 )
 from .token import Token, TokenPayload  # noqa: F401

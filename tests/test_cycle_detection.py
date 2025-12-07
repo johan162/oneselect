@@ -5,8 +5,6 @@ This module tests the inconsistency detection algorithm that finds cycles
 in the comparison graph (e.g., A>B, B>C, C>A).
 """
 
-import pytest
-
 
 def test_simple_cycle_detection():
     """Test detection of a simple 3-node cycle: A>B, B>C, C>A"""

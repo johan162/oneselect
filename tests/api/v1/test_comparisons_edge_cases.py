@@ -1244,7 +1244,7 @@ def test_undo_comparison_with_multiple_comparisons_preserves_earlier(
     )
     after_first_progress = r.json()
     after_first_variance = after_first_progress.get("current_avg_variance", 1.0)
-    after_first_comparisons = after_first_progress.get("total_comparisons_done", 0)
+    # after_first_comparisons = after_first_progress.get("total_comparisons_done", 0)
 
     # Variance should decrease after first comparison
     assert (
@@ -1272,7 +1272,7 @@ def test_undo_comparison_with_multiple_comparisons_preserves_earlier(
         headers=superuser_token_headers,
     )
     after_second_progress = r.json()
-    after_second_variance = after_second_progress.get("current_avg_variance", 1.0)
+    # after_second_variance = after_second_progress.get("current_avg_variance", 1.0)
     after_second_comparisons = after_second_progress.get("total_comparisons_done", 0)
 
     assert after_second_comparisons == 2, "Should have 2 comparisons"

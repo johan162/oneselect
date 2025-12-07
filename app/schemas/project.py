@@ -2,6 +2,14 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 from typing import Optional
 from datetime import datetime
 import uuid
+from enum import Enum
+
+
+class ComparisonModeEnum(str, Enum):
+    """Comparison mode for a project."""
+
+    binary = "binary"  # Simple A vs B choice
+    graded = "graded"  # 5-point scale
 
 
 class ProjectBase(BaseModel):
@@ -25,10 +33,14 @@ class ProjectBase(BaseModel):
 
 
 class ProjectCreate(ProjectBase):
-    pass
+    comparison_mode: ComparisonModeEnum = Field(
+        default=ComparisonModeEnum.binary,
+        description="Comparison mode: 'binary' for simple A/B choice, 'graded' for 5-point scale",
+    )
 
 
 class ProjectUpdate(ProjectBase):
+    # Note: comparison_mode cannot be changed after project creation (would invalidate existing comparisons)
     pass
 
 
@@ -39,6 +51,7 @@ class Project(ProjectBase):
     total_comparisons: int = 0
     complexity_avg_variance: float = 1.0
     value_avg_variance: float = 1.0
+    comparison_mode: str = "binary"
 
     model_config = ConfigDict(from_attributes=True)
 

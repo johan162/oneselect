@@ -8,8 +8,6 @@ Verifies that:
 4. Percentage calculations are accurate
 """
 
-import pytest
-
 
 def test_inconsistency_percentage_calculation():
     """Test percentage calculation logic"""

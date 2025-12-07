@@ -19,6 +19,7 @@ OneSelect is a pairwise comparison system.
 - **[Authentication](authentication.md)** - User authentication with username/password or Google OAuth
 - **[Deployment Guide](deployment.md)** - Container and production deployment instructions
 - **[API Reference](api.md)** - Detailed endpoint documentation with examples
+- **[Database Schema](database_schema.md)** - SQLite schema reference with tables, columns, and relationships
 - **[Theory Background](theory_background.md)** - AHP algorithm and mathematical foundations
 - **[Appendix: API Endpoint List](rest_api_spec_list.md)** - Quick reference of all endpoints
 

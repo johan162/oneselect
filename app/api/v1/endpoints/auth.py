@@ -13,7 +13,7 @@ from app.core.oauth import oauth
 from app.core import security
 from app.core.config import settings
 from app.api import deps
-from app import crud, schemas
+from app import crud
 
 router = APIRouter()
 

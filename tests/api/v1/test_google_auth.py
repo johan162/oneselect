@@ -1,10 +1,9 @@
 """Tests for Google OAuth authentication endpoints."""
 
 import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, patch
 from fastapi.testclient import TestClient
 from fastapi.responses import RedirectResponse
-from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app import crud, schemas
