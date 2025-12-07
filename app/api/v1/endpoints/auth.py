@@ -69,7 +69,7 @@ async def google_callback(
                 if user.auth_provider == "local":
                     # Update existing local account with Google ID
                     user.google_id = google_id
-                    user.auth_provider = "google"
+                    setattr(user, "auth_provider", "google")
                     if not user.display_name:
                         user.display_name = name
                     if not user.avatar_url and picture:

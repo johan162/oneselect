@@ -13,7 +13,7 @@ from app.schemas.feature import Feature as FeatureSchema
 router = APIRouter()
 
 
-def _compute_quadrants(features):
+def _compute_quadrants(features: list[Any]) -> dict[str, list[FeatureSchema]]:
     """
     Compute quadrant categorization for features.
 
@@ -109,18 +109,21 @@ def get_ranked_results(
     ranked = []
     for rank, feature in enumerate(sorted_features, start=1):
         # Select the appropriate mu and sigma based on sort dimension
+        variance: float
         if sort_by == "complexity":
             score = feature.complexity_mu
-            variance = feature.complexity_sigma**2
+            variance = float(float(feature.complexity_sigma) ** 2)  # type: ignore
             sigma = feature.complexity_sigma
         elif sort_by == "value":
             score = feature.value_mu
-            variance = feature.value_sigma**2
+            variance = float(float(feature.value_sigma) ** 2)  # type: ignore
             sigma = feature.value_sigma
         else:  # ratio
-            score = feature.value_mu / max(feature.complexity_mu, 0.1)
+            score = feature.value_mu / max(feature.complexity_mu, 0.1)  # type: ignore
             # Propagate uncertainty for ratio (simplified)
-            variance = feature.value_sigma**2 + feature.complexity_sigma**2
+            variance = float(  # type: ignore
+                float(feature.value_sigma) ** 2 + float(feature.complexity_sigma) ** 2
+            )
             sigma = variance**0.5
 
         # 95% confidence interval (±1.96 sigma)

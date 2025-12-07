@@ -75,8 +75,8 @@ class CRUDComparison(CRUDBase[Comparison, ComparisonCreate, ComparisonUpdate]):
         """Soft delete a comparison by setting deleted_at and deleted_by"""
         obj = self.get(db=db, id=id)
         if obj:
-            obj.deleted_at = datetime.now(timezone.utc)
-            obj.deleted_by = deleted_by
+            setattr(obj, "deleted_at", datetime.now(timezone.utc))
+            setattr(obj, "deleted_by", deleted_by)
             db.add(obj)
             db.commit()
             db.refresh(obj)

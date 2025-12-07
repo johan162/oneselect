@@ -81,7 +81,7 @@ class OneSelectClient:
             headers=self.headers,
             params={
                 "dimension": dimension,
-                "target_certainty": target_certainty,
+                "target_certainty": str(target_certainty),
                 "include_progress": "true",
             },
         )
@@ -119,7 +119,7 @@ class OneSelectClient:
         response = requests.get(
             f"{self.api_url}/projects/{project_id}/comparisons/progress",
             headers=self.headers,
-            params={"dimension": dimension, "target_certainty": target_certainty},
+            params={"dimension": dimension, "target_certainty": str(target_certainty)},
         )
         response.raise_for_status()
         return response.json()
@@ -178,12 +178,12 @@ def load_features_from_csv(filepath: str) -> list[dict]:
     return features
 
 
-def clear_screen():
+def clear_screen() -> None:
     """Clear the terminal screen."""
     print("\033[2J\033[H", end="")
 
 
-def print_header(dimension: str, comparison_num: int):
+def print_header(dimension: str, comparison_num: int) -> None:
     """Print the comparison header."""
     print("=" * 60)
     print("  ONESELECT - Binary Comparison Mode")
@@ -192,7 +192,7 @@ def print_header(dimension: str, comparison_num: int):
     print()
 
 
-def print_features(feature_a: dict, feature_b: dict):
+def print_features(feature_a: dict, feature_b: dict) -> None:
     """Print the two features being compared."""
     print("Compare these two features:\n")
     print(f"  [A] {feature_a['name']}")
@@ -205,7 +205,7 @@ def print_features(feature_a: dict, feature_b: dict):
     print()
 
 
-def print_stats(progress: dict, inconsistency: dict, estimates: dict, target_certainty: float = 0.90):
+def print_stats(progress: dict, inconsistency: dict, estimates: dict, target_certainty: float = 0.90) -> None:
     """Print current statistics."""
     print("-" * 60)
     print("Statistics:")
@@ -331,7 +331,7 @@ def run_comparison_session(
         )
 
 
-def print_final_results(client: OneSelectClient, project_id: str):
+def print_final_results(client: OneSelectClient, project_id: str) -> None:
     """Print the final ranked results."""
     clear_screen()
     print("=" * 60)
@@ -364,7 +364,7 @@ def print_final_results(client: OneSelectClient, project_id: str):
     print()
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(
         description="Binary Comparison CLI - Interactive feature prioritization"
     )

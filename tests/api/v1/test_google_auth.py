@@ -1,6 +1,7 @@
 """Tests for Google OAuth authentication endpoints."""
 
 import pytest
+from typing import Any
 from unittest.mock import AsyncMock, patch
 from fastapi.testclient import TestClient
 from fastapi.responses import RedirectResponse
@@ -15,7 +16,7 @@ from app import crud, schemas
 
 
 @pytest.fixture
-def mock_google_userinfo():
+def mock_google_userinfo() -> dict[str, Any]:
     """Sample Google user info response."""
     return {
         "sub": "google_user_id_12345",  # Google's unique user ID
@@ -29,7 +30,7 @@ def mock_google_userinfo():
 
 
 @pytest.fixture
-def mock_oauth_token(mock_google_userinfo):
+def mock_oauth_token(mock_google_userinfo: dict[str, Any]) -> dict[str, Any]:
     """Mock OAuth token response from Google."""
     return {
         "access_token": "mock_access_token_xyz",
@@ -41,7 +42,7 @@ def mock_oauth_token(mock_google_userinfo):
 
 
 @pytest.fixture
-def existing_local_user(db):
+def existing_local_user(db: Any) -> Any:
     """Create an existing local user for account linking tests."""
     # Check if user already exists
     existing = crud.user.get_by_email(db, email="linkable@gmail.com")
@@ -54,11 +55,11 @@ def existing_local_user(db):
         username="linkableuser",
     )
     user = crud.user.create(db, obj_in=user_in)
-    return user
+    return user  # type: ignore[return-value]
 
 
 @pytest.fixture
-def existing_google_user(db):
+def existing_google_user(db: Any) -> Any:
     """Create an existing Google-authenticated user."""
     # Check if user already exists
     existing = crud.user.get_by_google_id(db, google_id="existing_google_id_789")
@@ -73,7 +74,7 @@ def existing_google_user(db):
         display_name="Existing Google User",
         avatar_url="https://example.com/avatar.jpg",
     )
-    return user
+    return user  # type: ignore[return-value]
 
 
 # ============================================================
@@ -84,7 +85,7 @@ def existing_google_user(db):
 class TestGoogleOAuthStatus:
     """Test Google OAuth status endpoint."""
 
-    def test_google_status_returns_configuration(self, client: TestClient):
+    def test_google_status_returns_configuration(self, client: TestClient) -> None:
         """Test AUTH-GOOGLE-03: Status endpoint returns OAuth configuration status."""
         r = client.get(f"{settings.API_V1_STR}/auth/google/status")
         assert r.status_code == 200
@@ -100,7 +101,7 @@ class TestGoogleOAuthStatus:
         assert isinstance(data["google_client_id_set"], bool)
         assert isinstance(data["google_client_secret_set"], bool)
 
-    def test_google_status_enabled_when_configured(self, client: TestClient):
+    def test_google_status_enabled_when_configured(self, client: TestClient) -> None:
         """Test status shows enabled when both client_id and secret are set."""
         with patch.object(settings, "GOOGLE_CLIENT_ID", "test_client_id"):
             with patch.object(settings, "GOOGLE_CLIENT_SECRET", "test_client_secret"):
@@ -111,7 +112,9 @@ class TestGoogleOAuthStatus:
                 assert data["google_client_id_set"] is True
                 assert data["google_client_secret_set"] is True
 
-    def test_google_status_disabled_when_not_configured(self, client: TestClient):
+    def test_google_status_disabled_when_not_configured(
+        self, client: TestClient
+    ) -> None:
         """Test status shows disabled when credentials are empty."""
         with patch.object(settings, "GOOGLE_CLIENT_ID", ""):
             with patch.object(settings, "GOOGLE_CLIENT_SECRET", ""):
@@ -120,7 +123,9 @@ class TestGoogleOAuthStatus:
                 data = r.json()
                 assert data["google_oauth_enabled"] is False
 
-    def test_google_status_disabled_when_partial_config(self, client: TestClient):
+    def test_google_status_disabled_when_partial_config(
+        self, client: TestClient
+    ) -> None:
         """Test status shows disabled when only client_id is set."""
         with patch.object(settings, "GOOGLE_CLIENT_ID", "test_client_id"):
             with patch.object(settings, "GOOGLE_CLIENT_SECRET", ""):
@@ -140,7 +145,7 @@ class TestGoogleOAuthStatus:
 class TestGoogleLogin:
     """Test Google OAuth login initiation endpoint."""
 
-    def test_google_login_redirects_to_google(self, client: TestClient):
+    def test_google_login_redirects_to_google(self, client: TestClient) -> None:
         """Test AUTH-GOOGLE-01: Login endpoint initiates OAuth redirect."""
         # Mock the oauth.google.authorize_redirect to return a redirect response
         mock_redirect_response = RedirectResponse(
@@ -171,7 +176,9 @@ class TestGoogleLogin:
 class TestGoogleCallback:
     """Test Google OAuth callback endpoint."""
 
-    def test_callback_creates_new_user(self, client: TestClient, mock_google_userinfo):
+    def test_callback_creates_new_user(
+        self, client: TestClient, mock_google_userinfo: dict[str, Any]
+    ) -> None:
         """Test callback creates new user when none exists."""
         mock_token = {"userinfo": mock_google_userinfo}
 
@@ -192,8 +199,8 @@ class TestGoogleCallback:
             assert "token=" in location
 
     def test_callback_logs_in_existing_google_user(
-        self, client: TestClient, db, existing_google_user
-    ):
+        self, client: TestClient, db: Any, existing_google_user: Any
+    ) -> None:
         """Test callback logs in existing Google user."""
         mock_userinfo = {
             "sub": existing_google_user.google_id,
@@ -219,8 +226,8 @@ class TestGoogleCallback:
             assert "/auth/callback" in location
 
     def test_callback_links_existing_local_account(
-        self, client: TestClient, db, existing_local_user
-    ):
+        self, client: TestClient, db: Any, existing_local_user: Any
+    ) -> None:
         """Test callback links Google to existing local account with same email."""
         # Use the existing local user's email in Google response
         mock_userinfo = {
@@ -259,7 +266,9 @@ class TestGoogleCallback:
             # The email should match the existing user's email
             assert r.json()["email"] == existing_local_user.email
 
-    def test_callback_generates_unique_username(self, client: TestClient, db):
+    def test_callback_generates_unique_username(
+        self, client: TestClient, db: Any
+    ) -> None:
         """Test callback generates unique username when email prefix is taken."""
         # First, create a user with username "duplicateuser"
         existing = crud.user.get_by_username(db, username="duplicateuser")
@@ -308,7 +317,7 @@ class TestGoogleCallback:
             assert data["username"].startswith("duplicateuser")
             assert data["username"] != "duplicateuser"
 
-    def test_callback_missing_userinfo_fails(self, client: TestClient):
+    def test_callback_missing_userinfo_fails(self, client: TestClient) -> None:
         """Test callback fails when userinfo is missing from token."""
         mock_token = {
             "access_token": "some_token",
@@ -328,7 +337,7 @@ class TestGoogleCallback:
             assert r.status_code == 400
             assert "user info" in r.json()["detail"].lower()
 
-    def test_callback_missing_email_fails(self, client: TestClient):
+    def test_callback_missing_email_fails(self, client: TestClient) -> None:
         """Test callback fails when email is missing from userinfo."""
         mock_userinfo = {
             "sub": "google_id_no_email",
@@ -350,7 +359,7 @@ class TestGoogleCallback:
             assert r.status_code == 400
             assert "required" in r.json()["detail"].lower()
 
-    def test_callback_missing_google_id_fails(self, client: TestClient):
+    def test_callback_missing_google_id_fails(self, client: TestClient) -> None:
         """Test callback fails when Google ID (sub) is missing."""
         mock_userinfo = {
             # No sub!
@@ -372,7 +381,9 @@ class TestGoogleCallback:
             assert r.status_code == 400
             assert "required" in r.json()["detail"].lower()
 
-    def test_callback_oauth_exception_redirects_to_error(self, client: TestClient):
+    def test_callback_oauth_exception_redirects_to_error(
+        self, client: TestClient
+    ) -> None:
         """Test callback handles OAuth exceptions gracefully."""
         with patch("app.api.v1.endpoints.auth.oauth") as mock_oauth:
             mock_oauth.google.authorize_access_token = AsyncMock(
@@ -389,7 +400,9 @@ class TestGoogleCallback:
             assert "/auth/error" in location
             assert "message=" in location
 
-    def test_callback_sets_user_display_name_and_avatar(self, client: TestClient, db):
+    def test_callback_sets_user_display_name_and_avatar(
+        self, client: TestClient, db: Any
+    ) -> None:
         """Test callback properly sets display name and avatar from Google."""
         mock_userinfo = {
             "sub": "google_id_with_profile",
@@ -436,8 +449,8 @@ class TestGoogleOAuthIntegration:
     """Integration tests for complete OAuth flow."""
 
     def test_full_oauth_flow_new_user(
-        self, client: TestClient, db, mock_google_userinfo
-    ):
+        self, client: TestClient, db: Any, mock_google_userinfo: dict[str, Any]
+    ) -> None:
         """Test complete OAuth flow for a new user."""
         # Step 1: Check OAuth is available (status endpoint)
         with patch.object(settings, "GOOGLE_CLIENT_ID", "test_id"):
@@ -482,7 +495,9 @@ class TestGoogleOAuthIntegration:
         assert data["email"] == "integration_test_user@gmail.com"
         assert data["is_active"] is True
 
-    def test_oauth_user_cannot_use_password_login(self, client: TestClient, db):
+    def test_oauth_user_cannot_use_password_login(
+        self, client: TestClient, db: Any
+    ) -> None:
         """Test that OAuth users cannot authenticate with password."""
         # Create a Google OAuth user
         mock_userinfo = {

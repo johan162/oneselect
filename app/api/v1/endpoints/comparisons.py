@@ -215,7 +215,8 @@ def _compute_transitive_knowledge(
     # We count each unordered pair once (either (A,B) or (B,A) tells us the order)
     known_unordered_pairs: Set[Tuple[str, str]] = set()
     for winner, loser in known_pairs:
-        pair = tuple(sorted([winner, loser]))
+        sorted_items = sorted([winner, loser])
+        pair = (sorted_items[0], sorted_items[1])
         known_unordered_pairs.add(pair)
 
     known_pair_count = len(known_unordered_pairs)
@@ -253,14 +254,16 @@ def _get_optimal_next_pair_transitive(
     known_pairs: Set[Tuple[str, str]] = set()
     for winner, losers in greater_than.items():
         for loser in losers:
-            pair = tuple(sorted([winner, loser]))
+            sorted_items = sorted([winner, loser])
+            pair = (sorted_items[0], sorted_items[1])
             known_pairs.add(pair)
 
     # Find pairs where we DON'T know the ordering
     unknown_pairs: List[Tuple[str, str]] = []
     for i, a in enumerate(feature_ids):
         for b in feature_ids[i + 1 :]:
-            pair = tuple(sorted([a, b]))
+            sorted_items = sorted([a, b])
+            pair = (sorted_items[0], sorted_items[1])
             if pair not in known_pairs:
                 unknown_pairs.append((a, b))
 
@@ -278,7 +281,7 @@ def _get_optimal_next_pair_transitive(
     # compare all features to build complete chains.
 
     # Count how many direct comparisons each feature has participated in
-    comparison_count = defaultdict(int)
+    comparison_count: Dict[str, int] = defaultdict(int)
     for comp in comparisons:
         comparison_count[str(comp.feature_a_id)] += 1
         comparison_count[str(comp.feature_b_id)] += 1
@@ -361,8 +364,10 @@ def _calculate_inconsistency_stats(
         }
 
     # Build directed graph
-    graph = {}
-    comparison_map = {}  # Map (winner, loser) -> comparison id
+    graph: Dict[str, Set[str]] = {}
+    comparison_map: Dict[Tuple[str, str], str] = (
+        {}
+    )  # Map (winner, loser) -> comparison id
 
     for comp in comparisons:
         if comp.choice == "tie":
@@ -384,7 +389,13 @@ def _calculate_inconsistency_stats(
         comparison_map[(winner_id, loser_id)] = str(comp.id)
 
     # Detect cycles
-    def find_cycles_dfs(node, path, visited, rec_stack, all_cycles):
+    def find_cycles_dfs(
+        node: str,
+        path: List[str],
+        visited: Set[str],
+        rec_stack: Set[str],
+        all_cycles: List[List[str]],
+    ) -> None:
         visited.add(node)
         rec_stack.add(node)
         path.append(node)
@@ -403,8 +414,8 @@ def _calculate_inconsistency_stats(
         path.pop()
         rec_stack.remove(node)
 
-    cycles_found = []
-    visited_global = set()
+    cycles_found: List[List[str]] = []
+    visited_global: Set[str] = set()
 
     for node in graph:
         if node not in visited_global:
@@ -462,11 +473,11 @@ def _recalculate_bayesian_scores(db: Session, project_id: str, dimension: str) -
     # Reset all features to initial state for this dimension
     for feature in features:
         if dimension == "complexity":
-            feature.complexity_mu = 0.0
-            feature.complexity_sigma = 1.0
+            setattr(feature, "complexity_mu", 0.0)
+            setattr(feature, "complexity_sigma", 1.0)
         else:  # value
-            feature.value_mu = 0.0
-            feature.value_sigma = 1.0
+            setattr(feature, "value_mu", 0.0)
+            setattr(feature, "value_sigma", 1.0)
         db.add(feature)
 
     # Get remaining comparisons for this dimension
@@ -519,8 +530,10 @@ def _recalculate_bayesian_scores(db: Session, project_id: str, dimension: str) -
             variance_term = 1e-10
 
         denominator = math.sqrt(1.0 + LAMBDA * variance_term)
-        sigma_a_squared = sigma_a**2
-        sigma_b_squared = sigma_b**2
+        sigma_a_val = float(sigma_a)
+        sigma_b_val = float(sigma_b)
+        sigma_a_squared = sigma_a_val**2
+        sigma_b_squared = sigma_b_val**2
 
         new_mu_a = mu_a + (sigma_a_squared * delta) / denominator
         new_mu_b = mu_b - (sigma_b_squared * delta) / denominator
@@ -537,15 +550,15 @@ def _recalculate_bayesian_scores(db: Session, project_id: str, dimension: str) -
 
         # Apply updates
         if dimension == "complexity":
-            feature_a.complexity_mu = new_mu_a
-            feature_a.complexity_sigma = new_sigma_a
-            feature_b.complexity_mu = new_mu_b
-            feature_b.complexity_sigma = new_sigma_b
+            setattr(feature_a, "complexity_mu", new_mu_a)
+            setattr(feature_a, "complexity_sigma", new_sigma_a)
+            setattr(feature_b, "complexity_mu", new_mu_b)
+            setattr(feature_b, "complexity_sigma", new_sigma_b)
         else:
-            feature_a.value_mu = new_mu_a
-            feature_a.value_sigma = new_sigma_a
-            feature_b.value_mu = new_mu_b
-            feature_b.value_sigma = new_sigma_b
+            setattr(feature_a, "value_mu", new_mu_a)
+            setattr(feature_a, "value_sigma", new_sigma_a)
+            setattr(feature_b, "value_mu", new_mu_b)
+            setattr(feature_b, "value_sigma", new_sigma_b)
 
         db.add(feature_a)
         db.add(feature_b)
@@ -554,10 +567,10 @@ def _recalculate_bayesian_scores(db: Session, project_id: str, dimension: str) -
     if features:
         if dimension == "complexity":
             avg_variance = sum(f.complexity_sigma for f in features) / len(features)
-            project.complexity_avg_variance = avg_variance
+            setattr(project, "complexity_avg_variance", avg_variance)
         else:
             avg_variance = sum(f.value_sigma for f in features) / len(features)
-            project.value_avg_variance = avg_variance
+            setattr(project, "value_avg_variance", avg_variance)
         db.add(project)
 
 
@@ -699,9 +712,13 @@ def get_next_comparison_pair(
     bayesian_confidence = max(0.0, min(1.0, 1.0 - current_variance))
 
     # Consistency score
+    consistency_score: float
     if len(dimension_comparisons) > 0:
-        consistency_score = max(
-            0.5, 1.0 - (inconsistency_stats["cycle_count"] / len(dimension_comparisons))
+        consistency_score = float(
+            max(
+                0.5,
+                1.0 - (inconsistency_stats["cycle_count"] / len(dimension_comparisons)),
+            )
         )
     else:
         consistency_score = 1.0
@@ -712,10 +729,12 @@ def get_next_comparison_pair(
     elif transitive_coverage >= 1.0:
         effective_confidence = min(0.95, consistency_score)
     else:
-        bayesian_boost = 0.05 * bayesian_confidence
-        effective_confidence = (
-            min(1.0, transitive_coverage + bayesian_boost) * consistency_score
+        bayesian_boost = 0.05 * bayesian_confidence  # type: ignore
+        coverage_with_boost: float = float(
+            min(1.0, transitive_coverage + bayesian_boost)
         )
+        consistency_val: float = consistency_score  # type: ignore
+        effective_confidence = coverage_with_boost * consistency_val  # type: ignore
 
     # Check if we've reached the target certainty - return 204 if so
     # Only check if target_certainty > 0 (explicitly requested)
@@ -792,8 +811,10 @@ def _get_resolution_pair_internal(
     comparisons = [c for c in comparisons if c.dimension == dimension]
 
     # Build graph
-    graph = {}
-    comparison_map = {}  # Map (winner, loser) -> comparison object
+    graph: Dict[str, Set[str]] = {}
+    comparison_map: Dict[Tuple[str, str], Any] = (
+        {}
+    )  # Map (winner, loser) -> comparison object
 
     for comp in comparisons:
         if comp.choice == "tie":
@@ -815,7 +836,13 @@ def _get_resolution_pair_internal(
         comparison_map[(winner_id, loser_id)] = comp
 
     # Find cycles
-    def find_cycles_dfs(node, path, visited, rec_stack, all_cycles):
+    def find_cycles_dfs(
+        node: str,
+        path: List[str],
+        visited: Set[str],
+        rec_stack: Set[str],
+        all_cycles: List[List[str]],
+    ) -> None:
         visited.add(node)
         rec_stack.add(node)
         path.append(node)
@@ -834,8 +861,8 @@ def _get_resolution_pair_internal(
         path.pop()
         rec_stack.remove(node)
 
-    cycles_found = []
-    visited_global = set()
+    cycles_found: List[List[str]] = []
+    visited_global: Set[str] = set()
 
     for node in graph:
         if node not in visited_global:
@@ -931,7 +958,7 @@ def create_comparison(
     )
 
     # Increment project comparison counter
-    project.total_comparisons += 1
+    setattr(project, "total_comparisons", project.total_comparisons + 1)
     db.add(project)
 
     # Bayesian Bradley-Terry update
@@ -983,8 +1010,10 @@ def create_comparison(
     # mu_i += sigma_i^2 * delta / sqrt(1 + lambda * p_hat * (1-p_hat))
     denominator = math.sqrt(1.0 + LAMBDA * variance_term)
 
-    sigma_a_squared = sigma_a**2
-    sigma_b_squared = sigma_b**2
+    sigma_a_val = float(sigma_a)
+    sigma_b_val = float(sigma_b)
+    sigma_a_squared = sigma_a_val**2
+    sigma_b_squared = sigma_b_val**2
 
     new_mu_a = mu_a + (sigma_a_squared * delta) / denominator
     new_mu_b = mu_b - (sigma_b_squared * delta) / denominator
@@ -1006,15 +1035,15 @@ def create_comparison(
 
     # Step 6: Apply updates to features
     if comparison_in.dimension == "complexity":
-        feature_a.complexity_mu = new_mu_a
-        feature_a.complexity_sigma = new_sigma_a
-        feature_b.complexity_mu = new_mu_b
-        feature_b.complexity_sigma = new_sigma_b
+        setattr(feature_a, "complexity_mu", new_mu_a)
+        setattr(feature_a, "complexity_sigma", new_sigma_a)
+        setattr(feature_b, "complexity_mu", new_mu_b)
+        setattr(feature_b, "complexity_sigma", new_sigma_b)
     else:  # value
-        feature_a.value_mu = new_mu_a
-        feature_a.value_sigma = new_sigma_a
-        feature_b.value_mu = new_mu_b
-        feature_b.value_sigma = new_sigma_b
+        setattr(feature_a, "value_mu", new_mu_a)
+        setattr(feature_a, "value_sigma", new_sigma_a)
+        setattr(feature_b, "value_mu", new_mu_b)
+        setattr(feature_b, "value_sigma", new_sigma_b)
 
     # Commit the updates
     db.add(feature_a)
@@ -1025,10 +1054,10 @@ def create_comparison(
     if features:
         if comparison_in.dimension == "complexity":
             avg_variance = sum(f.complexity_sigma for f in features) / len(features)
-            project.complexity_avg_variance = avg_variance
+            setattr(project, "complexity_avg_variance", avg_variance)
         else:  # value
             avg_variance = sum(f.value_sigma for f in features) / len(features)
-            project.value_avg_variance = avg_variance
+            setattr(project, "value_avg_variance", avg_variance)
 
     db.commit()
     db.refresh(comparison)
@@ -1104,8 +1133,10 @@ def _apply_bayesian_update(
 
     # Step 4: Update means
     denominator = math.sqrt(1.0 + LAMBDA * variance_term)
-    sigma_a_squared = sigma_a**2
-    sigma_b_squared = sigma_b**2
+    sigma_a_val = float(sigma_a)
+    sigma_b_val = float(sigma_b)
+    sigma_a_squared = sigma_a_val**2
+    sigma_b_squared = sigma_b_val**2
 
     new_mu_a = mu_a + (sigma_a_squared * delta) / denominator
     new_mu_b = mu_b - (sigma_b_squared * delta) / denominator
@@ -1127,15 +1158,15 @@ def _apply_bayesian_update(
 
     # Step 6: Apply updates to features
     if dimension == "complexity":
-        feature_a.complexity_mu = new_mu_a
-        feature_a.complexity_sigma = new_sigma_a
-        feature_b.complexity_mu = new_mu_b
-        feature_b.complexity_sigma = new_sigma_b
+        setattr(feature_a, "complexity_mu", new_mu_a)
+        setattr(feature_a, "complexity_sigma", new_sigma_a)
+        setattr(feature_b, "complexity_mu", new_mu_b)
+        setattr(feature_b, "complexity_sigma", new_sigma_b)
     else:  # value
-        feature_a.value_mu = new_mu_a
-        feature_a.value_sigma = new_sigma_a
-        feature_b.value_mu = new_mu_b
-        feature_b.value_sigma = new_sigma_b
+        setattr(feature_a, "value_mu", new_mu_a)
+        setattr(feature_a, "value_sigma", new_sigma_a)
+        setattr(feature_b, "value_mu", new_mu_b)
+        setattr(feature_b, "value_sigma", new_sigma_b)
 
 
 @router.post(
@@ -1193,7 +1224,7 @@ def create_binary_comparison(
     )
 
     # Increment project comparison counter
-    project.total_comparisons += 1
+    setattr(project, "total_comparisons", project.total_comparisons + 1)
     db.add(project)
 
     # Determine outcome for Bayesian update
@@ -1214,10 +1245,10 @@ def create_binary_comparison(
     if features:
         if comparison_in.dimension.value == "complexity":
             avg_variance = sum(f.complexity_sigma for f in features) / len(features)
-            project.complexity_avg_variance = avg_variance
+            setattr(project, "complexity_avg_variance", avg_variance)
         else:
             avg_variance = sum(f.value_sigma for f in features) / len(features)
-            project.value_avg_variance = avg_variance
+            setattr(project, "value_avg_variance", avg_variance)
 
     db.commit()
     db.refresh(comparison)
@@ -1328,7 +1359,7 @@ def create_graded_comparison(
     )
 
     # Increment project comparison counter
-    project.total_comparisons += 1
+    setattr(project, "total_comparisons", project.total_comparisons + 1)
     db.add(project)
 
     # Apply strength-weighted Bayesian update
@@ -1343,10 +1374,10 @@ def create_graded_comparison(
     if features:
         if comparison_in.dimension.value == "complexity":
             avg_variance = sum(f.complexity_sigma for f in features) / len(features)
-            project.complexity_avg_variance = avg_variance
+            setattr(project, "complexity_avg_variance", avg_variance)
         else:
             avg_variance = sum(f.value_sigma for f in features) / len(features)
-            project.value_avg_variance = avg_variance
+            setattr(project, "value_avg_variance", avg_variance)
 
     db.commit()
     db.refresh(comparison)
@@ -1477,8 +1508,8 @@ def get_inconsistencies(
 
     # Build directed graph: winner -> loser edges
     # Key: feature_id, Value: set of feature_ids that this feature beats
-    graph = {}
-    feature_names = {}  # Cache feature names for response
+    graph: Dict[str, Set[str]] = {}
+    feature_names: Dict[str, str] = {}  # Cache feature names for response
 
     for comp in comparisons:
         # Skip ties - they don't create directed edges
@@ -1554,7 +1585,13 @@ def get_inconsistencies(
     # Time complexity: O(V + E) where V=vertices, E=edges
     # Space complexity: O(V) for the recursion stack and tracking sets
     #
-    def find_cycles_dfs(node, path, visited, rec_stack, all_cycles):
+    def find_cycles_dfs(
+        node: str,
+        path: List[str],
+        visited: Set[str],
+        rec_stack: Set[str],
+        all_cycles: List[List[str]],
+    ) -> None:
         """
         DFS-based cycle detection.
 
@@ -1593,8 +1630,8 @@ def get_inconsistencies(
         rec_stack.remove(node)
 
     # Find all cycles
-    cycles_found = []
-    visited_global = set()
+    cycles_found: List[List[str]] = []
+    visited_global: Set[str] = set()
 
     for node in graph:
         if node not in visited_global:
@@ -1652,8 +1689,10 @@ def get_resolution_pair(
     comparisons = [c for c in comparisons if c.dimension == dimension]
 
     # Build graph
-    graph = {}
-    comparison_map = {}  # Map (winner, loser) -> comparison object
+    graph: Dict[str, Set[str]] = {}
+    comparison_map: Dict[Tuple[str, str], Any] = (
+        {}
+    )  # Map (winner, loser) -> comparison object
 
     for comp in comparisons:
         if comp.choice == "tie":
@@ -1675,7 +1714,13 @@ def get_resolution_pair(
         comparison_map[(winner_id, loser_id)] = comp
 
     # Find cycles
-    def find_cycles_dfs(node, path, visited, rec_stack, all_cycles):
+    def find_cycles_dfs(
+        node: str,
+        path: List[str],
+        visited: Set[str],
+        rec_stack: Set[str],
+        all_cycles: List[List[str]],
+    ) -> None:
         visited.add(node)
         rec_stack.add(node)
         path.append(node)
@@ -1694,8 +1739,8 @@ def get_resolution_pair(
         path.pop()
         rec_stack.remove(node)
 
-    cycles_found = []
-    visited_global = set()
+    cycles_found: List[List[str]] = []
+    visited_global: Set[str] = set()
 
     for node in graph:
         if node not in visited_global:
@@ -1718,8 +1763,8 @@ def get_resolution_pair(
             winner = cycle[i]
             loser = cycle[(i + 1) % len(cycle)]
 
-            comp = comparison_map.get((winner, loser))
-            if not comp:
+            comp_result = comparison_map.get((winner, loser))
+            if not comp_result:
                 continue
 
             # Get features to calculate uncertainty
@@ -1731,11 +1776,13 @@ def get_resolution_pair(
 
             # Calculate combined uncertainty for this pair
             if dimension == "complexity":
-                uncertainty = (
+                uncertainty = float(
                     feature_winner.complexity_sigma + feature_loser.complexity_sigma
                 )
             else:  # value
-                uncertainty = feature_winner.value_sigma + feature_loser.value_sigma
+                uncertainty = float(
+                    feature_winner.value_sigma + feature_loser.value_sigma
+                )
 
             if uncertainty > max_uncertainty:
                 max_uncertainty = uncertainty
@@ -1772,15 +1819,16 @@ def get_resolution_pair(
         for fid in containing_cycle:
             feat = crud.feature.get(db=db, id=fid)
             if feat:
-                cycle_feature_names.append(feat.name)
+                cycle_feature_names.append(str(feat.name))
             else:
                 cycle_feature_names.append(f"Unknown ({fid[:8]})")
 
-        cycle_context = {
-            "cycle_length": len(containing_cycle),
-            "features_in_cycle": cycle_feature_names,
-            "feature_ids_in_cycle": containing_cycle,
-        }
+        if cycle_context is None:
+            cycle_context = {
+                "cycle_length": len(containing_cycle),
+                "features_in_cycle": cycle_feature_names,
+                "feature_ids_in_cycle": containing_cycle,
+            }
 
     return {
         "comparison_id": None,
@@ -1884,8 +1932,9 @@ def get_comparison_progress(
     # 4. Consistency Score: penalize for logical cycles
     inconsistency_stats = _calculate_inconsistency_stats(db, project_id, dimension)
     cycle_count = inconsistency_stats["cycle_count"]
+    consistency_score: float
     if unique_pairs_compared > 0:
-        consistency_score = max(0.5, 1.0 - (cycle_count / unique_pairs_compared))
+        consistency_score = float(max(0.5, 1.0 - (cycle_count / unique_pairs_compared)))
     else:
         consistency_score = 1.0
 
@@ -1909,10 +1958,12 @@ def get_comparison_progress(
     else:
         # Use transitive coverage as the primary signal, slightly boosted by Bayesian confidence
         # The boost is small (max 5%) to ensure transitive=90% → effective≈90%
-        bayesian_boost = 0.05 * bayesian_confidence  # 0-5% boost
-        effective_confidence = (
-            min(1.0, transitive_coverage + bayesian_boost) * consistency_score
+        bayesian_boost = 0.05 * bayesian_confidence  # type: ignore  # 0-5% boost
+        coverage_with_boost_val: float = float(
+            min(1.0, transitive_coverage + bayesian_boost)
         )
+        consistency_val2: float = consistency_score  # type: ignore
+        effective_confidence = coverage_with_boost_val * consistency_val2  # type: ignore
 
     # Calculate progress percent and estimate remaining comparisons
     progress_percent = effective_confidence * 100.0
@@ -1968,10 +2019,10 @@ def get_comparison_progress(
         "coverage_confidence": round(
             direct_coverage, 4
         ),  # Legacy: same as direct_coverage
-        "bayesian_confidence": round(bayesian_confidence, 4),
-        "consistency_score": round(consistency_score, 4),
-        "effective_confidence": round(effective_confidence, 4),
-        "progress_percent": round(progress_percent, 2),
+        "bayesian_confidence": round(bayesian_confidence, 4),  # type: ignore
+        "consistency_score": round(consistency_score, 4),  # type: ignore
+        "effective_confidence": round(effective_confidence, 4),  # type: ignore
+        "progress_percent": round(progress_percent, 2),  # type: ignore
         # Comparison counts and estimates
         "total_comparisons_done": total_comparisons_done,
         "comparisons_remaining": comparisons_remaining,
@@ -2012,7 +2063,9 @@ def reset_comparisons(
             count += 1
 
     # Decrement project comparison counter
-    project.total_comparisons = max(0, project.total_comparisons - count)
+    setattr(
+        project, "total_comparisons", max(0, int(project.total_comparisons) - count)
+    )
     db.add(project)
     db.commit()
 
@@ -2060,16 +2113,16 @@ def undo_last_comparison(
 
     # Soft delete the comparison (preserves audit trail)
     crud.comparison.soft_delete(
-        db=db, id=last_comparison.id, deleted_by=str(current_user.id)
+        db=db, id=str(last_comparison.id), deleted_by=str(current_user.id)
     )
 
     # Decrement project comparison counter
-    project.total_comparisons = max(0, project.total_comparisons - 1)
+    setattr(project, "total_comparisons", max(0, int(project.total_comparisons) - 1))
     db.add(project)
 
     # Recalculate all Bayesian scores for this dimension
     _recalculate_bayesian_scores(
-        db=db, project_id=project_id, dimension=dimension_for_recalc
+        db=db, project_id=project_id, dimension=str(dimension_for_recalc)
     )
 
     db.commit()
@@ -2243,11 +2296,11 @@ def delete_comparison(
     crud.comparison.soft_delete(db=db, id=comparison_id, deleted_by=str(current_user.id))  # type: ignore
 
     # Decrement project comparison counter
-    project.total_comparisons = max(0, project.total_comparisons - 1)
+    setattr(project, "total_comparisons", max(0, int(project.total_comparisons) - 1))
     db.add(project)
 
     # Recalculate all Bayesian scores for this dimension
-    _recalculate_bayesian_scores(db=db, project_id=project_id, dimension=dimension)
+    _recalculate_bayesian_scores(db=db, project_id=project_id, dimension=str(dimension))
 
     db.commit()
     return None

@@ -95,8 +95,8 @@ def create_feature(
         if features:
             complexity_avg = sum(f.complexity_sigma for f in features) / len(features)
             value_avg = sum(f.value_sigma for f in features) / len(features)
-            project.complexity_avg_variance = complexity_avg
-            project.value_avg_variance = value_avg
+            setattr(project, "complexity_avg_variance", complexity_avg)
+            setattr(project, "value_avg_variance", value_avg)
             db.add(project)
             db.commit()
             db.refresh(feature)
@@ -138,8 +138,8 @@ def bulk_create_features(
                 all_features
             )
             value_avg = sum(f.value_sigma for f in all_features) / len(all_features)
-            project.complexity_avg_variance = complexity_avg
-            project.value_avg_variance = value_avg
+            setattr(project, "complexity_avg_variance", complexity_avg)
+            setattr(project, "value_avg_variance", value_avg)
             db.add(project)
             db.commit()
 
@@ -187,12 +187,12 @@ def bulk_delete_features(
             value_avg = sum(f.value_sigma for f in remaining_features) / len(
                 remaining_features
             )
-            project.complexity_avg_variance = complexity_avg
-            project.value_avg_variance = value_avg
+            setattr(project, "complexity_avg_variance", complexity_avg)
+            setattr(project, "value_avg_variance", value_avg)
         else:
             # No features left, reset to default
-            project.complexity_avg_variance = 1.0
-            project.value_avg_variance = 1.0
+            setattr(project, "complexity_avg_variance", 1.0)
+            setattr(project, "value_avg_variance", 1.0)
         db.add(project)
         db.commit()
 
@@ -307,12 +307,12 @@ def delete_feature(
             value_avg = sum(f.value_sigma for f in remaining_features) / len(
                 remaining_features
             )
-            project.complexity_avg_variance = complexity_avg
-            project.value_avg_variance = value_avg
+            setattr(project, "complexity_avg_variance", complexity_avg)
+            setattr(project, "value_avg_variance", value_avg)
         else:
             # No features left, reset to default
-            project.complexity_avg_variance = 1.0
-            project.value_avg_variance = 1.0
+            setattr(project, "complexity_avg_variance", 1.0)
+            setattr(project, "value_avg_variance", 1.0)
         db.add(project)
         db.commit()
 

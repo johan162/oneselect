@@ -102,10 +102,10 @@ class TestParameterizedWorkflow:
     """Parameterized integration tests with varying features and confidence levels."""
 
     @pytest.fixture
-    def generate_features(self):
+    def generate_features(self) -> Any:
         """Factory fixture to generate feature names and orderings."""
 
-        def _generate(n: int):
+        def _generate(n: int) -> tuple[list[str], dict[str, int], dict[str, int]]:
             # Generate feature names: Feat01, Feat02, ..., FeatN
             feature_names = [f"Feat{i:02d}" for i in range(1, n + 1)]
 
@@ -151,7 +151,7 @@ class TestParameterizedWorkflow:
         self,
         client: TestClient,
         superuser_token_headers: dict,
-        generate_features,
+        generate_features: Any,
         num_features: int,
         target_confidence: float,
     ) -> None:
@@ -529,7 +529,7 @@ class TestParameterizedWorkflow:
         )
 
 
-def print_summary_table():
+def print_summary_table() -> None:
     """Print a formatted summary table of all test results."""
     if not _test_results:
         print("\nNo test results to summarize.")
@@ -651,7 +651,7 @@ def print_summary_table():
 
 
 @pytest.fixture(scope="session", autouse=True)
-def print_final_summary(request):
+def print_final_summary(request: Any) -> Any:
     """Print summary table after all tests complete."""
     yield
     # This runs after all tests in the session
@@ -661,7 +661,7 @@ def print_final_summary(request):
 class TestGoodnessScoreCalculation:
     """Unit tests for the goodness score calculation functions."""
 
-    def test_perfect_ranking(self):
+    def test_perfect_ranking(self) -> None:
         """Perfect ranking should have 0 inversions and goodness 1.0."""
         expected = ["A", "B", "C", "D", "E"]
         actual = ["A", "B", "C", "D", "E"]
@@ -669,7 +669,7 @@ class TestGoodnessScoreCalculation:
         assert calculate_inversions(actual, expected) == 0
         assert calculate_goodness_score(actual, expected) == 1.0
 
-    def test_reversed_ranking(self):
+    def test_reversed_ranking(self) -> None:
         """Completely reversed ranking should have max inversions."""
         expected = ["A", "B", "C", "D", "E"]
         actual = ["E", "D", "C", "B", "A"]
@@ -680,7 +680,7 @@ class TestGoodnessScoreCalculation:
         assert calculate_inversions(actual, expected) == max_inversions
         assert calculate_goodness_score(actual, expected) == 0.0
 
-    def test_one_swap(self):
+    def test_one_swap(self) -> None:
         """One adjacent swap should have 1 inversion."""
         expected = ["A", "B", "C", "D", "E"]
         actual = ["A", "C", "B", "D", "E"]  # B and C swapped
@@ -691,7 +691,7 @@ class TestGoodnessScoreCalculation:
         max_inversions = n * (n - 1) // 2  # 10
         assert calculate_goodness_score(actual, expected) == 1.0 - (1 / max_inversions)
 
-    def test_partial_disorder(self):
+    def test_partial_disorder(self) -> None:
         """Test a partially disordered ranking."""
         expected = ["A", "B", "C", "D", "E"]
         actual = ["A", "C", "B", "E", "D"]  # 2 swaps: B-C and D-E
@@ -701,7 +701,7 @@ class TestGoodnessScoreCalculation:
         # No additional inversions between the swapped pairs
         assert calculate_inversions(actual, expected) == 2
 
-    def test_larger_example(self):
+    def test_larger_example(self) -> None:
         """Test with a larger list."""
         expected = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
         actual = ["1", "2", "4", "3", "5", "6", "8", "7", "9", "10"]  # 2 adjacent swaps

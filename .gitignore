@@ -178,3 +178,8 @@ cython_debug/
 temp/
 tmp/
 .local-dev-notes.md
+
+# Makefile time-stamps
+*.stamp
+*-stamp
+

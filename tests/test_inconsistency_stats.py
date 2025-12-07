@@ -9,7 +9,7 @@ Verifies that:
 """
 
 
-def test_inconsistency_percentage_calculation():
+def test_inconsistency_percentage_calculation() -> None:
     """Test percentage calculation logic"""
     # 4 comparisons, 3 involved in a cycle = 75%
     total_comparisons = 4
@@ -19,12 +19,12 @@ def test_inconsistency_percentage_calculation():
     assert percentage == 75.0
 
 
-def test_no_inconsistencies():
+def test_no_inconsistencies() -> None:
     """Test stats when there are no cycles"""
     # Simulate the helper function logic
     total_comparisons = 10
-    cycles_found = []
-    comparisons_in_cycles = set()
+    cycles_found: list = []
+    comparisons_in_cycles: set = set()
 
     stats = {
         "cycle_count": len(cycles_found),
@@ -42,7 +42,7 @@ def test_no_inconsistencies():
     assert stats["inconsistency_percentage"] == 0.0
 
 
-def test_single_cycle_stats():
+def test_single_cycle_stats() -> None:
     """Test stats with a single 3-node cycle"""
     # A>B, B>C, C>A = 3 comparisons in 1 cycle
     total_comparisons = 3
@@ -63,7 +63,7 @@ def test_single_cycle_stats():
     assert stats["inconsistency_percentage"] == 100.0
 
 
-def test_partial_inconsistencies():
+def test_partial_inconsistencies() -> None:
     """Test when only some comparisons are in cycles"""
     # 10 total comparisons, but only 4 involved in cycles
     total_comparisons = 10
@@ -84,7 +84,7 @@ def test_partial_inconsistencies():
     assert stats["inconsistency_percentage"] == 30.0  # 3/10 = 30%
 
 
-def test_multiple_cycles_stats():
+def test_multiple_cycles_stats() -> None:
     """Test stats with multiple independent cycles"""
     # 2 cycles: A>B>C>A (3 edges) and D>E>F>D (3 edges)
     # Plus 4 other comparisons = 10 total
@@ -113,7 +113,7 @@ def test_multiple_cycles_stats():
     assert stats["inconsistency_percentage"] == 60.0
 
 
-def test_empty_project_stats():
+def test_empty_project_stats() -> None:
     """Test stats for a project with no comparisons"""
     stats = {
         "cycle_count": 0,
@@ -127,7 +127,7 @@ def test_empty_project_stats():
     assert stats["inconsistency_percentage"] == 0.0
 
 
-def test_rounding_precision():
+def test_rounding_precision() -> None:
     """Test that percentages are rounded to 2 decimal places"""
     total_comparisons = 7
     comparisons_in_cycles = 2
@@ -138,7 +138,7 @@ def test_rounding_precision():
     assert percentage == 28.57
 
 
-def test_high_inconsistency_rate():
+def test_high_inconsistency_rate() -> None:
     """Test detection of projects with high inconsistency rates"""
     # 8 out of 10 comparisons in cycles (80%)
     total_comparisons = 10
@@ -150,10 +150,10 @@ def test_high_inconsistency_rate():
     assert percentage > 20.0  # Threshold for "significant" inconsistencies
 
 
-def test_ui_color_thresholds():
+def test_ui_color_thresholds() -> None:
     """Test typical UI color coding thresholds"""
 
-    def get_severity_level(percentage):
+    def get_severity_level(percentage: float) -> str:
         if percentage == 0:
             return "green"
         elif percentage < 10:

@@ -6,7 +6,7 @@ in the comparison graph (e.g., A>B, B>C, C>A).
 """
 
 
-def test_simple_cycle_detection():
+def test_simple_cycle_detection() -> None:
     """Test detection of a simple 3-node cycle: A>B, B>C, C>A"""
     # Build graph
     graph = {
@@ -16,7 +16,9 @@ def test_simple_cycle_detection():
     }
 
     # DFS cycle detection
-    def find_cycles_dfs(node, path, visited, rec_stack, all_cycles):
+    def find_cycles_dfs(
+        node: str, path: list, visited: set, rec_stack: set, all_cycles: list
+    ) -> None:
         visited.add(node)
         rec_stack.add(node)
         path.append(node)
@@ -35,8 +37,8 @@ def test_simple_cycle_detection():
         path.pop()
         rec_stack.remove(node)
 
-    cycles = []
-    visited = set()
+    cycles: list = []
+    visited: set = set()
 
     for node in graph:
         if node not in visited:
@@ -46,7 +48,7 @@ def test_simple_cycle_detection():
     assert set(cycles[0]) == {"A", "B", "C"}
 
 
-def test_no_cycle():
+def test_no_cycle() -> None:
     """Test graph with no cycles: A>B, B>C, A>C"""
     graph = {
         "A": {"B", "C"},
@@ -54,7 +56,9 @@ def test_no_cycle():
         "C": set(),
     }
 
-    def find_cycles_dfs(node, path, visited, rec_stack, all_cycles):
+    def find_cycles_dfs(
+        node: str, path: list, visited: set, rec_stack: set, all_cycles: list
+    ) -> None:
         visited.add(node)
         rec_stack.add(node)
         path.append(node)
@@ -73,8 +77,8 @@ def test_no_cycle():
         path.pop()
         rec_stack.remove(node)
 
-    cycles = []
-    visited = set()
+    cycles: list = []
+    visited: set = set()
 
     for node in graph:
         if node not in visited:
@@ -83,7 +87,7 @@ def test_no_cycle():
     assert len(cycles) == 0
 
 
-def test_multiple_cycles():
+def test_multiple_cycles() -> None:
     """Test detection of multiple independent cycles"""
     # Two cycles: A>B>C>A and D>E>F>D
     graph = {
@@ -95,7 +99,9 @@ def test_multiple_cycles():
         "F": {"D"},
     }
 
-    def find_cycles_dfs(node, path, visited, rec_stack, all_cycles):
+    def find_cycles_dfs(
+        node: str, path: list, visited: set, rec_stack: set, all_cycles: list
+    ) -> None:
         visited.add(node)
         rec_stack.add(node)
         path.append(node)
@@ -114,8 +120,8 @@ def test_multiple_cycles():
         path.pop()
         rec_stack.remove(node)
 
-    cycles = []
-    visited = set()
+    cycles: list = []
+    visited: set = set()
 
     for node in graph:
         if node not in visited:
@@ -124,7 +130,7 @@ def test_multiple_cycles():
     assert len(cycles) == 2
 
 
-def test_complex_cycle():
+def test_complex_cycle() -> None:
     """Test detection of longer cycle with branches"""
     # Main cycle: A>B>C>D>A, with extra edges
     graph = {
@@ -134,7 +140,9 @@ def test_complex_cycle():
         "D": {"A"},
     }
 
-    def find_cycles_dfs(node, path, visited, rec_stack, all_cycles):
+    def find_cycles_dfs(
+        node: str, path: list, visited: set, rec_stack: set, all_cycles: list
+    ) -> None:
         visited.add(node)
         rec_stack.add(node)
         path.append(node)
@@ -153,8 +161,8 @@ def test_complex_cycle():
         path.pop()
         rec_stack.remove(node)
 
-    cycles = []
-    visited = set()
+    cycles: list = []
+    visited: set = set()
 
     for node in graph:
         if node not in visited:
@@ -164,13 +172,13 @@ def test_complex_cycle():
     assert len(cycles) >= 1
 
 
-def test_performance_large_graph():
+def test_performance_large_graph() -> None:
     """Test performance with a graph similar to 70 features"""
     import time
 
     # Create a graph with 70 nodes and ~200 edges
     # Most edges form a DAG, but add a few cycles
-    graph = {}
+    graph: dict = {}
 
     # Create a mostly ordered graph
     for i in range(70):
@@ -184,7 +192,9 @@ def test_performance_large_graph():
     graph["30"].add("25")  # Creates another cycle
     graph["50"].add("45")  # Creates another cycle
 
-    def find_cycles_dfs(node, path, visited, rec_stack, all_cycles):
+    def find_cycles_dfs(
+        node: str, path: list, visited: set, rec_stack: set, all_cycles: list
+    ) -> None:
         visited.add(node)
         rec_stack.add(node)
         path.append(node)
@@ -204,8 +214,8 @@ def test_performance_large_graph():
         rec_stack.remove(node)
 
     start_time = time.time()
-    cycles = []
-    visited = set()
+    cycles: list = []
+    visited: set = set()
 
     for node in graph:
         if node not in visited:
