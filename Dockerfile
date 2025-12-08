@@ -42,7 +42,7 @@ WORKDIR /app
 # Copy dependency files
 COPY pyproject.toml poetry.lock ./
 
-# Setup Poetry with dependencies and install DB with default admin user if it does not exists
+# Setup Poetry with only runtime dependencies and no dev dependencies
 RUN poetry config virtualenvs.in-project true && poetry install --no-root --only=main
 
 # ======================================================================
@@ -61,12 +61,13 @@ RUN addgroup -S oneselect && adduser -D -u 1000 oneselect -G oneselect && \
     mkdir -p /app/data && \
     chown -R oneselect:oneselect /app
 
+# Setup working directory
 WORKDIR /app
 
 # Copy the virtual environment with dependencies from the builder stage
 COPY --from=builder --chown=oneselect:oneselect /app/.venv ./.venv
 
-# Remove pip and other installation tools not needed in the runtime image
+# Remove pip and other installation tools not needed in the virtual environment
 RUN ./.venv/bin/python -m pip uninstall -y pip
 
 # Copy only application code (not tests, docs, etc.)
