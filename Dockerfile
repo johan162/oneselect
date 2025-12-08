@@ -51,7 +51,7 @@ RUN poetry config virtualenvs.in-project true && poetry install --no-root --only
 FROM python:3.13-alpine
 
 # Harden he image step 1: remove python build tools
-RUN python -m pip uninstall -y pip setuptools wheel
+RUN python -m pip uninstall -y pip
 
 # Harden the image step 2: remove the APK package manager to prevent installation of new packages at runtime
 RUN apk del --purge && rm -rf /var/cache/apk /etc/apk /lib/apk
@@ -94,9 +94,9 @@ ENV PYTHONPATH=/app
 # Expose port
 EXPOSE 8000
 
-# Health check
-HEALTHCHECK --interval=120s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/docs').read()"
+# Health check - Only supportedf when using Docker image format
+# HEALTHCHECK --interval=120s --timeout=10s --start-period=5s --retries=3 \
+#    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/docs').read()"
 
 # Set the entrypoint to our script
 ENTRYPOINT ["./docker-entrypoint.sh"]
