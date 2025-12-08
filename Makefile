@@ -20,6 +20,7 @@ BLUE := \033[0;34m
 GREEN := \033[0;32m
 YELLOW := \033[1;33m
 DARKYELLOW := \033[0;33m
+RED := \033[0;31m
 NC := \033[0m # No Color
 
 # =====================================
@@ -163,8 +164,8 @@ help: ## Show this help message
 # =====================================
 dev-setup: $(INSTALL_STAMP) $(DB_FILE) ## Setup complete development environment
 	@echo -e "$(GREEN)✓ Development environment ready!$(NC)"
-	@echo -e "$(BLUE)Run 'make run' to start the API-server directly$(NC)"
-	@echo -e "$(BLUE)Run 'make container-up' to build and start the container with the API-server$(NC)"
+	@echo -e "$(YELLOW)- TIP! Run 'make run' to start the API-server directly$(NC)"
+	@echo -e "$(YELLOW)- TIP! Run 'make container-up' to build and start the container with the API-server$(NC)"
 
 install: $(INSTALL_STAMP) ## Install project dependencies and setup virtual environment
 	@echo -e "$(GREEN)✓ Project dependencies installed$(NC)"
@@ -201,9 +202,9 @@ migrate: ensure-poetry ## Apply database migrations using Alembic
 
 init-db: ensure-poetry ## Initialize the database with initial admin user
 	@echo -e "$(DARKYELLOW)- Initializing database with default data...$(NC)"
-	@poetry run python app/initial_data.py
-	@echo -e "$(BLUE)Admin user created:$(NC)"
-	@sqlite3 oneselect.db "SELECT id, username, email, role, is_active, is_superuser FROM users WHERE username = 'admin'" | while IFS= read -r line; do echo -e "$(BLUE)$$line$(NC)"; done
+	@poetry run python app/initial_data.py > /dev/null 2>&1 || { echo -e "$(RED)⚠️  Warning: Initial data script failed. It may have already been run.$(NC)"; }
+	@echo -e "$(BLUE)- Admin user created:$(NC)"
+	@sqlite3 oneselect.db "SELECT id, username, email, role, is_active, is_superuser FROM users WHERE username = 'admin'" | while IFS= read -r line; do echo -e "$(BLUE)- $$line$(NC)"; done
 	@echo -e "$(GREEN)✓ Database initialized$(NC)"
 
 # =====================================
