@@ -28,7 +28,7 @@ services:
     
     volumes:
       # Persist database
-      - oneselect-data:/app/data/
+      - oneselect-data:/app/data/:U
       # - ./oneselect.db:/app/data/oneselect.db  
       
       # For development: mount source code for hot reload

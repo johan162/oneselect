@@ -44,6 +44,8 @@ SERVER_PORT := 8000
 DOCS_PORT := 8100
 
 PROJECT := oneselect
+APP_NAME := OneSelect
+PYPI_NAME := oneselect_backend
 VERSION := $(shell grep '^version' pyproject.toml | head -1 | cut -d'"' -f2)
 CONTAINER_NAME := $(PROJECT)-backend
 DB_FILE := $(PROJECT).db
@@ -52,6 +54,8 @@ DB_FILE := $(PROJECT).db
 SRC_FILES := $(shell find $(SRC_DIR) -name '*.py')
 TEST_FILES := $(shell find $(TEST_DIR) -name 'test_*.py')
 DOC_FILES := $(shell find $(DOCS_DIR) -name '*.md' -o -name '*.yml' -o -name '*.yaml')
+MISC_FILES := pyproject.toml poetry.lock README.md mypy.ini .flake8 alembic.ini mkdocs.yml
+LOCK_FILE := poetry.lock
 
 # Timestamp files
 CONTAINER_STAMP := .container-stamp
@@ -60,6 +64,11 @@ FORMAT_STAMP := .format-stamp
 LINT_STAMP := .lint-stamp
 TYPECHECK_STAMP := .typecheck-stamp
 INSTALL_STAMP := .install-stamp
+
+# Build files
+BUILD_DIR := dist
+BUILD_WHEEL := $(BUILD_DIR)/$(PYPI_NAME)-$(VERSION)-py3-none-any.whl
+BUILD_SDIST := $(BUILD_DIR)/$(PYPI_NAME)-$(VERSION).tar.gz
 
 # =====================================
 # Timestamp dependencies
@@ -97,13 +106,25 @@ $(TYPECHECK_STAMP): $(SRC_FILES) $(TEST_FILES)
 	@poetry run mypy --explicit-package-bases .
 	@touch $(TYPECHECK_STAMP)
 
-$(INSTALL_STAMP): pyproject.toml poetry.lock
+$(INSTALL_STAMP): pyproject.toml | poetry.lock
 	@echo -e "$(YELLOW)Installing dependencies...$(NC)"
 	$(call check_poetry)
-	@poetry run install
+	@poetry config virtualenvs.in-project true  ## make sure venv is created in project dir
+	@poetry install
 	@touch $(INSTALL_STAMP)
 
-$(DB_FILE):
+$(BUILD_WHEEL): $(SRC_FILES) $(TEST_FILES) $(MISC_FILES)
+	@echo -e "$(YELLOW)Building project packages...$(NC)"
+	$(call check_poetry)
+	@poetry build
+
+$(LOCK_FILE): pyproject.toml  ## Ensure poetry.lock is up to date if dependencies change
+	@echo -e "$(YELLOW)Regenerating lock file to ensure consistency...$(NC)"
+	$(call check_poetry)
+	@poetry lock
+	@touch $(LOCK_FILE)
+
+$(DB_FILE): ## Setup the database if it does not exist
 	@if [ ! -f $(DB_FILE) ]; then \
 		$(MAKE) migrate; \
 		$(MAKE) init-db; \
@@ -164,10 +185,15 @@ migrate: ## Apply database migrations using Alembic
 
 init-db: ## Initialize the database with initial admin user
 	@echo -e "$(YELLOW)Initializing database with default data...$(NC)"
-	poetry run python app/initial_data.py
+	@poetry run python app/initial_data.py
+	@echo -e "$(BLUE)Admin user created:$(NC)"
+	@sqlite3 oneselect.db "SELECT id, username, email, role, is_active, is_superuser FROM users WHERE username = 'admin'" | while IFS= read -r line; do echo -e "$(BLUE)$$line$(NC)"; done
 	@echo -e "$(GREEN)✓ Database initialized$(NC)"
 
 check: format lint typecheck ## Run all checks: format, lint, and typecheck
+
+build: check docs ${BUILD_WHEEL} ## Build the project packages
+	@echo -e "$(GREEN)✓ 📦 Packages built: $(BUILD_WHEEL), $(BUILD_SDIST)$(NC)"
 
 clean: ## Clean up build artifacts, caches, and timestamp files
 	@echo -e "$(YELLOW)Cleaning build artifacts and caches...$(NC)"
@@ -189,7 +215,6 @@ really-clean: clean ## Perform a thorough cleanup including containers and datab
 	@echo -e "$(GREEN)✓ Deep clean completed$(NC)"
 
 docs: $(DOC_STAMP) ## Build the project documentation with MkDocs
-	$(call check_poetry)
 	@echo -e "$(GREEN)✓ Documentation built successfully$(NC)"
 
 docs-serve: docs ## Serve the project documentation locally with MkDocs

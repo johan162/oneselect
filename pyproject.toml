@@ -19,7 +19,7 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Application Frameworks",
     "Topic :: Scientific/Engineering :: Mathematics",
 ]
-package-mode = false
+packages = [{include = "app"}]
 
 [tool.poetry.dependencies]
 python = "^3.13"
@@ -51,7 +51,6 @@ types-python-jose = "^3.3.4"
 types-passlib = "^1.7.7"
 types-requests = "^2.32.4.20250913"
 requests = "^2.32.5"
-
 
 [build-system]
 requires = ["poetry-core"]
