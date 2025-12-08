@@ -80,7 +80,7 @@ $(FORMAT_STAMP): $(SRC_FILES) $(TEST_FILES)
 	@poetry run black $(SRC_DIR) $(TEST_DIR)
 	@touch $(FORMAT_STAMP)
 
-$(CONTAINER_STAMP): $(SRC_FILES) $(TEST_FILES) $(DOC_STAMP)
+$(CONTAINER_STAMP): $(SRC_FILES)
 	@echo -e "$(YELLOW)Building container image...$(NC)"
 	$(call check_podman)
 	$(call check_podman_compose)
@@ -138,7 +138,8 @@ help: ## Show this help message
 
 dev: $(INSTALL_STAMP) $(DB_FILE) ## Setup complete development environment
 	@echo -e "$(GREEN)✓ Development environment ready!$(NC)"
-	@echo -e "$(BLUE)Run 'make run' to start the server$(NC)"
+	@echo -e "$(BLUE)Run 'make run' to start the API-server directly$(NC)"
+	@echo -e "$(BLUE)Run 'make container-up' to build and start the container with the API-server$(NC)"
 
 install: $(INSTALL_STAMP) ## Install project dependencies and setup virtual environment
 	@echo -e "$(GREEN)✓ Project dependencies installed$(NC)"
@@ -197,21 +198,19 @@ build: check docs ${BUILD_WHEEL} ## Build the project packages
 
 clean: ## Clean up build artifacts, caches, and timestamp files
 	@echo -e "$(YELLOW)Cleaning build artifacts and caches...$(NC)"
-	rm -rf .venv
 	rm -rf .pytest_cache
 	rm -rf .coverage
 	rm -rf htmlcov
 	rm -rf site
-	rm -f $(FORMAT_STAMP) $(LINT_STAMP) $(TYPECHECK_STAMP) $(DOC_STAMP) $(INSTALL_STAMP)
+	rm -f $(FORMAT_STAMP) $(LINT_STAMP) $(TYPECHECK_STAMP) $(DOC_STAMP) 
 	find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
 	find . -type f -name "*.pyc" -delete
 	@echo -e "$(GREEN)✓ Clean completed$(NC)"
 
-really-clean: clean ## Perform a thorough cleanup including containers and database files
+maintainer-clean: clean ## Perform a thorough cleanup including virtual environment, containers and database files
 	@echo -e "$(YELLOW)Performing deep clean...$(NC)"
 	@$(MAKE) container-clean 2>/dev/null || true
-	rm -f $(CONTAINER_STAMP)
-	rm -rf *.db
+	rm -rf *.db .venv $(INSTALL_STAMP)
 	@echo -e "$(GREEN)✓ Deep clean completed$(NC)"
 
 docs: $(DOC_STAMP) ## Build the project documentation with MkDocs
@@ -228,53 +227,50 @@ docs-serve: docs ## Serve the project documentation locally with MkDocs
 
 container-build: $(CONTAINER_STAMP) ## Build the Podman container image for the application and tag it with the current version
 	@echo -e "$(GREEN)✓ Container image built and tagged as oneselect-backend:$(VERSION)$(NC)"
-	@echo -e "$(YELLOW)Tip: Run 'make container-up' to start, then 'make container-init' to initialize database$(NC)"
 
-container-init: | $(CONTAINER_STAMP) ## Initialize the container environment, create volumes, and setup the database
-	@if ! podman ps --format "{{.Names}}" | grep -q "oneselect-backend"; then \
-		echo -e "$(YELLOW)Error: Container 'oneselect-backend' is not running. Run 'make container-up' first.$(NC)"; \
-		exit 1; \
-	fi
-	@podman volume create $(PROJECT)_oneselect-data 2>/dev/null || true
-	@if ! podman exec oneselect-backend test -f /app/data/oneselect.db 2>/dev/null; then \
-		echo -e "$(YELLOW)Database not found. Initializing...$(NC)"; \
-		podman exec oneselect-backend python -m alembic upgrade head; \
-		podman exec oneselect-backend python app/initial_data.py; \
-		echo -e "$(GREEN)✓ Database initialized successfully$(NC)"; \
-	else \
-		echo -e "$(GREEN)✓ Database already exists, skipping initialization$(NC)"; \
-	fi
-
-container-up: | $(CONTAINER_STAMP) ## Start the Podman container in detached mode
+container-up: $(CONTAINER_STAMP) ## Start the Podman container in detached mode
+	$(call check_podman_compose)
 	@echo -e "$(YELLOW)Starting containers...$(NC)"
 	podman-compose up -d
 	@echo -e "$(GREEN)✓ Containers started$(NC)"
 
 container-down: | $(CONTAINER_STAMP) ## Stop and remove the running container
+	$(call check_podman_compose)
 	@echo -e "$(YELLOW)Stopping containers...$(NC)"
 	podman-compose down
 	@echo -e "$(GREEN)✓ Containers stopped$(NC)"
 
 container-logs: | $(CONTAINER_STAMP) ## Follow the logs of the running container
+	$(call check_podman_compose)
 	podman-compose logs -f
 
 container-restart: | $(CONTAINER_STAMP) ## Restart the running container
+	$(call check_podman_compose)
 	podman-compose restart
 
 container-shell: | $(CONTAINER_STAMP) ## Open an interactive shell inside the running container
+	$(call check_podman_compose)
 	podman-compose exec oneselect-backend /bin/bash
 
-container-clean:  ## Remove all containers, images, and prune the Podman system
+container-clean: container-clean-container-volumes container-clean-images ## Clean up all containers and images
+
+container-clean-container-volumes:  ## Remove all containers, and prune the Podman system
+	$(call check_podman)
+	$(call check_podman_compose)
+	@echo -e "$(YELLOW)Cleaning up containers and volumes...$(NC)"
 	podman-compose down -v
 	podman system prune -f
+	@echo -e "$(GREEN)✓ Containers and volumes removed$(NC)"
 
 container-clean-images: ## Remove all oneselect container images
 	$(call check_podman)
 	@echo -e "$(YELLOW)Removing all oneselect images...$(NC)"
 	@podman rmi -f $$(podman images --filter "reference=oneselect*" -q) 2>/dev/null || true
+	@rm -f $(CONTAINER_STAMP)
 	@echo -e "$(GREEN)✓ Images removed$(NC)"
 
-container-volume-info: ## Inspect the Podman volume used for persistent data storage
+container-volume-info: ## Inspect the Podman volume used for persistent data storage'
+	$(call check_podman)
 	podman volume ls
 	podman volume inspect $(PROJECT)_oneselect-data
 
