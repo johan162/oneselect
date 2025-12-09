@@ -126,9 +126,11 @@ $(INSTALL_STAMP): pyproject.toml $(LOCK_FILE)
 	@echo -e "$(GREEN)✓ Project dependencies installed$(NC)"
 
 $(BUILD_WHEEL): $(SRC_FILES) $(TEST_FILES) $(MISC_FILES)
-	@echo -e "$(DARKYELLOW)- Building project packages...$(NC)"
+	@echo -e "$(DARKYELLOW)- Building and verifying project packages...$(NC)"
 	@poetry build
+	@poetry run twine check dist/*
 	@echo -e "$(GREEN)✓ 📦 Packages built: $(BUILD_WHEEL), $(BUILD_SDIST)$(NC)"
+	@touch $(BUILD_WHEEL)
 
 $(LOCK_FILE): pyproject.toml  ## Ensure poetry.lock is up to date if dependencies change
 	@echo -e "$(DARKYELLOW)- Regenerating lock file to ensure consistency...$(NC)"
