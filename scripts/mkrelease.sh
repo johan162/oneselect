@@ -308,9 +308,10 @@ if [ "$DRY_RUN" = false ]; then
     if [ -z  "${VIRTUAL_ENV+x}" ]; then
         # Activate virtual environment if exists
         if [ -f ".venv/bin/activate" ]; then
-            print_warning "No virtual environment detected. Activating venv/bin/activate"
+            print_warning "No virtual environment detected. Activating .venv/bin/activate"
             # shellcheck disable=SC1091
             source .venv/bin/activate
+            echo "Activated virtual environment: $VIRTUAL_ENV"
         else
             print_error_colored "No virtual environment detected and venv/bin/activate not found. Exiting."
             exit 2
@@ -326,6 +327,8 @@ else
         echo "  [DRY-RUN] Virtual environment detected: $VIRTUAL_ENV"
     fi
 fi
+
+exit 1
 
 # 1.3: Verify we're on develop and it's clean
 check_condition '[[ $(git symbolic-ref --short HEAD) == "develop" ]]' "Must be on develop branch"
@@ -416,20 +419,12 @@ else
 fi
 
 # 2.3: Package building test
-run_command "make build" "Testing package building..."
+run_command "make build" "Testing & verifying package building..."
 
 if [[ "$DRY_RUN" == "false" && $? -ne 0 ]]; then
     print_error_colored "Package build failed"
     exit 1
 fi
-
-run_command "python -m twine check dist/*" "Verifying built packages..."
-
-if [[ "$DRY_RUN" == "false" && $? -ne 0 ]]; then
-    print_error_colored "Package validation failed"
-    exit 1
-fi
-
 
 # =====================================
 # PHASE 3: RELEASE PREPARATION
@@ -646,18 +641,10 @@ run_command "rm -rf build/ dist/ app/*.egg-info/ htmlcov/" "Cleaning up build ar
 run_command "rm -f *.bak app/*.bak" "Removing backup files..."
 
 # 7.2: Build Package with the now updated version number
-run_command "python -m build --wheel --sdist" "Testing package building..."
+run_command "make build" "Testing & verifying package building..."
 
 if [[ "$DRY_RUN" == "false" && $? -ne 0 ]]; then
     print_error_colored "Distribution package build failed"
-    exit 1
-fi
-
-# 7.3: Package building validation
-run_command "python -m twine check dist/*" "Verifying built packages..."
-
-if [[ "$DRY_RUN" == "false" && $? -ne 0 ]]; then
-    print_error_colored "Distribution package validation failed"
     exit 1
 fi
 
