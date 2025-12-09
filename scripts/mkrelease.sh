@@ -328,8 +328,6 @@ else
     fi
 fi
 
-exit 1
-
 # 1.3: Verify we're on develop and it's clean
 check_condition '[[ $(git symbolic-ref --short HEAD) == "develop" ]]' "Must be on develop branch"
 check_condition '[[ -z $(git status --porcelain) ]]' "Working directory must be clean"
