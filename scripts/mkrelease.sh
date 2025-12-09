@@ -70,6 +70,90 @@ print_warning_colored() {
 }
 
 # =====================================
+# Utility fiunctions
+# =====================================
+
+# Function to check if a command exists
+check_command_exists() {
+    local cmd=$1
+    if ! command -v "$cmd" &> /dev/null; then
+        print_error "$cmd is not installed"
+        return 1
+    fi
+    return 0
+}
+
+# Function to compare semantic versions
+compare_versions() {
+    # Compare two semantic versions
+    # Returns: 0 if $1 >= $2, 1 otherwise
+    local ver1=$1
+    local ver2=$2
+    
+    if [[ "$ver1" == "$ver2" ]]; then
+        return 0
+    fi
+    
+    local IFS=.
+    local i ver1_array=($ver1) ver2_array=($ver2)
+    
+    # Fill empty positions with zeros
+    for ((i=${#ver1_array[@]}; i<${#ver2_array[@]}; i++)); do
+        ver1_array[i]=0
+    done
+    
+    for ((i=0; i<${#ver1_array[@]}; i++)); do
+        if [[ -z ${ver2_array[i]} ]]; then
+            ver2_array[i]=0
+        fi
+        if ((10#${ver1_array[i]} > 10#${ver2_array[i]})); then
+            return 0
+        fi
+        if ((10#${ver1_array[i]} < 10#${ver2_array[i]})); then
+            return 1
+        fi
+    done
+    return 0
+}
+
+# Function to execute command or print it in dry-run mode
+run_command() {
+    local cmd="$1"
+    local description="${2:-}"
+    
+     if [ "$DRY_RUN" = "true" ]; then
+        echo -e "${YELLOW}[DRY-RUN]${NC} Would execute: ${cmd}"
+    else
+        print_sub_step "$description"
+        echo "Executing: $cmd"
+        if eval "$cmd"; then
+            print_success "$description completed!"
+        else
+            print_error_colored "$description failed! Aborting."
+            exit 1
+        fi
+    fi
+}
+
+# Conditional execution for commands that need special dry-run handling
+check_condition() {
+    local condition="$1"
+    local error_msg="$2"
+    
+    if [[ "$DRY_RUN" == "true" ]]; then
+        echo "  [DRY-RUN] Would check: $condition"
+        echo "  [DRY-RUN] Would fail with: $error_msg (if condition false)"
+        return 0  # Don't actually fail in dry-run
+    else
+        if ! eval "$condition"; then
+            print_error_colored "$error_msg"
+            exit 1
+        fi
+    fi
+}
+
+
+# =====================================
 # Help function
 # =====================================
 show_help() {
@@ -195,41 +279,6 @@ if [[ -z "$VERSION" ]]; then
     exit 1
 fi
 
-# Function to execute command or print it in dry-run mode
-run_command() {
-    local cmd="$1"
-    local description="${2:-}"
-    
-     if [ "$DRY_RUN" = "true" ]; then
-        echo -e "${YELLOW}[DRY-RUN]${NC} Would execute: ${cmd}"
-    else
-        print_sub_step "$description"
-        echo "Executing: $cmd"
-        if eval "$cmd"; then
-            print_success "$description completed!"
-        else
-            print_error_colored "$description failed! Aborting."
-            exit 1
-        fi
-    fi
-}
-
-# Conditional execution for commands that need special dry-run handling
-check_condition() {
-    local condition="$1"
-    local error_msg="$2"
-    
-    if [[ "$DRY_RUN" == "true" ]]; then
-        echo "  [DRY-RUN] Would check: $condition"
-        echo "  [DRY-RUN] Would fail with: $error_msg (if condition false)"
-        return 0  # Don't actually fail in dry-run
-    else
-        if ! eval "$condition"; then
-            print_error_colored "$error_msg"
-            exit 1
-        fi
-    fi
-}
 
 if [[ "$DRY_RUN" == "true" ]]; then
     print_warning_colored "🔍 DRY RUN MODE - No commands will be executed"
@@ -293,6 +342,40 @@ check_condition '[[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-rc[1-9][0-9]?)?$ ]]' 
 # 1.6: Check if version already exists
 check_condition '! git tag | grep -q "v${VERSION}\$"' "Tag v$VERSION already exists"
 
+# 1.7: Check if gh CLI is installed
+print_sub_step "Checking for GitHub CLI (gh)..."
+if ! check_command_exists gh; then
+    print_error "GitHub CLI (gh) is not installed"
+    echo ""
+    echo "Install instructions:"
+    echo "  macOS:   brew install gh"
+    echo "  Linux:   See https://github.com/cli/cli/blob/trunk/docs/install_linux.md"
+    echo "  Windows: See https://github.com/cli/cli#installation"
+    exit 1
+fi
+print_success "GitHub CLI found: $(gh --version | head -1)"
+
+# 1.8: Check gh version
+print_sub_step "Checking gh version..."
+GH_VERSION=$(gh --version | head -1 | awk '{print $3}')
+if ! compare_versions "$GH_VERSION" "$REQUIRED_GH_VERSION"; then
+    print_error "GitHub CLI version $GH_VERSION is too old (need >= $REQUIRED_GH_VERSION)"
+    echo "Update with: brew upgrade gh (macOS) or see https://github.com/cli/cli#installation"
+    exit 1
+fi
+print_success "Version $GH_VERSION meets requirements"
+
+# 1.9: Check gh authentication
+print_sub_step "Checking GitHub authentication..."
+if ! gh auth status &> /dev/null; then
+    print_error "Not authenticated with GitHub"
+    echo ""
+    echo "Please authenticate with: gh auth login"
+    echo "Then run this script again"
+    exit 1
+fi
+print_success "Authenticated with GitHub"
+
 # =====================================
 # PHASE 2: UNIT TESTING & STATIC ANALYSIS
 # =====================================
@@ -344,7 +427,6 @@ if [[ "$DRY_RUN" == "false" && $? -ne 0 ]]; then
     exit 1
 fi
 
-exit 1
 
 # =====================================
 # PHASE 3: RELEASE PREPARATION
@@ -579,8 +661,6 @@ fi
 # =====================================
 # PHASE 8: RELEASE SUMMARY
 # =====================================
-
-
 echo ""
 if [[ "$DRY_RUN" == "true" ]]; then
     print_step_colored ""
