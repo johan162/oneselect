@@ -40,16 +40,16 @@ UNDERLINE := \033[4m
 
 NC := \033[0m # No Color
 
-# =====================================
+# ============================================================================================
 # Tool availability targets
-# =====================================
+# ============================================================================================
 _ := $(if $(shell command -v poetry),,$(error "⚠️ Error: poetry not found. Install with: pip install poetry"))
 _ := $(if $(shell command -v podman),,$(error "⚠️ Error: podman not found. Install with: brew install podman"))
 _ := $(if $(shell command -v podman-compose),,$(error "⚠️ Error: podman-compose not found. Install with: brew install podman-compose"))
 
-# =====================================
+# ============================================================================================
 # Variable configurations
-# =====================================
+# ============================================================================================
 
 # Directories
 SRC_DIR := app
@@ -99,9 +99,13 @@ BUILD_SDIST := $(BUILD_DIR)/$(PYPI_NAME)-$(VERSION).tar.gz
 # ================================================================================================
 $(TEST_STAMP): $(SRC_FILES) $(TEST_FILES)
 	@echo -e "$(DARKYELLOW)- Running tests in parallel with coverage check...$(NC)"
-	@poetry run pytest -n auto --cov=app --cov-report= --cov-report=xml --cov-fail-under=${COVERAGE} -s -q
-	@touch $(TEST_STAMP)
-	@echo -e "$(GREEN)✓ All tests passed with required coverage$(NC)"
+	@if poetry run pytest -n auto --cov=app --cov-report= --cov-report=xml --cov-fail-under=${COVERAGE} -s -q; then \
+		touch $(TEST_STAMP); \
+		echo -e "$(GREEN)✓ All tests passed with required coverage$(NC)"; \
+	else \
+		echo -e "$(RED)✗ Error: Tests failed or coverage below ${COVERAGE}%$(NC)"; \
+		exit 1; \
+	fi
 
 $(FORMAT_STAMP): $(SRC_FILES) $(TEST_FILES)
 	@echo -e "$(DARKYELLOW)- Running code formatter...$(NC)"
@@ -118,9 +122,13 @@ $(CONTAINER_STAMP): $(SRC_FILES)
 
 $(DOC_STAMP): $(DOC_FILES)
 	@echo -e "$(DARKYELLOW)- Building documentation...$(NC)"
-	@poetry run mkdocs build -q
-	@touch $(DOC_STAMP)
-	@echo -e "$(GREEN)✓ Documentation built successfully$(NC)"
+	@if poetry run mkdocs build -q; then \
+		touch $(DOC_STAMP); \
+		echo -e "$(GREEN)✓ Documentation built successfully$(NC)"; \
+	else \
+		echo -e "$(RED)✗ Error: Documentation build failed$(NC)"; \
+		exit 1; \
+	fi
 
 $(LINT_STAMP): $(SRC_FILES) $(TEST_FILES)
 	@echo -e "$(DARKYELLOW)- Running linter...$(NC)"
@@ -144,10 +152,20 @@ $(INSTALL_STAMP): pyproject.toml $(LOCK_FILE)
 	@echo -e "$(GREEN)✓ Project dependencies installed$(NC)"
 
 $(BUILD_WHEEL): $(SRC_FILES) $(TEST_FILES) $(MISC_FILES)
-	@echo -e "$(DARKYELLOW)- Building and verifying project packages...$(NC)"
-	@poetry build
-	@poetry run twine check dist/*
-	@echo -e "$(GREEN)✓ 📦 Packages built: $(BUILD_WHEEL), $(BUILD_SDIST)$(NC)"
+	@echo -e "$(DARKYELLOW)- Building project packages...$(NC)"
+	@if poetry build; then \
+		echo -e "$(GREEN)✓ Packages built successfully$(NC)"; \
+	else \
+		echo -e "$(RED)✗ Error: Package build failed$(NC)"; \
+		exit 1; \
+	fi
+	@echo -e "$(DARKYELLOW)- Verifying packages with twine...$(NC)"
+	@if poetry run twine check dist/*; then \
+		echo -e "$(GREEN)✓ 📦 Package verification passed: $(BUILD_WHEEL), $(BUILD_SDIST)$(NC)"; \
+	else \
+		echo -e "$(RED)✗ Error: Package verification failed$(NC)"; \
+		exit 1; \
+	fi
 	@touch $(BUILD_WHEEL)
 
 $(LOCK_FILE): pyproject.toml  ## Ensure poetry.lock is up to date if dependencies change
@@ -161,13 +179,9 @@ $(DB_FILE): ## Setup the database if it does not exist
 		$(MAKE) init-db; \
 	fi
 
-# ================================================================================================
-# Command Targets
-# ================================================================================================
-
-# =====================================
+# ============================================================================================
 # Help Target
-# =====================================
+# ============================================================================================
 
 # Defines a function to print a section of the help message.
 # Arg 1: Section title
@@ -189,9 +203,9 @@ help: ## Show this help message
 	@$(call print_section,Cleanup,clean|clean-venv|maintainer-clean)
 	@echo ""
 
-# =====================================
+# ============================================================================================
 # Development Environment Targets
-# =====================================
+# ============================================================================================
 dev: $(INSTALL_STAMP) $(DB_FILE) ## Setup complete development environment
 	@echo -e "$(GREEN)✓ Development environment ready!$(NC)"
 	@echo -e "$(YELLOW)- TIP! $(BLUE)Run 'make test' to verify, 'make run' to start the server, or 'make container-up' for containerized deployment$(NC)"
@@ -202,9 +216,9 @@ install: $(INSTALL_STAMP) ## Install project dependencies and setup virtual envi
 reinstall: clean-venv clean install ## Reinstall the project from scratch
 	@echo -e "$(GREEN)✓ Project reinstalled successfully$(NC)"
 
-# =====================================
-# Running the Development Server
-# =====================================
+# ============================================================================================
+# Run the API Development Server Locally
+# ============================================================================================
 run: | $(DB_FILE) ## Run the development server with auto-reload
 	@echo -e "$(BLUE)Starting development server on http://$(SERVER_HOST):$(SERVER_PORT)$(NC)"
 	@poetry run uvicorn app.main:app --reload --host $(SERVER_HOST) --port $(SERVER_PORT)
@@ -230,9 +244,9 @@ test-html: $(INSTALL_STAMP) ## Run tests in parallel, HTML & XML coverage report
 	@poetry run pytest -q -n auto --cov=app --cov-report=xml --cov-report=html --cov-fail-under=${COVERAGE}
 	@echo -e "$(GREEN)✓ Test coverage report generated at \"htmlcov/index.html\"$(NC)"
 
-# =====================================
+# ============================================================================================
 # Database Migration Targets
-# =====================================
+# ============================================================================================
 migrate: ## Apply database migrations using Alembic
 	@echo -e "$(DARKYELLOW)- Running database migrations...$(NC)"
 	poetry run alembic upgrade head
@@ -250,9 +264,9 @@ init-db: $(INSTALL_STAMP) ## Initialize the database with initial admin user
 	@sqlite3 oneselect.db "SELECT id, username, email, role, is_active, is_superuser FROM users WHERE username = 'admin'" | while IFS= read -r line; do echo -e "$(BLUE)  $$line$(NC)"; done
 	@echo -e "$(GREEN)✓ Database initialized$(NC)"
 
-# =====================================
+# ============================================================================================
 # Code Quality Targets
-# =====================================
+# ============================================================================================
 check: format lint typecheck ## Run all code quality checks
 	@:
 
@@ -271,15 +285,15 @@ pre-commit: $(INSTALL_STAMP) ## Run pre-commit checks (format, lint, typecheck)
 	@$(MAKE) test-short
 	@echo -e "$(GREEN)✓ All pre-commit checks passed$(NC)"
 
-# =====================================
+# ============================================================================================
 # Build Package Targets
-# =====================================
+# ============================================================================================
 build: $(INSTALL_STAMP) check test docs $(BUILD_WHEEL) ## Build the project packages
 	@:
 
-# =====================================
+# ============================================================================================
 # Cleanup Targets
-# =====================================
+# ============================================================================================
 clean-venv: ## Remove the virtual environment
 	@echo -e "$(DARKYELLOW)- Removing virtual environment...$(NC)"
 	@rm -rf .venv ${INSTALL_STAMP}
@@ -305,9 +319,9 @@ maintainer-clean: ## Perform a thorough cleanup including virtual environment, c
 	@rm -rf *.db .env
 	@echo -e "$(GREEN)✓ Deep clean completed$(NC)"
 
-# =====================================
+# ============================================================================================
 # Documentation Targets
-# =====================================
+# ============================================================================================
 docs: $(DOC_STAMP) ## Build the project documentation with MkDocs
 	@:
 
@@ -324,9 +338,9 @@ docs-deploy: ## Build and deploy documentation to GitHub Pages
 		exit 1; \
 	fi
 
-# =====================================
+# ============================================================================================
 # Container Management with Podman
-# =====================================
+# ============================================================================================
 container-build: $(CONTAINER_STAMP) ## Build the Podman container image for the application and tag it with the current version
 	@:
 
