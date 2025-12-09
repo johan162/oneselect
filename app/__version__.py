@@ -1,6 +1,6 @@
 """Version information for OneSelect."""
 
-__version__ = "0.0.1-rc3"
+__version__ = "0.0.1-rc4"
 __author__ = "Johan Persson <johan162@gmail.com>"
 __license__ = "MIT"
 __copyright__ = "2025, Johan Persson"
