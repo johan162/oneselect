@@ -1,0 +1,1794 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../rest_api_spec_list/">
+      
+      
+        <link rel="next" href="../deployment/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+    
+    
+      
+        <title>Inconsistency Detection - OneSelect API</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.618322db.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="purple">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#inconsistency-detection" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="OneSelect API" class="md-header__button md-logo" aria-label="OneSelect API" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            OneSelect API
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Inconsistency Detection
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../introduction/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Introduction
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../theory_background/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Theory Background
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../authentication/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Authentication
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../api/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  API Reference
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../rest_api_spec_list/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  API Summary List
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="./" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Inconsistency Detection
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../deployment/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Deployment
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../database_schema/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  DB Schema
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../working-with-proxies/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Working with Proxies
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="OneSelect API" class="md-nav__button md-logo" aria-label="OneSelect API" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    OneSelect API
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../introduction/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Introduction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../theory_background/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Theory Background
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rest_api_spec_list/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Summary List
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Inconsistency Detection
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Inconsistency Detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#algorithm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Algorithm
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Algorithm">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#on-demand-cycle-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        On-Demand Cycle Detection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#design-rationale" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Design Rationale
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-endpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API Endpoints
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="API Endpoints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#post-projectsproject_idcomparisons-enhanced" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /projects/{project_id}/comparisons (Enhanced)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-projectsproject_idcomparisonsinconsistency-stats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /projects/{project_id}/comparisons/inconsistency-stats
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-projectsproject_idcomparisonsinconsistencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /projects/{project_id}/comparisons/inconsistencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-projectsproject_idcomparisonsresolve-inconsistency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /projects/{project_id}/comparisons/resolve-inconsistency
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ui-integration-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UI Integration Strategy
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="UI Integration Strategy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#hybrid-approach-embedded-stats-dedicated-endpoint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Hybrid Approach: Embedded Stats + Dedicated Endpoint
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Hybrid Approach: Embedded Stats + Dedicated Endpoint">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-embedded-stats-post-comparisons-response" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Embedded Stats (POST /comparisons response)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-dedicated-endpoint-get-inconsistency-stats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Dedicated Endpoint (GET /inconsistency-stats)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#performance-characteristics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Performance Characteristics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ui-display-recommendations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UI Display Recommendations
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#integration-with-bayesian-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Integration with Bayesian Model
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance-characteristics_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Performance Characteristics
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Performance Characteristics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#scalability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scalability
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#memory-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Memory Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#when-to-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to Check
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Implementation Summary
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Implementation Summary">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#endpoints-provided" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Endpoints Provided
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Flow
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#response-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Response Schema
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#performance-benchmarks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Performance Benchmarks
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#future-enhancements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Future Enhancements
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../database_schema/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DB Schema
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../working-with-proxies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Working with Proxies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#algorithm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Algorithm
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Algorithm">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#on-demand-cycle-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        On-Demand Cycle Detection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#design-rationale" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Design Rationale
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-endpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API Endpoints
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="API Endpoints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#post-projectsproject_idcomparisons-enhanced" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /projects/{project_id}/comparisons (Enhanced)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-projectsproject_idcomparisonsinconsistency-stats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /projects/{project_id}/comparisons/inconsistency-stats
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-projectsproject_idcomparisonsinconsistencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /projects/{project_id}/comparisons/inconsistencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-projectsproject_idcomparisonsresolve-inconsistency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /projects/{project_id}/comparisons/resolve-inconsistency
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ui-integration-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UI Integration Strategy
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="UI Integration Strategy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#hybrid-approach-embedded-stats-dedicated-endpoint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Hybrid Approach: Embedded Stats + Dedicated Endpoint
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Hybrid Approach: Embedded Stats + Dedicated Endpoint">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-embedded-stats-post-comparisons-response" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Embedded Stats (POST /comparisons response)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-dedicated-endpoint-get-inconsistency-stats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Dedicated Endpoint (GET /inconsistency-stats)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#performance-characteristics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Performance Characteristics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ui-display-recommendations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UI Display Recommendations
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#integration-with-bayesian-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Integration with Bayesian Model
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance-characteristics_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Performance Characteristics
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Performance Characteristics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#scalability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scalability
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#memory-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Memory Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#when-to-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to Check
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Implementation Summary
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Implementation Summary">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#endpoints-provided" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Endpoints Provided
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Flow
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#response-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Response Schema
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#performance-benchmarks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Performance Benchmarks
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#future-enhancements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Future Enhancements
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="inconsistency-detection">Inconsistency Detection</h1>
+<h2 id="overview">Overview</h2>
+<p>OneSelect includes cycle detection to identify logical inconsistencies in pairwise comparisons. These occur when comparison chains form cycles, such as:
+- Feature A &gt; Feature B
+- Feature B &gt; Feature C<br />
+- Feature C &gt; Feature A</p>
+<p>While the Bayesian model handles probabilistic inconsistencies naturally (through variance), detecting hard logical cycles is valuable for identifying comparison pairs that may need re-evaluation.</p>
+<h2 id="algorithm">Algorithm</h2>
+<h3 id="on-demand-cycle-detection">On-Demand Cycle Detection</h3>
+<p>The implementation uses <strong>on-demand cycle detection</strong> with Depth-First Search (DFS):</p>
+<ol>
+<li><strong>Graph Construction</strong>: Build a directed graph from comparisons</li>
+<li>Nodes = Features</li>
+<li>Edges = Winner → Loser relationships</li>
+<li>
+<p>Ties are excluded (no directed edge)</p>
+</li>
+<li>
+<p><strong>Cycle Detection</strong>: Use DFS with recursion stack tracking</p>
+</li>
+<li>Time Complexity: O(V + E) where V = features, E = comparisons</li>
+<li>Space Complexity: O(V) for recursion stack</li>
+<li>
+<p>Performance: &lt; 1ms for typical 70-feature projects</p>
+</li>
+<li>
+<p><strong>Cycle Normalization</strong>: Normalize cycles to prevent duplicates</p>
+</li>
+<li>Start from lexicographically smallest node</li>
+<li>Prevents [A,B,C] and [B,C,A] from being counted twice</li>
+</ol>
+<h3 id="design-rationale">Design Rationale</h3>
+<p><strong>Why On-Demand?</strong>
+- No schema changes or migrations needed
+- No persistent data structures to maintain
+- No cache invalidation complexity
+- Extremely fast for expected scale (70 features, ~100-500 comparisons)
+- Cycles are rare in practice (Bayesian updates discourage them)</p>
+<p><strong>Alternatives Considered:</strong>
+1. <strong>Cached Graph Structure</strong> - Rejected: adds complexity, cache invalidation issues
+2. <strong>Database Edge Table</strong> - Rejected: over-engineered, requires triggers
+3. <strong>Materialized Paths</strong> - Rejected: not needed for this scale</p>
+<h2 id="api-endpoints">API Endpoints</h2>
+<h3 id="post-projectsproject_idcomparisons-enhanced">POST <code>/projects/{project_id}/comparisons</code> (Enhanced)</h3>
+<p>Creates a comparison and <strong>returns inconsistency statistics</strong> in the response.</p>
+<p><strong>Response includes:</strong>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">{</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="nt">&quot;project_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="nt">&quot;feature_a&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* Feature object */</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span><span class="nt">&quot;feature_b&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* Feature object */</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span><span class="nt">&quot;choice&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;feature_a&quot;</span><span class="p">,</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">  </span><span class="nt">&quot;dimension&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;complexity&quot;</span><span class="p">,</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">  </span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-12-03T10:30:00Z&quot;</span><span class="p">,</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">  </span><span class="nt">&quot;inconsistency_stats&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="nt">&quot;cycle_count&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">    </span><span class="nt">&quot;total_comparisons&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">45</span><span class="p">,</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">    </span><span class="nt">&quot;inconsistency_percentage&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">8.89</span><span class="p">,</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">    </span><span class="nt">&quot;dimension&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;complexity&quot;</span>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<p><strong>Benefits:</strong>
+- Single HTTP request = faster UX
+- Immediate feedback after user action
+- Guaranteed consistency (same transaction)</p>
+<h3 id="get-projectsproject_idcomparisonsinconsistency-stats">GET <code>/projects/{project_id}/comparisons/inconsistency-stats</code></h3>
+<p>Get inconsistency statistics without creating a comparison.</p>
+<p><strong>Use Cases:</strong>
+- Dashboard widgets showing inconsistency count
+- Polling for updates without submitting comparisons
+- Quick health checks of comparison quality</p>
+<p><strong>Parameters:</strong>
+- <code>dimension</code> (optional): Filter by "complexity" or "value"</p>
+<p><strong>Response:</strong>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">{</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="nt">&quot;cycle_count&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="nt">&quot;total_comparisons&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">45</span><span class="p">,</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span><span class="nt">&quot;inconsistency_percentage&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">8.89</span><span class="p">,</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span><span class="nt">&quot;dimension&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;complexity&quot;</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<p><strong>Example:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s2">&quot;http://localhost:8000/api/v1/projects/{id}/comparisons/inconsistency-stats?dimension=complexity&quot;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer {token}&quot;</span>
+</span></code></pre></div></p>
+<h3 id="get-projectsproject_idcomparisonsinconsistencies">GET <code>/projects/{project_id}/comparisons/inconsistencies</code></h3>
+<p>Returns <strong>detailed cycle information</strong> with feature names and IDs.</p>
+<p><strong>Parameters:</strong>
+- <code>dimension</code> (optional): Filter by "complexity" or "value"</p>
+<p><strong>Response:</strong>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">{</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="nt">&quot;cycles&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="p">{</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">      </span><span class="nt">&quot;feature_ids&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;uuid1&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;uuid2&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;uuid3&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;uuid1&quot;</span><span class="p">],</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">      </span><span class="nt">&quot;feature_names&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;Feature A&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Feature B&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Feature C&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Feature A&quot;</span><span class="p">],</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">      </span><span class="nt">&quot;length&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">      </span><span class="nt">&quot;dimension&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;complexity&quot;</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">  </span><span class="p">],</span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">  </span><span class="nt">&quot;count&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">  </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Found 1 logical inconsistencies&quot;</span>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<p><strong>Example Usage:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s2">&quot;http://localhost:8000/api/v1/projects/{id}/comparisons/inconsistencies?dimension=complexity&quot;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer {token}&quot;</span>
+</span></code></pre></div></p>
+<h3 id="get-projectsproject_idcomparisonsresolve-inconsistency">GET <code>/projects/{project_id}/comparisons/resolve-inconsistency</code></h3>
+<p>Suggests a comparison pair to help resolve detected inconsistencies.</p>
+<p><strong>Strategy:</strong> Finds the "weakest link" in detected cycles - the comparison where the Bayesian model has highest combined uncertainty (σ_i + σ_j). Re-comparing this pair can help break the cycle.</p>
+<p><strong>Parameters:</strong>
+- <code>dimension</code> (required): "complexity" or "value"</p>
+<p><strong>Response:</strong>
+- <code>200 OK</code>: Returns a comparison pair to re-evaluate
+- <code>204 No Content</code>: No inconsistencies detected</p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p">{</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="nt">&quot;comparison_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span><span class="nt">&quot;feature_a&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* Feature object */</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">  </span><span class="nt">&quot;feature_b&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* Feature object */</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">  </span><span class="nt">&quot;dimension&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;complexity&quot;</span><span class="p">,</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">  </span><span class="nt">&quot;reason&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;This pair is involved in a logical cycle and has high uncertainty...&quot;</span><span class="p">,</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">  </span><span class="nt">&quot;combined_uncertainty&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.85</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="p">}</span>
+</span></code></pre></div>
+<h2 id="ui-integration-strategy">UI Integration Strategy</h2>
+<h3 id="hybrid-approach-embedded-stats-dedicated-endpoint">Hybrid Approach: Embedded Stats + Dedicated Endpoint</h3>
+<p>The implementation uses a <strong>hybrid approach</strong> combining the benefits of both patterns:</p>
+<h4 id="1-embedded-stats-post-comparisons-response">1. Embedded Stats (POST <code>/comparisons</code> response)</h4>
+<p><strong>When:</strong> After user submits a comparison
+<strong>Benefit:</strong> Immediate feedback without extra HTTP request</p>
+<div class="language-javascript highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1">// Frontend: Submit comparison</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="kd">const</span><span class="w"> </span><span class="nx">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">api</span><span class="p">.</span><span class="nx">createComparison</span><span class="p">(</span><span class="nx">projectId</span><span class="p">,</span><span class="w"> </span><span class="nx">comparisonData</span><span class="p">);</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="c1">// Response includes inconsistency stats immediately</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="nx">updateInconsistencyBadge</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">inconsistency_stats</span><span class="p">);</span>
+</span></code></pre></div>
+<h4 id="2-dedicated-endpoint-get-inconsistency-stats">2. Dedicated Endpoint (GET <code>/inconsistency-stats</code>)</h4>
+<p><strong>When:</strong> 
+- Dashboard loads
+- Polling/refresh without submitting comparisons
+- Health checks</p>
+<div class="language-javascript highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1">// Frontend: Dashboard widget</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="kd">const</span><span class="w"> </span><span class="nx">stats</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">api</span><span class="p">.</span><span class="nx">getInconsistencyStats</span><span class="p">(</span><span class="nx">projectId</span><span class="p">,</span><span class="w"> </span><span class="nx">dimension</span><span class="p">);</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="nx">displayStats</span><span class="p">(</span><span class="nx">stats</span><span class="p">.</span><span class="nx">cycle_count</span><span class="p">,</span><span class="w"> </span><span class="nx">stats</span><span class="p">.</span><span class="nx">inconsistency_percentage</span><span class="p">);</span>
+</span></code></pre></div>
+<h3 id="performance-characteristics">Performance Characteristics</h3>
+<ul>
+<li><strong>Calculation time</strong>: &lt; 1ms for 70 features</li>
+<li><strong>Response overhead</strong>: ~50 bytes additional JSON</li>
+<li><strong>Network impact</strong>: Eliminates one round-trip for common case</li>
+</ul>
+<h3 id="ui-display-recommendations">UI Display Recommendations</h3>
+<p><strong>Inconsistency Badge:</strong>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>⚠️ 2 cycles (8.9% of comparisons)
+</span></code></pre></div></p>
+<p><strong>Color Coding:</strong>
+- Green (0%): No inconsistencies
+- Yellow (&lt; 10%): Minor inconsistencies
+- Orange (10-20%): Moderate inconsistencies<br />
+- Red (&gt; 20%): Significant inconsistencies</p>
+<p><strong>When to Show:</strong>
+- After every comparison (updated automatically)
+- In project summary dashboard
+- Before exporting final rankings</p>
+<h2 id="integration-with-bayesian-model">Integration with Bayesian Model</h2>
+<p>The cycle detection complements the Bayesian Bradley-Terry model:</p>
+<ol>
+<li><strong>Probabilistic Inconsistencies</strong>: Handled naturally by variance updates</li>
+<li>Model becomes less confident when it sees surprising outcomes</li>
+<li>
+<p>Variance (σ) reflects this uncertainty</p>
+</li>
+<li>
+<p><strong>Logical Inconsistencies</strong>: Detected by cycle algorithm</p>
+</li>
+<li>Hard cycles (A&gt;B&gt;C&gt;A) indicate potential user error or changing opinions</li>
+<li>
+<p>System suggests re-evaluating the most uncertain comparison in the cycle</p>
+</li>
+<li>
+<p><strong>Resolution Strategy</strong>:</p>
+</li>
+<li>Identify cycles with <code>GET /inconsistencies</code></li>
+<li>Get weakest link with <code>GET /resolve-inconsistency</code></li>
+<li>Re-compare the suggested pair</li>
+<li>New comparison updates Bayesian scores and may break the cycle</li>
+</ol>
+<h2 id="performance-characteristics_1">Performance Characteristics</h2>
+<h3 id="scalability">Scalability</h3>
+<ul>
+<li><strong>70 features</strong>: &lt; 1ms detection time</li>
+<li><strong>2,415 possible pairs</strong>: Worst case ~500-1000 actual comparisons</li>
+<li><strong>Graph traversal</strong>: O(V + E) = O(70 + 500) = negligible</li>
+</ul>
+<h3 id="memory-usage">Memory Usage</h3>
+<ul>
+<li><strong>Transient graph</strong>: Built in memory only during request</li>
+<li><strong>No persistent storage</strong>: No database overhead</li>
+<li><strong>Recursion stack</strong>: Max depth = cycle length (typically 3-5)</li>
+</ul>
+<h3 id="when-to-check">When to Check</h3>
+<ul>
+<li>After every 10-20 comparisons</li>
+<li>Before exporting final rankings</li>
+<li>When progress endpoint shows high variance despite many comparisons</li>
+<li>On user request via UI</li>
+</ul>
+<h2 id="testing">Testing</h2>
+<p>Comprehensive unit tests verify:
+- Simple 3-node cycles (A&gt;B&gt;C&gt;A)
+- Acyclic graphs (proper rankings)
+- Multiple independent cycles
+- Complex cycles with branches
+- Performance with 70-node graphs</p>
+<p>Run tests:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>pytest<span class="w"> </span>tests/test_cycle_detection.py<span class="w"> </span>-v
+</span></code></pre></div></p>
+<h2 id="implementation-summary">Implementation Summary</h2>
+<h3 id="endpoints-provided">Endpoints Provided</h3>
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Method</th>
+<th>Purpose</th>
+<th>Response Time</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/comparisons</code></td>
+<td>POST</td>
+<td>Create comparison + get stats</td>
+<td>&lt; 2ms</td>
+</tr>
+<tr>
+<td><code>/comparisons/inconsistency-stats</code></td>
+<td>GET</td>
+<td>Get stats only</td>
+<td>&lt; 1ms</td>
+</tr>
+<tr>
+<td><code>/comparisons/inconsistencies</code></td>
+<td>GET</td>
+<td>Get detailed cycles</td>
+<td>&lt; 1ms</td>
+</tr>
+<tr>
+<td><code>/comparisons/resolve-inconsistency</code></td>
+<td>GET</td>
+<td>Get resolution suggestion</td>
+<td>&lt; 1ms</td>
+</tr>
+</tbody>
+</table>
+<h3 id="data-flow">Data Flow</h3>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>User submits comparison
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>        ↓
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>POST /comparisons
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>        ↓
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>[Bayesian update] + [Stats calculation]
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>        ↓
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>Response with comparison + inconsistency_stats
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>        ↓
+</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>UI updates badge: &quot;⚠️ 2 cycles (8.9%)&quot;
+</span></code></pre></div>
+<h3 id="response-schema">Response Schema</h3>
+<p><strong>ComparisonWithStats:</strong>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="p">{</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">  </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">UUID</span><span class="p">,</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">  </span><span class="nx">project_id</span><span class="o">:</span><span class="w"> </span><span class="kt">UUID</span><span class="p">,</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">  </span><span class="nx">feature_a</span><span class="o">:</span><span class="w"> </span><span class="kt">Feature</span><span class="p">,</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">  </span><span class="nx">feature_b</span><span class="o">:</span><span class="w"> </span><span class="kt">Feature</span><span class="p">,</span>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="w">  </span><span class="nx">choice</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;feature_a&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;feature_b&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;tie&quot;</span><span class="p">,</span>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="w">  </span><span class="nx">dimension</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;complexity&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;value&quot;</span><span class="p">,</span>
+</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="w">  </span><span class="nx">created_at</span><span class="o">:</span><span class="w"> </span><span class="kt">DateTime</span><span class="p">,</span>
+</span><span id="__span-11-9"><a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="w">  </span><span class="nx">inconsistency_stats</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-11-10"><a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="w">    </span><span class="nx">cycle_count</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">,</span><span class="w">          </span><span class="c1">// Number of detected cycles</span>
+</span><span id="__span-11-11"><a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a><span class="w">    </span><span class="nx">total_comparisons</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">,</span><span class="w">    </span><span class="c1">// Total comparisons for dimension</span>
+</span><span id="__span-11-12"><a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a><span class="w">    </span><span class="nx">inconsistency_percentage</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">,</span><span class="w">  </span><span class="c1">// Percentage with 2 decimals</span>
+</span><span id="__span-11-13"><a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a><span class="w">    </span><span class="nx">dimension</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w">             </span><span class="c1">// &quot;complexity&quot;, &quot;value&quot;, or &quot;all&quot;</span>
+</span><span id="__span-11-14"><a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-11-15"><a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<h3 id="performance-benchmarks">Performance Benchmarks</h3>
+<ul>
+<li><strong>70 features</strong>, <strong>500 comparisons</strong>: &lt; 1ms cycle detection</li>
+<li><strong>Response overhead</strong>: ~50 bytes JSON</li>
+<li><strong>Memory usage</strong>: Transient (no persistent storage)</li>
+<li><strong>Database impact</strong>: None (uses existing comparison data)</li>
+</ul>
+<h2 id="future-enhancements">Future Enhancements</h2>
+<p>Potential improvements (not currently needed):
+1. <strong>Cycle severity scoring</strong>: Weight cycles by combined uncertainty
+2. <strong>Transitive inconsistency detection</strong>: Check if A&gt;B&gt;C but model says A&lt;C
+3. <strong>Cycle history tracking</strong>: Log when cycles appear/disappear
+4. <strong>Batch resolution</strong>: Suggest multiple pairs to resolve all cycles efficiently
+5. <strong>Redis caching</strong>: Cache stats for high-traffic projects (premature optimization)
+6. <strong>WebSocket notifications</strong>: Real-time updates for collaborative sessions</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "search.highlight", "search.suggest", "content.code.copy"], "search": "../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      
+        <script src="../javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

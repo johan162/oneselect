@@ -1,0 +1,1925 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../api/">
+      
+      
+        <link rel="next" href="../inconsistency_detection/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+    
+    
+      
+        <title>API Summary List - OneSelect API</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.618322db.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="purple">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#appendix-api-endpoint-list" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="OneSelect API" class="md-header__button md-logo" aria-label="OneSelect API" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            OneSelect API
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              API Summary List
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../introduction/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Introduction
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../theory_background/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Theory Background
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../authentication/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Authentication
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../api/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  API Reference
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="./" class="md-tabs__link">
+        
+  
+  
+    
+  
+  API Summary List
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../inconsistency_detection/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Inconsistency Detection
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../deployment/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Deployment
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../database_schema/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  DB Schema
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../working-with-proxies/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Working with Proxies
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="OneSelect API" class="md-nav__button md-logo" aria-label="OneSelect API" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    OneSelect API
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../introduction/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Introduction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../theory_background/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Theory Background
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Summary List
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Summary List
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#base-url" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Base URL
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-data-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Data Types
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-authentication-authorization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Authentication &amp; Authorization
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Authentication &amp; Authorization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-usernamepassword-authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1 Username/Password Authentication
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-google-oauth-authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.2 Google OAuth Authentication
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-user-management-rootadmin-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. User Management (Root/Admin Only)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-project-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Project Management
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-feature-requirement-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Feature (Requirement) Management
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-comparison-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Comparison Handling
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-statistics-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Statistics &amp; Analysis
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Results
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-model-configuration-controls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Model Configuration &amp; Controls
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-database-administration-root-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Database Administration (Root Only)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../inconsistency_detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Inconsistency Detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../database_schema/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DB Schema
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../working-with-proxies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Working with Proxies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#base-url" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Base URL
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-data-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Data Types
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-authentication-authorization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Authentication &amp; Authorization
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Authentication &amp; Authorization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-usernamepassword-authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1 Username/Password Authentication
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-google-oauth-authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.2 Google OAuth Authentication
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-user-management-rootadmin-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. User Management (Root/Admin Only)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-project-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Project Management
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-feature-requirement-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Feature (Requirement) Management
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-comparison-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Comparison Handling
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-statistics-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Statistics &amp; Analysis
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Results
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-model-configuration-controls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Model Configuration &amp; Controls
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-database-administration-root-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Database Administration (Root Only)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="appendix-api-endpoint-list">Appendix: API Endpoint List</h1>
+<p><strong>Quick Reference Summary of All OneSelect API Endpoints</strong></p>
+<p>This document provides a comprehensive list of all REST API endpoints in the OneSelect system. For detailed documentation with examples, see the <a href="../api/">API Reference</a>.</p>
+<h2 id="base-url">Base URL</h2>
+<p><code>https://api.oneselect.example.com/v1</code></p>
+<h2 id="common-data-types">Common Data Types</h2>
+<ul>
+<li><strong>UUID</strong>: String format uuid (e.g., <code>550e8400-e29b-41d4-a716-446655440000</code>).</li>
+<li><strong>Dimension</strong>: Enum <code>["complexity", "value"]</code>.</li>
+<li><strong>ComparisonChoice</strong>: Enum <code>["feature_a", "feature_b", "tie"]</code>.</li>
+<li><strong>ComparisonMode</strong>: Enum <code>["binary", "graded"]</code> - Project-level comparison mode.</li>
+<li><strong>ComparisonStrength</strong>: Enum <code>["a_much_better", "a_better", "equal", "b_better", "b_much_better"]</code> - 5-point scale for graded comparisons.</li>
+</ul>
+<h2 id="1-authentication-authorization">1. Authentication &amp; Authorization</h2>
+<p>OneSelect supports two authentication methods: <strong>Username/Password</strong> (traditional) and <strong>Google OAuth</strong> (optional).</p>
+<h3 id="11-usernamepassword-authentication">1.1 Username/Password Authentication</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">ID</th>
+<th style="text-align: left;">Name</th>
+<th style="text-align: left;">Description</th>
+<th style="text-align: left;">Method</th>
+<th style="text-align: left;">Endpoint</th>
+<th style="text-align: left;">Parameters</th>
+<th style="text-align: left;">Responses</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>AUTH-01</strong></td>
+<td style="text-align: left;">Login</td>
+<td style="text-align: left;">Authenticate a user and return a session token (JWT).</td>
+<td style="text-align: left;"><code>POST</code></td>
+<td style="text-align: left;"><code>/auth/login</code></td>
+<td style="text-align: left;"><strong>Body</strong>: <code>{ "username": "string", "password": "string" }</code></td>
+<td style="text-align: left;"><strong>200 OK</strong>: <code>{ "access_token": "string", "token_type": "bearer" }</code><br><strong>401 Unauthorized</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>AUTH-02</strong></td>
+<td style="text-align: left;">Register</td>
+<td style="text-align: left;">Register a new user (self-service sign-up).</td>
+<td style="text-align: left;"><code>POST</code></td>
+<td style="text-align: left;"><code>/auth/register</code></td>
+<td style="text-align: left;"><strong>Body</strong>: <code>{ "username": "string", "password": "string", "email": "string" }</code></td>
+<td style="text-align: left;"><strong>201 Created</strong>: <code>{ "id": "uuid", "username": "string", "email": "string", "auth_provider": "local" }</code><br><strong>400 Bad Request</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>AUTH-03</strong></td>
+<td style="text-align: left;">Refresh Token</td>
+<td style="text-align: left;">Refresh an expired JWT token using a refresh token.</td>
+<td style="text-align: left;"><code>POST</code></td>
+<td style="text-align: left;"><code>/auth/refresh</code></td>
+<td style="text-align: left;"><strong>Body</strong>: <code>{ "refresh_token": "string" }</code></td>
+<td style="text-align: left;"><strong>200 OK</strong>: <code>{ "token": "string", "refresh_token": "string" }</code><br><strong>401 Unauthorized</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>AUTH-04</strong></td>
+<td style="text-align: left;">Logout</td>
+<td style="text-align: left;">Invalidate the current session/token.</td>
+<td style="text-align: left;"><code>POST</code></td>
+<td style="text-align: left;"><code>/auth/logout</code></td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;"><strong>204 No Content</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>AUTH-05</strong></td>
+<td style="text-align: left;">Get Current User</td>
+<td style="text-align: left;">Get the profile of the currently authenticated user.</td>
+<td style="text-align: left;"><code>GET</code></td>
+<td style="text-align: left;"><code>/auth/me</code></td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;"><strong>200 OK</strong>: <code>{ "id": "uuid", "username": "string", "email": "string", "role": "string", "auth_provider": "local" \| "google" }</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>AUTH-06</strong></td>
+<td style="text-align: left;">Change Password</td>
+<td style="text-align: left;">Update the current user's password (local accounts only).</td>
+<td style="text-align: left;"><code>POST</code></td>
+<td style="text-align: left;"><code>/auth/change-password</code></td>
+<td style="text-align: left;"><strong>Body</strong>: <code>{ "current_password": "string", "new_password": "string" }</code></td>
+<td style="text-align: left;"><strong>204 No Content</strong><br><strong>400 Bad Request</strong> (weak password or OAuth user)<br><strong>401 Unauthorized</strong> (wrong current password)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>AUTH-07</strong></td>
+<td style="text-align: left;">Update Profile</td>
+<td style="text-align: left;">Update mutable profile attributes for the current user.</td>
+<td style="text-align: left;"><code>PATCH</code></td>
+<td style="text-align: left;"><code>/auth/me</code></td>
+<td style="text-align: left;"><strong>Body</strong>: <code>{ "email": "string", "display_name": "string", "avatar_url": "string" }</code></td>
+<td style="text-align: left;"><strong>200 OK</strong>: <code>{ "id": "uuid", "username": "string", "email": "string", "display_name": "string", "avatar_url": "string" }</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>AUTH-08</strong></td>
+<td style="text-align: left;">Test Token</td>
+<td style="text-align: left;">Validate and test the current JWT token.</td>
+<td style="text-align: left;"><code>POST</code></td>
+<td style="text-align: left;"><code>/auth/login/test-token</code></td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;"><strong>200 OK</strong>: <code>{ "id": "uuid", "username": "string", "email": "string", "role": "string" }</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="12-google-oauth-authentication">1.2 Google OAuth Authentication</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">ID</th>
+<th style="text-align: left;">Name</th>
+<th style="text-align: left;">Description</th>
+<th style="text-align: left;">Method</th>
+<th style="text-align: left;">Endpoint</th>
+<th style="text-align: left;">Parameters</th>
+<th style="text-align: left;">Responses</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>AUTH-GOOGLE-01</strong></td>
+<td style="text-align: left;">Google Login</td>
+<td style="text-align: left;">Initiate Google OAuth flow. Redirects to Google's consent screen.</td>
+<td style="text-align: left;"><code>GET</code></td>
+<td style="text-align: left;"><code>/auth/google/login</code></td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;"><strong>302 Redirect</strong>: To Google OAuth consent screen</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>AUTH-GOOGLE-02</strong></td>
+<td style="text-align: left;">Google Callback</td>
+<td style="text-align: left;">Handle Google OAuth callback. Creates/links user account and redirects to frontend with JWT token.</td>
+<td style="text-align: left;"><code>GET</code></td>
+<td style="text-align: left;"><code>/auth/google/callback</code></td>
+<td style="text-align: left;"><strong>Query</strong>: <code>code</code> (OAuth code from Google), <code>state</code> (CSRF protection)</td>
+<td style="text-align: left;"><strong>302 Redirect</strong>: <code>{FRONTEND_URL}/auth/callback?token=&lt;jwt_token&gt;</code> or <code>{FRONTEND_URL}/auth/error?message=&lt;error&gt;</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>AUTH-GOOGLE-03</strong></td>
+<td style="text-align: left;">OAuth Status</td>
+<td style="text-align: left;">Check if Google OAuth is configured and enabled.</td>
+<td style="text-align: left;"><code>GET</code></td>
+<td style="text-align: left;"><code>/auth/google/status</code></td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;"><strong>200 OK</strong>: <code>{ "google_oauth_enabled": bool, "google_client_id_set": bool, "google_client_secret_set": bool }</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="2-user-management-rootadmin-only">2. User Management (Root/Admin Only)</h2>
+<p><em>Note: Regular users can only see their own profile (implementation detail).</em></p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">ID</th>
+<th style="text-align: left;">Name</th>
+<th style="text-align: left;">Description</th>
+<th style="text-align: left;">Method</th>
+<th style="text-align: left;">Endpoint</th>
+<th style="text-align: left;">Parameters</th>
+<th style="text-align: left;">Responses</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>USER-01</strong></td>
+<td style="text-align: left;">List Users</td>
+<td style="text-align: left;">Get a list of all users. Root access required.</td>
+<td style="text-align: left;"><code>GET</code></td>
+<td style="text-align: left;"><code>/users</code></td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;"><strong>200 OK</strong>: <code>[ { "id": "uuid", "username": "string", "role": "string" } ]</code><br><strong>403 Forbidden</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>USER-02</strong></td>
+<td style="text-align: left;">Assign Project</td>
+<td style="text-align: left;">Assign a project to a specific user. Root access required.</td>
+<td style="text-align: left;"><code>POST</code></td>
+<td style="text-align: left;"><code>/users/{userId}/assignments</code></td>
+<td style="text-align: left;"><strong>Path</strong>: <code>userId</code><br><strong>Body</strong>: <code>{ "projectId": "uuid" }</code></td>
+<td style="text-align: left;"><strong>200 OK</strong>: <code>{ "message": "Project assigned" }</code><br><strong>404 Not Found</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>USER-03</strong></td>
+<td style="text-align: left;">Delete User</td>
+<td style="text-align: left;">Delete a user. Optionally transfer their projects to another user. Root access required.</td>
+<td style="text-align: left;"><code>DELETE</code></td>
+<td style="text-align: left;"><code>/users/{userId}</code></td>
+<td style="text-align: left;"><strong>Path</strong>: <code>userId</code><br><strong>Query</strong>: <code>transfer_to</code> (optional uuid)</td>
+<td style="text-align: left;"><strong>204 No Content</strong><br><strong>404 Not Found</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>USER-04</strong></td>
+<td style="text-align: left;">Update User Role</td>
+<td style="text-align: left;">Grant or revoke root access for a user. Root access required.</td>
+<td style="text-align: left;"><code>PATCH</code></td>
+<td style="text-align: left;"><code>/users/{userId}/role</code></td>
+<td style="text-align: left;"><strong>Path</strong>: <code>userId</code><br><strong>Body</strong>: <code>{ "role": "root" \| "user" }</code></td>
+<td style="text-align: left;"><strong>200 OK</strong>: <code>{ "id": "uuid", "username": "string", "role": "string" }</code><br><strong>403 Forbidden</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>USER-05</strong></td>
+<td style="text-align: left;">Get User</td>
+<td style="text-align: left;">Get details of a specific user. Root access required.</td>
+<td style="text-align: left;"><code>GET</code></td>
+<td style="text-align: left;"><code>/users/{userId}</code></td>
+<td style="text-align: left;"><strong>Path</strong>: <code>userId</code></td>
+<td style="text-align: left;"><strong>200 OK</strong>: <code>{ "id": "uuid", "username": "string", "email": "string", "role": "string", "is_active": bool }</code><br><strong>404 Not Found</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>USER-06</strong></td>
+<td style="text-align: left;">Update User</td>
+<td style="text-align: left;">Update user details. Root access required.</td>
+<td style="text-align: left;"><code>PUT</code></td>
+<td style="text-align: left;"><code>/users/{userId}</code></td>
+<td style="text-align: left;"><strong>Path</strong>: <code>userId</code><br><strong>Body</strong>: <code>{ "email": "string", "is_active": bool }</code></td>
+<td style="text-align: left;"><strong>200 OK</strong>: <code>{ "id": "uuid", "username": "string", "email": "string", "is_active": bool }</code><br><strong>404 Not Found</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>USER-07</strong></td>
+<td style="text-align: left;">Update Own Profile</td>
+<td style="text-align: left;">Update the current user's own profile.</td>
+<td style="text-align: left;"><code>PUT</code></td>
+<td style="text-align: left;"><code>/users/me</code></td>
+<td style="text-align: left;"><strong>Body</strong>: <code>{ "email": "string", "display_name": "string" }</code></td>
+<td style="text-align: left;"><strong>200 OK</strong>: <code>{ "id": "uuid", "username": "string", "email": "string", "display_name": "string" }</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="3-project-management">3. Project Management</h2>
+<p><em>Note: Users can only access projects they created or are assigned to.</em></p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">ID</th>
+<th style="text-align: left;">Name</th>
+<th style="text-align: left;">Description</th>
+<th style="text-align: left;">Method</th>
+<th style="text-align: left;">Endpoint</th>
+<th style="text-align: left;">Parameters</th>
+<th style="text-align: left;">Responses</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>PROJ-01</strong></td>
+<td style="text-align: left;">List Projects</td>
+<td style="text-align: left;">Get all projects visible to the current user. Supports <code>include_stats</code> for dashboard efficiency.</td>
+<td style="text-align: left;"><code>GET</code></td>
+<td style="text-align: left;"><code>/projects</code></td>
+<td style="text-align: left;"><strong>Query</strong>: <code>include_stats</code> (bool, optional, default false) - includes feature count, comparison counts, progress % per project</td>
+<td style="text-align: left;"><strong>200 OK</strong>: <code>[ { "id": "uuid", "name": "string", "description": "string", "created_at": "datetime", "stats": { ... } (if include_stats=true) } ]</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>PROJ-02</strong></td>
+<td style="text-align: left;">Create Project</td>
+<td style="text-align: left;">Create a new project with optional comparison mode.</td>
+<td style="text-align: left;"><code>POST</code></td>
+<td style="text-align: left;"><code>/projects</code></td>
+<td style="text-align: left;"><strong>Body</strong>: <code>{ "name": "string", "description": "string", "comparison_mode": "binary" \| "graded" (optional, default "binary") }</code></td>
+<td style="text-align: left;"><strong>201 Created</strong>: <code>{ "id": "uuid", "name": "string", "description": "string", "comparison_mode": "binary" \| "graded", "created_at": "datetime" }</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>PROJ-03</strong></td>
+<td style="text-align: left;">Get Project</td>
+<td style="text-align: left;">Get details of a specific project.</td>
+<td style="text-align: left;"><code>GET</code></td>
+<td style="text-align: left;"><code>/projects/{projectId}</code></td>
+<td style="text-align: left;"><strong>Path</strong>: <code>projectId</code></td>
+<td style="text-align: left;"><strong>200 OK</strong>: <code>{ "id": "uuid", "name": "string", "description": "string", "created_at": "datetime" }</code><br><strong>404 Not Found</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>PROJ-04</strong></td>
+<td style="text-align: left;">Update Project</td>
+<td style="text-align: left;">Update project metadata.</td>
+<td style="text-align: left;"><code>PUT</code></td>
+<td style="text-align: left;"><code>/projects/{projectId}</code></td>
+<td style="text-align: left;"><strong>Path</strong>: <code>projectId</code><br><strong>Body</strong>: <code>{ "name": "string", "description": "string" }</code></td>
+<td style="text-align: left;"><strong>200 OK</strong>: <code>{ "id": "uuid", "name": "string", ... }</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>PROJ-05</strong></td>
+<td style="text-align: left;">Delete Project</td>
+<td style="text-align: left;">Delete a project and all associated data.</td>
+<td style="text-align: left;"><code>DELETE</code></td>
+<td style="text-align: left;"><code>/projects/{projectId}</code></td>
+<td style="text-align: left;"><strong>Path</strong>: <code>projectId</code></td>
+<td style="text-align: left;"><strong>204 No Content</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>PROJ-06</strong></td>
+<td style="text-align: left;">List User Projects</td>
+<td style="text-align: left;">Get all projects for a specific user. Root access required.</td>
+<td style="text-align: left;"><code>GET</code></td>
+<td style="text-align: left;"><code>/users/{userId}/projects</code></td>
+<td style="text-align: left;"><strong>Path</strong>: <code>userId</code></td>
+<td style="text-align: left;"><strong>200 OK</strong>: <code>[ { "id": "uuid", "name": "string", "description": "string", "created_at": "datetime" } ]</code><br><strong>403 Forbidden</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>PROJ-07</strong></td>
+<td style="text-align: left;">Get Project Summary</td>
+<td style="text-align: left;">Get a comprehensive project summary including stats, progress, and alerts in a single call.</td>
+<td style="text-align: left;"><code>GET</code></td>
+<td style="text-align: left;"><code>/projects/{projectId}/summary</code></td>
+<td style="text-align: left;"><strong>Path</strong>: <code>projectId</code></td>
+<td style="text-align: left;"><strong>200 OK</strong>: <code>{ "project": { "id": "uuid", "name": "string", "description": "string" }, "feature_count": int, "comparisons": { "complexity": { "done": int, "remaining_for_95": int }, "value": { "done": int, "remaining_for_95": int } }, "average_variance": { "complexity": float, "value": float }, "inconsistency_count": { "complexity": int, "value": int } }</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>PROJ-08</strong></td>
+<td style="text-align: left;">List Collaborators</td>
+<td style="text-align: left;">Get all users who have access to a project.</td>
+<td style="text-align: left;"><code>GET</code></td>
+<td style="text-align: left;"><code>/projects/{projectId}/collaborators</code></td>
+<td style="text-align: left;"><strong>Path</strong>: <code>projectId</code></td>
+<td style="text-align: left;"><strong>200 OK</strong>: <code>[ { "user_id": "uuid", "username": "string", "role": "owner" \| "collaborator", "assigned_at": "datetime" } ]</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>PROJ-09</strong></td>
+<td style="text-align: left;">Get Activity Log</td>
+<td style="text-align: left;">Get paginated activity/audit log for a project.</td>
+<td style="text-align: left;"><code>GET</code></td>
+<td style="text-align: left;"><code>/projects/{projectId}/activity</code></td>
+<td style="text-align: left;"><strong>Path</strong>: <code>projectId</code><br><strong>Query</strong>: <code>page</code> (int), <code>per_page</code> (int), <code>action_type</code> (optional)</td>
+<td style="text-align: left;"><strong>200 OK</strong>: <code>{ "items": [ { "id": "uuid", "user": { "id": "uuid", "username": "string" }, "action": "string", "entity_type": "string", "entity_id": "uuid", "timestamp": "datetime", "details": {} } ], "total": int }</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>PROJ-10</strong></td>
+<td style="text-align: left;">Get Last Modified</td>
+<td style="text-align: left;">Get the last modification timestamp for cache invalidation.</td>
+<td style="text-align: left;"><code>GET</code></td>
+<td style="text-align: left;"><code>/projects/{projectId}/last-modified</code></td>
+<td style="text-align: left;"><strong>Path</strong>: <code>projectId</code></td>
+<td style="text-align: left;"><strong>200 OK</strong>: <code>{ "last_modified": "datetime", "modified_by": "uuid" }</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>PROJ-11</strong></td>
+<td style="text-align: left;">Get Comparison History</td>
+<td style="text-align: left;">Get complete audit trail of all comparisons made in a project, including active and deleted comparisons.</td>
+<td style="text-align: left;"><code>GET</code></td>
+<td style="text-align: left;"><code>/projects/{projectId}/history</code></td>
+<td style="text-align: left;"><strong>Path</strong>: <code>projectId</code></td>
+<td style="text-align: left;"><strong>200 OK</strong>: <code>{ "project": { "id": "uuid", "name": "string", "description": "string" }, "comparisons": [ { "id": "uuid", "feature_a": { "id": "uuid", "name": "string" }, "feature_b": { "id": "uuid", "name": "string" }, "choice": "feature_a" \| "feature_b" \| "tie", "dimension": "complexity" \| "value", "user": { "id": "uuid", "username": "string" }, "created_at": "datetime" } ], "deleted_comparisons": [ { "id": "uuid", "feature_a": { "id": "uuid", "name": "string" }, "feature_b": { "id": "uuid", "name": "string" }, "choice": "string", "dimension": "string", "user": { "id": "uuid", "username": "string" }, "created_at": "datetime", "deleted_at": "datetime", "deleted_by": { "id": "uuid", "username": "string" } } ] }</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="4-feature-requirement-management">4. Feature (Requirement) Management</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">ID</th>
+<th style="text-align: left;">Name</th>
+<th style="text-align: left;">Description</th>
+<th style="text-align: left;">Method</th>
+<th style="text-align: left;">Endpoint</th>
+<th style="text-align: left;">Parameters</th>
+<th style="text-align: left;">Responses</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>FEAT-01</strong></td>
+<td style="text-align: left;">List Features</td>
+<td style="text-align: left;">Get all features/requirements for a project. Supports <code>include_scores</code> for combined feature+score views.</td>
+<td style="text-align: left;"><code>GET</code></td>
+<td style="text-align: left;"><code>/projects/{projectId}/features</code></td>
+<td style="text-align: left;"><strong>Path</strong>: <code>projectId</code><br><strong>Query</strong>: <code>page</code> (int, default 1), <code>per_page</code> (int, default 50), <code>search</code> (optional), <code>include_scores</code> (bool, optional, default false) - includes Bayesian mu/sigma scores</td>
+<td style="text-align: left;"><strong>200 OK</strong>: <code>[ { "id": "uuid", "name": "string", "description": "string", "scores": { "complexity": { "mu": float, "sigma": float }, "value": { ... } } (if include_scores=true) } ]</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>FEAT-02</strong></td>
+<td style="text-align: left;">Add Feature</td>
+<td style="text-align: left;">Add a new feature to the project. Triggers recalculation of variance.</td>
+<td style="text-align: left;"><code>POST</code></td>
+<td style="text-align: left;"><code>/projects/{projectId}/features</code></td>
+<td style="text-align: left;"><strong>Path</strong>: <code>projectId</code><br><strong>Body</strong>: <code>{ "name": "string", "description": "string" }</code></td>
+<td style="text-align: left;"><strong>201 Created</strong>: <code>{ "id": "uuid", "name": "string", "description": "string" }</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>FEAT-03</strong></td>
+<td style="text-align: left;">Bulk Add Features</td>
+<td style="text-align: left;">Add multiple features at once.</td>
+<td style="text-align: left;"><code>POST</code></td>
+<td style="text-align: left;"><code>/projects/{projectId}/features/bulk</code></td>
+<td style="text-align: left;"><strong>Path</strong>: <code>projectId</code><br><strong>Body</strong>: <code>{ "features": [ { "name": "string", "description": "string" } ] }</code></td>
+<td style="text-align: left;"><strong>201 Created</strong>: <code>{ "count": int, "ids": ["uuid"] }</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>FEAT-04</strong></td>
+<td style="text-align: left;">Update Feature</td>
+<td style="text-align: left;">Update a feature's details.</td>
+<td style="text-align: left;"><code>PUT</code></td>
+<td style="text-align: left;"><code>/projects/{projectId}/features/{featureId}</code></td>
+<td style="text-align: left;"><strong>Path</strong>: <code>projectId</code>, <code>featureId</code><br><strong>Body</strong>: <code>{ "name": "string", "description": "string" }</code></td>
+<td style="text-align: left;"><strong>200 OK</strong>: <code>{ "id": "uuid", ... }</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>FEAT-05</strong></td>
+<td style="text-align: left;">Delete Feature</td>
+<td style="text-align: left;">Remove a feature from the project.</td>
+<td style="text-align: left;"><code>DELETE</code></td>
+<td style="text-align: left;"><code>/projects/{projectId}/features/{featureId}</code></td>
+<td style="text-align: left;"><strong>Path</strong>: <code>projectId</code>, <code>featureId</code></td>
+<td style="text-align: left;"><strong>204 No Content</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>FEAT-06</strong></td>
+<td style="text-align: left;">Bulk Delete Features</td>
+<td style="text-align: left;">Delete multiple features at once.</td>
+<td style="text-align: left;"><code>POST</code></td>
+<td style="text-align: left;"><code>/projects/{projectId}/features/bulk-delete</code></td>
+<td style="text-align: left;"><strong>Path</strong>: <code>projectId</code><br><strong>Body</strong>: <code>{ "feature_ids": ["uuid"] }</code></td>
+<td style="text-align: left;"><strong>200 OK</strong>: <code>{ "deleted_count": int }</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>FEAT-07</strong></td>
+<td style="text-align: left;">Get Feature</td>
+<td style="text-align: left;">Get a single feature's details.</td>
+<td style="text-align: left;"><code>GET</code></td>
+<td style="text-align: left;"><code>/projects/{projectId}/features/{featureId}</code></td>
+<td style="text-align: left;"><strong>Path</strong>: <code>projectId</code>, <code>featureId</code></td>
+<td style="text-align: left;"><strong>200 OK</strong>: <code>{ "id": "uuid", "name": "string", "description": "string", "tags": ["string"], "created_at": "datetime", "updated_at": "datetime" }</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="5-comparison-handling">5. Comparison Handling</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">ID</th>
+<th style="text-align: left;">Name</th>
+<th style="text-align: left;">Description</th>
+<th style="text-align: left;">Method</th>
+<th style="text-align: left;">Endpoint</th>
+<th style="text-align: left;">Parameters</th>
+<th style="text-align: left;">Responses</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>COMP-01</strong></td>
+<td style="text-align: left;">Get Next Pair</td>
+<td style="text-align: left;">Get the next pair of features to compare based on highest information gain using transitive closure optimization. Returns 204 when target certainty is reached or no useful comparisons remain.</td>
+<td style="text-align: left;"><code>GET</code></td>
+<td style="text-align: left;"><code>/projects/{projectId}/comparisons/next</code></td>
+<td style="text-align: left;"><strong>Path</strong>: <code>projectId</code><br><strong>Query</strong>: <code>dimension</code> (enum: complexity, value), <code>target_certainty</code> (float, optional, default 0.0), <code>include_progress</code> (bool, optional) - When true, includes progress metrics in response</td>
+<td style="text-align: left;"><strong>200 OK</strong>: <code>{ "comparison_id": null, "feature_a": { "id": "uuid", "name": "string", "description": "string" }, "feature_b": { "id": "uuid", "name": "string", "description": "string" }, "dimension": "string", "progress": { ... } (if include_progress=true) }</code><br><strong>204 No Content</strong> (if target certainty reached or no useful comparisons left)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>COMP-02</strong></td>
+<td style="text-align: left;">Submit Result</td>
+<td style="text-align: left;">Submit the result of a pairwise comparison. Returns the comparison along with updated inconsistency statistics for immediate UI feedback.</td>
+<td style="text-align: left;"><code>POST</code></td>
+<td style="text-align: left;"><code>/projects/{projectId}/comparisons</code></td>
+<td style="text-align: left;"><strong>Path</strong>: <code>projectId</code><br><strong>Body</strong>: <code>{ "feature_a_id": "uuid", "feature_b_id": "uuid", "choice": "feature_a" \| "feature_b" \| "tie", "dimension": "complexity" \| "value" }</code></td>
+<td style="text-align: left;"><strong>201 Created</strong>: <code>{ "id": "uuid", "project_id": "uuid", "feature_a": { "id": "uuid", "name": "string" }, "feature_b": { "id": "uuid", "name": "string" }, "choice": "string", "dimension": "string", "created_at": "datetime", "inconsistency_stats": { "cycle_count": int, "total_comparisons": int, "inconsistency_percentage": float, "dimension": "string" } }</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>COMP-03</strong></td>
+<td style="text-align: left;">Get Estimates</td>
+<td style="text-align: left;">Get estimated number of comparisons needed to reach certainty thresholds.</td>
+<td style="text-align: left;"><code>GET</code></td>
+<td style="text-align: left;"><code>/projects/{projectId}/comparisons/estimates</code></td>
+<td style="text-align: left;"><strong>Path</strong>: <code>projectId</code><br><strong>Query</strong>: <code>dimension</code></td>
+<td style="text-align: left;"><strong>200 OK</strong>: <code>{ "dimension": "string", "estimates": { "70%": int, "80%": int, "90%": int, "95%": int } }</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>COMP-04</strong></td>
+<td style="text-align: left;">Get Inconsistency Stats</td>
+<td style="text-align: left;">Get inconsistency statistics summary without full cycle details. Useful for dashboard widgets and health checks.</td>
+<td style="text-align: left;"><code>GET</code></td>
+<td style="text-align: left;"><code>/projects/{projectId}/comparisons/inconsistency-stats</code></td>
+<td style="text-align: left;"><strong>Path</strong>: <code>projectId</code><br><strong>Query</strong>: <code>dimension</code> (optional)</td>
+<td style="text-align: left;"><strong>200 OK</strong>: <code>{ "cycle_count": int, "total_comparisons": int, "inconsistency_percentage": float, "dimension": "string" }</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>COMP-04b</strong></td>
+<td style="text-align: left;">Get Inconsistencies</td>
+<td style="text-align: left;">Get detailed graph cycles representing logical inconsistencies. Returns list of cycles with feature IDs and names.</td>
+<td style="text-align: left;"><code>GET</code></td>
+<td style="text-align: left;"><code>/projects/{projectId}/comparisons/inconsistencies</code></td>
+<td style="text-align: left;"><strong>Path</strong>: <code>projectId</code><br><strong>Query</strong>: <code>dimension</code> (optional)</td>
+<td style="text-align: left;"><strong>200 OK</strong>: <code>{ "cycles": [ { "feature_ids": ["uuid"], "feature_names": ["string"], "length": int, "dimension": "string" } ], "count": int, "message": "string" }</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>COMP-05</strong></td>
+<td style="text-align: left;">Delete Comparison</td>
+<td style="text-align: left;">Delete a specific comparison result (e.g., to resolve an inconsistency).</td>
+<td style="text-align: left;"><code>DELETE</code></td>
+<td style="text-align: left;"><code>/projects/{projectId}/comparisons/{comparisonId}</code></td>
+<td style="text-align: left;"><strong>Path</strong>: <code>projectId</code>, <code>comparisonId</code></td>
+<td style="text-align: left;"><strong>204 No Content</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>COMP-06</strong></td>
+<td style="text-align: left;">Reset Comparisons</td>
+<td style="text-align: left;">Remove all comparisons for a project (or specific dimension) to start over.</td>
+<td style="text-align: left;"><code>POST</code></td>
+<td style="text-align: left;"><code>/projects/{projectId}/comparisons/reset</code></td>
+<td style="text-align: left;"><strong>Path</strong>: <code>projectId</code><br><strong>Body</strong>: <code>{ "dimension": "string" (optional) }</code></td>
+<td style="text-align: left;"><strong>200 OK</strong>: <code>{ "message": "Comparisons reset", "count": int }</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>COMP-07</strong></td>
+<td style="text-align: left;">Get Resolution Pair</td>
+<td style="text-align: left;">Get a specific pair of features to compare to resolve a detected inconsistency. Identifies the "weakest link" in cycles (highest combined uncertainty). Includes cycle context with count and affected features.</td>
+<td style="text-align: left;"><code>GET</code></td>
+<td style="text-align: left;"><code>/projects/{projectId}/comparisons/resolve-inconsistency</code></td>
+<td style="text-align: left;"><strong>Path</strong>: <code>projectId</code><br><strong>Query</strong>: <code>dimension</code> (required)</td>
+<td style="text-align: left;"><strong>200 OK</strong>: <code>{ "comparison_id": null, "feature_a": { "id": "uuid", "name": "string", ... }, "feature_b": { "id": "uuid", "name": "string", ... }, "dimension": "string", "reason": "string", "combined_uncertainty": float, "cycle_context": { "cycle_count": int, "features_in_cycles": ["string", ...] } }</code><br><strong>204 No Content</strong> (no inconsistencies detected)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>COMP-08</strong></td>
+<td style="text-align: left;">List Comparisons</td>
+<td style="text-align: left;">Get paginated history of past comparisons for audit/review. Supports batch fetch by IDs.</td>
+<td style="text-align: left;"><code>GET</code></td>
+<td style="text-align: left;"><code>/projects/{projectId}/comparisons</code></td>
+<td style="text-align: left;"><strong>Path</strong>: <code>projectId</code><br><strong>Query</strong>: <code>dimension</code>, <code>page</code> (int), <code>per_page</code> (int), <code>ids</code> (comma-separated UUIDs, optional) - When provided, fetches specific comparisons by ID (ignores pagination)</td>
+<td style="text-align: left;"><strong>200 OK</strong>: <code>{ "items": [ { "id": "uuid", "feature_a": { "id": "uuid", "name": "string" }, "feature_b": { "id": "uuid", "name": "string" }, "choice": "string", "dimension": "string", "created_at": "datetime" } ], "total": int, "page": int }</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>COMP-09</strong></td>
+<td style="text-align: left;">Get Comparison Progress</td>
+<td style="text-align: left;">Get current comparison progress as percentage toward target certainty using a hybrid confidence model (transitive coverage, Bayesian confidence, consistency).</td>
+<td style="text-align: left;"><code>GET</code></td>
+<td style="text-align: left;"><code>/projects/{projectId}/comparisons/progress</code></td>
+<td style="text-align: left;"><strong>Path</strong>: <code>projectId</code><br><strong>Query</strong>: <code>dimension</code>, <code>target_certainty</code> (float, default 0.90)</td>
+<td style="text-align: left;"><strong>200 OK</strong>: <code>{ "dimension": "string", "target_certainty": float, "transitive_coverage": float, "effective_confidence": float, "progress_percent": float, "comparisons_done": int, "comparisons_remaining": int, "cycle_count": int, ... }</code> (see api.md for full schema)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>COMP-10</strong></td>
+<td style="text-align: left;">Undo Last Comparison</td>
+<td style="text-align: left;">Undo the most recent comparison for a dimension. Returns updated progress for immediate UI feedback.</td>
+<td style="text-align: left;"><code>POST</code></td>
+<td style="text-align: left;"><code>/projects/{projectId}/comparisons/undo</code></td>
+<td style="text-align: left;"><strong>Path</strong>: <code>projectId</code><br><strong>Body</strong>: <code>{ "dimension": "string" }</code></td>
+<td style="text-align: left;"><strong>200 OK</strong>: <code>{ "undone_comparison_id": "uuid", "message": "Comparison undone", "updated_progress": { "comparisons_done": int, "progress_percent": float } }</code><br><strong>404 Not Found</strong> (if no comparisons to undo)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>COMP-11</strong></td>
+<td style="text-align: left;">Skip Comparison</td>
+<td style="text-align: left;">Skip a comparison pair if the user is unsure. The pair may be presented again later.</td>
+<td style="text-align: left;"><code>POST</code></td>
+<td style="text-align: left;"><code>/projects/{projectId}/comparisons/skip</code></td>
+<td style="text-align: left;"><strong>Path</strong>: <code>projectId</code><br><strong>Body</strong>: <code>{ "comparison_id": "uuid" }</code></td>
+<td style="text-align: left;"><strong>200 OK</strong>: <code>{ "status": "skipped" }</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>COMP-12</strong></td>
+<td style="text-align: left;">Get Comparison</td>
+<td style="text-align: left;">Get details of a specific comparison.</td>
+<td style="text-align: left;"><code>GET</code></td>
+<td style="text-align: left;"><code>/projects/{projectId}/comparisons/{comparisonId}</code></td>
+<td style="text-align: left;"><strong>Path</strong>: <code>projectId</code>, <code>comparisonId</code></td>
+<td style="text-align: left;"><strong>200 OK</strong>: <code>{ "id": "uuid", "feature_a": { "id": "uuid", "name": "string" }, "feature_b": { "id": "uuid", "name": "string" }, "choice": "string", "dimension": "string", "created_at": "datetime" }</code><br><strong>404 Not Found</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>COMP-13</strong></td>
+<td style="text-align: left;">Update Comparison</td>
+<td style="text-align: left;">Update an existing comparison result.</td>
+<td style="text-align: left;"><code>PUT</code></td>
+<td style="text-align: left;"><code>/projects/{projectId}/comparisons/{comparisonId}</code></td>
+<td style="text-align: left;"><strong>Path</strong>: <code>projectId</code>, <code>comparisonId</code><br><strong>Body</strong>: <code>{ "choice": "feature_a" \| "feature_b" \| "tie" }</code></td>
+<td style="text-align: left;"><strong>200 OK</strong>: <code>{ "id": "uuid", "choice": "string", "updated_at": "datetime" }</code><br><strong>404 Not Found</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>COMP-14</strong></td>
+<td style="text-align: left;">Submit Binary Comparison</td>
+<td style="text-align: left;">Submit a binary comparison (A beats B, B beats A, or tie). Only for projects in binary mode.</td>
+<td style="text-align: left;"><code>POST</code></td>
+<td style="text-align: left;"><code>/projects/{projectId}/comparisons/binary</code></td>
+<td style="text-align: left;"><strong>Path</strong>: <code>projectId</code><br><strong>Body</strong>: <code>{ "feature_a_id": "uuid", "feature_b_id": "uuid", "choice": "feature_a" \| "feature_b" \| "tie", "dimension": "complexity" \| "value" }</code></td>
+<td style="text-align: left;"><strong>201 Created</strong>: <code>{ "id": "uuid", "project_id": "uuid", "feature_a": { ... }, "feature_b": { ... }, "choice": "string", "dimension": "string", "created_at": "datetime", "inconsistency_stats": { ... } }</code><br><strong>400 Bad Request</strong> (if project is in graded mode)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>COMP-15</strong></td>
+<td style="text-align: left;">Submit Graded Comparison</td>
+<td style="text-align: left;">Submit a graded comparison using a 5-point scale. Only for projects in graded mode. Graded comparisons provide more information per comparison, allowing faster convergence with 30-40% fewer total comparisons needed.</td>
+<td style="text-align: left;"><code>POST</code></td>
+<td style="text-align: left;"><code>/projects/{projectId}/comparisons/graded</code></td>
+<td style="text-align: left;"><strong>Path</strong>: <code>projectId</code><br><strong>Body</strong>: <code>{ "feature_a_id": "uuid", "feature_b_id": "uuid", "dimension": "complexity" \| "value", "strength": "a_much_better" \| "a_better" \| "equal" \| "b_better" \| "b_much_better" }</code></td>
+<td style="text-align: left;"><strong>201 Created</strong>: <code>{ "id": "uuid", "project_id": "uuid", "feature_a": { ... }, "feature_b": { ... }, "dimension": "string", "strength": "string", "choice": "string", "created_at": "datetime", "inconsistency_stats": { ... } }</code><br><strong>400 Bad Request</strong> (if project is in binary mode)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="6-statistics-analysis">6. Statistics &amp; Analysis</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">ID</th>
+<th style="text-align: left;">Name</th>
+<th style="text-align: left;">Description</th>
+<th style="text-align: left;">Method</th>
+<th style="text-align: left;">Endpoint</th>
+<th style="text-align: left;">Parameters</th>
+<th style="text-align: left;">Responses</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>STAT-01</strong></td>
+<td style="text-align: left;">Get Project Stats</td>
+<td style="text-align: left;">Get current state statistics including total comparisons, average variance, etc.</td>
+<td style="text-align: left;"><code>GET</code></td>
+<td style="text-align: left;"><code>/projects/{projectId}/statistics</code></td>
+<td style="text-align: left;"><strong>Path</strong>: <code>projectId</code></td>
+<td style="text-align: left;"><strong>200 OK</strong>: <code>{ "total_features": int, "comparisons_count": { "complexity": int, "value": int }, "average_variance": { "complexity": float, "value": float } }</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>STAT-02</strong></td>
+<td style="text-align: left;">Get Feature Scores</td>
+<td style="text-align: left;">Get raw scores and variance for all features.</td>
+<td style="text-align: left;"><code>GET</code></td>
+<td style="text-align: left;"><code>/projects/{projectId}/statistics/scores</code></td>
+<td style="text-align: left;"><strong>Path</strong>: <code>projectId</code></td>
+<td style="text-align: left;"><strong>200 OK</strong>: <code>[ { "feature_id": "uuid", "name": "string", "complexity": { "mu": float, "sigma_sq": float }, "value": { "mu": float, "sigma_sq": float } } ]</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="7-results">7. Results</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">ID</th>
+<th style="text-align: left;">Name</th>
+<th style="text-align: left;">Description</th>
+<th style="text-align: left;">Method</th>
+<th style="text-align: left;">Endpoint</th>
+<th style="text-align: left;">Parameters</th>
+<th style="text-align: left;">Responses</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>RES-01</strong></td>
+<td style="text-align: left;">Get Ranked Results</td>
+<td style="text-align: left;">Get the final ranked list of features. Optionally includes quadrant analysis.</td>
+<td style="text-align: left;"><code>GET</code></td>
+<td style="text-align: left;"><code>/projects/{projectId}/results</code></td>
+<td style="text-align: left;"><strong>Path</strong>: <code>projectId</code><br><strong>Query</strong>: <code>sort_by</code> (complexity, value, ratio), <code>include_quadrants</code> (bool, optional) - When true, includes quadrant categorization in response</td>
+<td style="text-align: left;"><strong>200 OK</strong>: <code>[ { "rank": int, "feature": { "id": "uuid", "name": "string", "description": "string" }, "score": float, "variance": float, "confidence_interval": [float, float] } ]</code> or <code>{ "results": [...], "quadrants": { "quick_wins": [...], "strategic": [...], "fill_ins": [...], "avoid": [...] } }</code> (if include_quadrants=true)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>RES-02</strong></td>
+<td style="text-align: left;">Get Quadrant Analysis</td>
+<td style="text-align: left;">Get features categorized into four quadrants (Quick-Wins, Strategic, Fill-Ins, Avoid) based on complexity and value splits.</td>
+<td style="text-align: left;"><code>GET</code></td>
+<td style="text-align: left;"><code>/projects/{projectId}/results/quadrants</code></td>
+<td style="text-align: left;"><strong>Path</strong>: <code>projectId</code></td>
+<td style="text-align: left;"><strong>200 OK</strong>: <code>{ "quick_wins": [ { "id": "uuid", "name": "string" } ], "strategic": [...], "fill_ins": [...], "avoid": [...] }</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>RES-03</strong></td>
+<td style="text-align: left;">Export Results</td>
+<td style="text-align: left;">Export ranked results in various formats for reporting.</td>
+<td style="text-align: left;"><code>GET</code></td>
+<td style="text-align: left;"><code>/projects/{projectId}/results/export</code></td>
+<td style="text-align: left;"><strong>Path</strong>: <code>projectId</code><br><strong>Query</strong>: <code>format</code> (enum: json, csv), <code>sort_by</code> (complexity, value, ratio)</td>
+<td style="text-align: left;"><strong>200 OK</strong>: File download (CSV) or JSON array</td>
+</tr>
+</tbody>
+</table>
+<h2 id="8-model-configuration-controls">8. Model Configuration &amp; Controls</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">ID</th>
+<th style="text-align: left;">Name</th>
+<th style="text-align: left;">Description</th>
+<th style="text-align: left;">Method</th>
+<th style="text-align: left;">Endpoint</th>
+<th style="text-align: left;">Parameters</th>
+<th style="text-align: left;">Responses</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>MODEL-01</strong></td>
+<td style="text-align: left;">Get Model Config</td>
+<td style="text-align: left;">Retrieve the Bayesian/Thurstone-Mosteller configuration for a project, split per dimension.</td>
+<td style="text-align: left;"><code>GET</code></td>
+<td style="text-align: left;"><code>/projects/{projectId}/model-config</code></td>
+<td style="text-align: left;"><strong>Path</strong>: <code>projectId</code></td>
+<td style="text-align: left;"><strong>200 OK</strong>: <code>{ "dimensions": { "complexity": { "prior_mean": float, "prior_variance": float, "logistic_scale": float, "tie_tolerance": float, "target_variance": float }, "value": { ... } }, "selection_strategy": "entropy" \| "variance", "max_parallel_pairs": int }</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>MODEL-02</strong></td>
+<td style="text-align: left;">Update Model Config</td>
+<td style="text-align: left;">Update configurable parameters that govern Bayesian updates (priors, tie tolerance, stopping variance).</td>
+<td style="text-align: left;"><code>PUT</code></td>
+<td style="text-align: left;"><code>/projects/{projectId}/model-config</code></td>
+<td style="text-align: left;"><strong>Path</strong>: <code>projectId</code><br><strong>Body</strong>: <code>{ "dimensions": { "complexity": { "prior_mean": float, "prior_variance": float, "logistic_scale": float, "target_variance": float, "tie_tolerance": float } }, "selection_strategy": "entropy" \| "variance", "max_parallel_pairs": int }</code></td>
+<td style="text-align: left;"><strong>200 OK</strong>: <code>{ "message": "Model config updated", "effective_from": "datetime" }</code><br><strong>400 Bad Request</strong> (invalid ranges)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>MODEL-03</strong></td>
+<td style="text-align: left;">Preview Impact</td>
+<td style="text-align: left;">Simulate the expected comparison counts/variance using a draft configuration without persisting it.</td>
+<td style="text-align: left;"><code>POST</code></td>
+<td style="text-align: left;"><code>/projects/{projectId}/model-config/preview</code></td>
+<td style="text-align: left;"><strong>Path</strong>: <code>projectId</code><br><strong>Body</strong>: <code>{ "dimensions": { ... } }</code></td>
+<td style="text-align: left;"><strong>200 OK</strong>: <code>{ "complexity": { "expected_comparisons": int, "predicted_variance": float }, "value": { ... } }</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>MODEL-04</strong></td>
+<td style="text-align: left;">Reset Model Config</td>
+<td style="text-align: left;">Reset the project's model configuration back to system defaults.</td>
+<td style="text-align: left;"><code>POST</code></td>
+<td style="text-align: left;"><code>/projects/{projectId}/model-config/reset</code></td>
+<td style="text-align: left;"><strong>Path</strong>: <code>projectId</code></td>
+<td style="text-align: left;"><strong>200 OK</strong>: <code>{ "message": "Model config reset", "defaults": { ... } }</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="9-database-administration-root-only">9. Database Administration (Root Only)</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">ID</th>
+<th style="text-align: left;">Name</th>
+<th style="text-align: left;">Description</th>
+<th style="text-align: left;">Method</th>
+<th style="text-align: left;">Endpoint</th>
+<th style="text-align: left;">Parameters</th>
+<th style="text-align: left;">Responses</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>DB-01</strong></td>
+<td style="text-align: left;">Create Backup</td>
+<td style="text-align: left;">Create a full database backup. Root access required.</td>
+<td style="text-align: left;"><code>POST</code></td>
+<td style="text-align: left;"><code>/admin/database/backup</code></td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;"><strong>200 OK</strong>: <code>{ "backup_id": "uuid", "filename": "string", "size_bytes": int, "created_at": "datetime" }</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>DB-02</strong></td>
+<td style="text-align: left;">List Backups</td>
+<td style="text-align: left;">Get all available database backups. Root access required.</td>
+<td style="text-align: left;"><code>GET</code></td>
+<td style="text-align: left;"><code>/admin/database/backups</code></td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;"><strong>200 OK</strong>: <code>[ { "backup_id": "uuid", "filename": "string", "size_bytes": int, "created_at": "datetime" } ]</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>DB-03</strong></td>
+<td style="text-align: left;">Download Backup</td>
+<td style="text-align: left;">Download a specific backup file. Root access required.</td>
+<td style="text-align: left;"><code>GET</code></td>
+<td style="text-align: left;"><code>/admin/database/backups/{backupId}</code></td>
+<td style="text-align: left;"><strong>Path</strong>: <code>backupId</code></td>
+<td style="text-align: left;"><strong>200 OK</strong>: File download (SQLite database)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>DB-04</strong></td>
+<td style="text-align: left;">Restore Backup</td>
+<td style="text-align: left;">Restore database from a backup. Root access required.</td>
+<td style="text-align: left;"><code>POST</code></td>
+<td style="text-align: left;"><code>/admin/database/restore</code></td>
+<td style="text-align: left;"><strong>Body</strong>: <code>{ "backup_id": "uuid" }</code></td>
+<td style="text-align: left;"><strong>200 OK</strong>: <code>{ "message": "Database restored", "restored_at": "datetime" }</code><br><strong>503 Service Unavailable</strong> (during restore)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>DB-05</strong></td>
+<td style="text-align: left;">Get Database Stats</td>
+<td style="text-align: left;">Get database health and size statistics. Root access required.</td>
+<td style="text-align: left;"><code>GET</code></td>
+<td style="text-align: left;"><code>/admin/database/stats</code></td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;"><strong>200 OK</strong>: <code>{ "size_bytes": int, "table_counts": { "users": int, "projects": int, "features": int, "comparisons": int }, "last_vacuum": "datetime", "integrity_ok": bool }</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>DB-06</strong></td>
+<td style="text-align: left;">Run Maintenance</td>
+<td style="text-align: left;">Run database maintenance (VACUUM, integrity check). Root access required.</td>
+<td style="text-align: left;"><code>POST</code></td>
+<td style="text-align: left;"><code>/admin/database/maintenance</code></td>
+<td style="text-align: left;"><strong>Body</strong>: <code>{ "operation": "vacuum" \| "integrity_check" \| "optimize" }</code></td>
+<td style="text-align: left;"><strong>200 OK</strong>: <code>{ "message": "Maintenance completed", "duration_ms": int, "details": {} }</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>DB-07</strong></td>
+<td style="text-align: left;">Bulk Data Export</td>
+<td style="text-align: left;">Export all data for a project or entire system. Root access required.</td>
+<td style="text-align: left;"><code>GET</code></td>
+<td style="text-align: left;"><code>/admin/database/export</code></td>
+<td style="text-align: left;"><strong>Query</strong>: <code>project_id</code> (optional uuid), <code>format</code> (json | sql)</td>
+<td style="text-align: left;"><strong>200 OK</strong>: File download (JSON or SQL dump)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>DB-08</strong></td>
+<td style="text-align: left;">Bulk Data Import</td>
+<td style="text-align: left;">Import data from a previous export. Root access required.</td>
+<td style="text-align: left;"><code>POST</code></td>
+<td style="text-align: left;"><code>/admin/database/import</code></td>
+<td style="text-align: left;"><strong>Body</strong>: Multipart file upload</td>
+<td style="text-align: left;"><strong>200 OK</strong>: <code>{ "message": "Import completed", "projects_imported": int, "features_imported": int }</code></td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "search.highlight", "search.suggest", "content.code.copy"], "search": "../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      
+        <script src="../javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

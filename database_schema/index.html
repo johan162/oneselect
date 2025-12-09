@@ -1,0 +1,2268 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../deployment/">
+      
+      
+        <link rel="next" href="../working-with-proxies/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+    
+    
+      
+        <title>DB Schema - OneSelect API</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.618322db.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="purple">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#database-schema" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="OneSelect API" class="md-header__button md-logo" aria-label="OneSelect API" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            OneSelect API
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              DB Schema
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../introduction/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Introduction
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../theory_background/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Theory Background
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../authentication/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Authentication
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../api/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  API Reference
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../rest_api_spec_list/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  API Summary List
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../inconsistency_detection/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Inconsistency Detection
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../deployment/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Deployment
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="./" class="md-tabs__link">
+        
+  
+  
+    
+  
+  DB Schema
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../working-with-proxies/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Working with Proxies
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="OneSelect API" class="md-nav__button md-logo" aria-label="OneSelect API" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    OneSelect API
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../introduction/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Introduction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../theory_background/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Theory Background
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rest_api_spec_list/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Summary List
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../inconsistency_detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Inconsistency Detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DB Schema
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DB Schema
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#database-initialization-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Database Initialization Process
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#entity-relationship-diagram" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Entity Relationship Diagram
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tables
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tables">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#users" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        users
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#projects" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        projects
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        features
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#comparisons" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        comparisons
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#alembic-migrations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Alembic Migrations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Alembic Migrations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#running-migrations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running Migrations
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-queries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Queries
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Common Queries">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-all-features-with-scores-for-a-project" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Get all features with scores for a project
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#count-active-comparisons-by-dimension" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Count active comparisons by dimension
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#find-users-with-most-comparisons" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Find users with most comparisons
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-comparison-history-with-feature-names" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Get comparison history with feature names
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#database-file-location" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Database File Location
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backup-and-maintenance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Backup and Maintenance
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Backup and Maintenance">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#manual-backup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Manual Backup
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#database-size-and-integrity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Database Size and Integrity
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Performance Considerations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#future-schema-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Future Schema Changes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Future Schema Changes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#manual-migrations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Manual Migrations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#automatic-migrations-autogenerate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Automatic Migrations (Autogenerate)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Best Practices
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#common-migration-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Migration Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuration-for-autogenerate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration for Autogenerate
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#viewing-migration-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Viewing Migration Status
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../working-with-proxies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Working with Proxies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#database-initialization-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Database Initialization Process
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#entity-relationship-diagram" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Entity Relationship Diagram
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tables
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tables">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#users" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        users
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#projects" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        projects
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        features
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#comparisons" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        comparisons
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#alembic-migrations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Alembic Migrations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Alembic Migrations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#running-migrations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running Migrations
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-queries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Queries
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Common Queries">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-all-features-with-scores-for-a-project" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Get all features with scores for a project
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#count-active-comparisons-by-dimension" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Count active comparisons by dimension
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#find-users-with-most-comparisons" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Find users with most comparisons
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-comparison-history-with-feature-names" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Get comparison history with feature names
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#database-file-location" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Database File Location
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backup-and-maintenance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Backup and Maintenance
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Backup and Maintenance">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#manual-backup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Manual Backup
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#database-size-and-integrity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Database Size and Integrity
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Performance Considerations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#future-schema-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Future Schema Changes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Future Schema Changes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#manual-migrations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Manual Migrations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#automatic-migrations-autogenerate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Automatic Migrations (Autogenerate)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Best Practices
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#common-migration-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Migration Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuration-for-autogenerate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration for Autogenerate
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#viewing-migration-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Viewing Migration Status
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="database-schema">Database Schema</h1>
+<p>OneSelect uses SQLite as its database backend. The schema is managed through Alembic migrations and consists of four main tables for managing users, projects, features, and comparisons.</p>
+<h2 id="overview">Overview</h2>
+<p>The database schema supports:
+- User authentication (local and OAuth)
+- Multi-project organization
+- Bayesian scoring for features in two dimensions (complexity and value)
+- Binary and graded comparison modes
+- Soft deletion for comparisons (audit trail)</p>
+<h3 id="database-initialization-process">Database Initialization Process</h3>
+<p>OneSelect uses a <strong>manual initialization approach</strong> that requires explicit setup before first use. The database is <strong>not</strong> automatically created when the application starts - this provides better control over schema management and prevents accidental database creation in production environments.</p>
+<p><strong>How It Works:</strong></p>
+<ol>
+<li><strong>Schema Creation (Alembic Migrations)</strong></li>
+<li>The database schema is defined in SQLAlchemy models (<code>app/models/</code>)</li>
+<li>Alembic migrations in <code>alembic/versions/</code> contain the SQL operations to create tables</li>
+<li>Running <code>poetry run alembic upgrade head</code> executes all migrations and creates the database file</li>
+<li>If the database file doesn't exist, Alembic creates it and applies all migrations from scratch</li>
+<li>
+<p>If the database exists, Alembic only applies new migrations that haven't been run yet</p>
+</li>
+<li>
+<p><strong>Initial Data Population</strong></p>
+</li>
+<li>After schema creation, <code>app/initial_data.py</code> creates the default admin user</li>
+<li>The script checks if an admin user already exists to avoid duplicates</li>
+<li>
+<p>This is a separate step because schema and seed data have different lifecycles</p>
+</li>
+<li>
+<p><strong>First-Time Setup Workflow</strong></p>
+</li>
+</ol>
+<p><strong>Local Development:</strong>
+   <div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># 1. Install dependencies</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>poetry<span class="w"> </span>install
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># 2. Create database schema (creates oneselect.db if it doesn&#39;t exist)</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>poetry<span class="w"> </span>run<span class="w"> </span>alembic<span class="w"> </span>upgrade<span class="w"> </span>head
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="c1"># 3. Create admin user</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>poetry<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>app/initial_data.py
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="c1"># 4. Start the application</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>poetry<span class="w"> </span>run<span class="w"> </span>uvicorn<span class="w"> </span>app.main:app<span class="w"> </span>--reload
+</span></code></pre></div></p>
+<p><strong>Docker/Container Deployment:</strong>
+   <div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># 1. Build container image</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>make<span class="w"> </span>container-build
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1"># 2. Start services (database is created in /app/data/oneselect.db volume)</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>make<span class="w"> </span>container-up
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="c1"># 3. Run migrations inside container</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>podman<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>oneselect-backend<span class="w"> </span>poetry<span class="w"> </span>run<span class="w"> </span>alembic<span class="w"> </span>upgrade<span class="w"> </span>head
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="c1"># 4. Create admin user inside container</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>podman<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>oneselect-backend<span class="w"> </span>poetry<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>app/initial_data.py
+</span></code></pre></div></p>
+<p><strong>Note</strong>: Container deployments may use an entrypoint script to automate steps 3-4 on first launch.</p>
+<ol>
+<li><strong>Application Behavior Without Database</strong></li>
+<li>If you start the application (<code>uvicorn app.main:app</code>) without creating the database first, API requests will fail with database connection errors</li>
+<li>The application does <strong>not</strong> automatically run migrations on startup</li>
+<li>
+<p>This design prevents accidental schema changes in production</p>
+</li>
+<li>
+<p><strong>Detecting Database State</strong></p>
+</li>
+<li><strong>No database file</strong>: Alembic will create a new SQLite file when running <code>upgrade head</code></li>
+<li><strong>Database exists, no schema</strong>: Alembic creates the <code>alembic_version</code> table and applies all migrations</li>
+<li><strong>Database exists with old schema</strong>: Alembic reads <code>alembic_version</code>, determines which migrations are pending, and applies only those</li>
+<li>
+<p><strong>Database fully up-to-date</strong>: Alembic reports "No migrations to apply"</p>
+</li>
+<li>
+<p><strong>Zero-Downtime Updates</strong>
+   <div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Check current version</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>poetry<span class="w"> </span>run<span class="w"> </span>alembic<span class="w"> </span>current
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># View pending migrations</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>poetry<span class="w"> </span>run<span class="w"> </span>alembic<span class="w"> </span><span class="nb">history</span><span class="w"> </span>--indicate-current
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="c1"># Apply new migrations (application can stay running with SQLite)</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>poetry<span class="w"> </span>run<span class="w"> </span>alembic<span class="w"> </span>upgrade<span class="w"> </span>head
+</span></code></pre></div></p>
+</li>
+</ol>
+<p><strong>Why Manual Initialization?</strong></p>
+<ul>
+<li><strong>Safety</strong>: Prevents accidental database creation or schema changes in production</li>
+<li><strong>Control</strong>: Explicit migration step makes schema changes visible in deployment pipelines</li>
+<li><strong>Flexibility</strong>: Allows dry-run testing with <code>alembic upgrade head --sql</code></li>
+<li><strong>Audit Trail</strong>: Clear record of when and how the database was initialized</li>
+<li><strong>Zero-Trust</strong>: Application never assumes database structure - migrations must be run explicitly</li>
+</ul>
+<p><strong>Default Credentials</strong> (created by <code>app/initial_data.py</code>):
+- <strong>Username</strong>: <code>admin</code>
+- <strong>Password</strong>: <code>admin</code> (configurable via <code>FIRST_SUPERUSER_PASSWORD</code> environment variable)
+- <strong>Email</strong>: <code>admin@example.com</code> (configurable via <code>FIRST_SUPERUSER</code> environment variable)</p>
+<h2 id="entity-relationship-diagram">Entity Relationship Diagram</h2>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>┌─────────────┐
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>│    users    │
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>└──────┬──────┘
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>       │
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>       │ owner_id
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>       │
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>       ▼
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>┌─────────────┐         ┌──────────────┐
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>│  projects   │◄────────┤  features    │
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>└──────┬──────┘         └──────┬───────┘
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>       │                       │
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>       │                       │
+</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>       │ project_id            │ feature_a_id
+</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>       │                       │ feature_b_id
+</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>       ▼                       ▼
+</span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>┌──────────────────────────────┐
+</span><span id="__span-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>│       comparisons            │
+</span><span id="__span-3-18"><a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>└──────────────────────────────┘
+</span></code></pre></div>
+<h2 id="tables">Tables</h2>
+<h3 id="users">users</h3>
+<p>Stores user accounts with support for local authentication and Google OAuth.</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td>STRING (UUID)</td>
+<td>NO</td>
+<td>-</td>
+<td>Primary key</td>
+</tr>
+<tr>
+<td><code>username</code></td>
+<td>STRING</td>
+<td>NO</td>
+<td>-</td>
+<td>Unique username (used for login)</td>
+</tr>
+<tr>
+<td><code>email</code></td>
+<td>STRING</td>
+<td>YES</td>
+<td>-</td>
+<td>User email (unique)</td>
+</tr>
+<tr>
+<td><code>hashed_password</code></td>
+<td>STRING</td>
+<td>YES</td>
+<td>-</td>
+<td>Bcrypt hashed password (NULL for OAuth users)</td>
+</tr>
+<tr>
+<td><code>is_active</code></td>
+<td>BOOLEAN</td>
+<td>YES</td>
+<td><code>1</code></td>
+<td>Account active status</td>
+</tr>
+<tr>
+<td><code>is_superuser</code></td>
+<td>BOOLEAN</td>
+<td>YES</td>
+<td><code>0</code></td>
+<td>Admin privileges flag</td>
+</tr>
+<tr>
+<td><code>role</code></td>
+<td>STRING</td>
+<td>YES</td>
+<td><code>'user'</code></td>
+<td>User role (<code>'user'</code> or <code>'root'</code>)</td>
+</tr>
+<tr>
+<td><code>display_name</code></td>
+<td>STRING</td>
+<td>YES</td>
+<td>-</td>
+<td>Optional display name</td>
+</tr>
+<tr>
+<td><code>avatar_url</code></td>
+<td>STRING</td>
+<td>YES</td>
+<td>-</td>
+<td>URL to user avatar image</td>
+</tr>
+<tr>
+<td><code>google_id</code></td>
+<td>STRING</td>
+<td>YES</td>
+<td>-</td>
+<td>Google OAuth user ID (unique)</td>
+</tr>
+<tr>
+<td><code>auth_provider</code></td>
+<td>STRING</td>
+<td>YES</td>
+<td><code>'local'</code></td>
+<td>Authentication provider (<code>'local'</code> or <code>'google'</code>)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Indexes:</strong>
+- Primary key on <code>id</code>
+- Unique index on <code>username</code>
+- Unique index on <code>email</code>
+- Unique index on <code>google_id</code></p>
+<p><strong>Notes:</strong>
+- OAuth users have <code>auth_provider='google'</code>, <code>google_id</code> set, and <code>hashed_password</code> NULL
+- Local users have <code>auth_provider='local'</code> and <code>hashed_password</code> set</p>
+<h3 id="projects">projects</h3>
+<p>Stores projects that contain features to be compared.</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td>STRING (UUID)</td>
+<td>NO</td>
+<td>-</td>
+<td>Primary key</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>STRING</td>
+<td>NO</td>
+<td>-</td>
+<td>Project name</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>STRING</td>
+<td>YES</td>
+<td>-</td>
+<td>Project description</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td>DATETIME(TZ)</td>
+<td>YES</td>
+<td><code>CURRENT_TIMESTAMP</code></td>
+<td>Creation timestamp</td>
+</tr>
+<tr>
+<td><code>owner_id</code></td>
+<td>STRING (UUID)</td>
+<td>NO</td>
+<td>-</td>
+<td>Foreign key to <code>users.id</code></td>
+</tr>
+<tr>
+<td><code>total_comparisons</code></td>
+<td>INTEGER</td>
+<td>NO</td>
+<td><code>0</code></td>
+<td>Total number of comparisons made</td>
+</tr>
+<tr>
+<td><code>complexity_avg_variance</code></td>
+<td>FLOAT</td>
+<td>NO</td>
+<td><code>1.0</code></td>
+<td>Average variance across complexity scores</td>
+</tr>
+<tr>
+<td><code>value_avg_variance</code></td>
+<td>FLOAT</td>
+<td>NO</td>
+<td><code>1.0</code></td>
+<td>Average variance across value scores</td>
+</tr>
+<tr>
+<td><code>comparison_mode</code></td>
+<td>STRING</td>
+<td>NO</td>
+<td><code>'binary'</code></td>
+<td>Comparison mode (<code>'binary'</code> or <code>'graded'</code>)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Indexes:</strong>
+- Primary key on <code>id</code>
+- Index on <code>name</code></p>
+<p><strong>Constraints:</strong>
+- Foreign key: <code>owner_id</code> → <code>users.id</code>
+- Check constraint: <code>comparison_mode IN ('binary', 'graded')</code></p>
+<p><strong>Notes:</strong>
+- <code>comparison_mode='binary'</code>: Simple A vs B vs Tie comparisons
+- <code>comparison_mode='graded'</code>: 5-point scale (a_much_better, a_better, equal, b_better, b_much_better)</p>
+<h3 id="features">features</h3>
+<p>Stores features/requirements to be compared within a project.</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td>STRING (UUID)</td>
+<td>NO</td>
+<td>-</td>
+<td>Primary key</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>STRING</td>
+<td>NO</td>
+<td>-</td>
+<td>Feature name</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>STRING</td>
+<td>YES</td>
+<td>-</td>
+<td>Feature description</td>
+</tr>
+<tr>
+<td><code>project_id</code></td>
+<td>STRING (UUID)</td>
+<td>NO</td>
+<td>-</td>
+<td>Foreign key to <code>projects.id</code></td>
+</tr>
+<tr>
+<td><code>tags</code></td>
+<td>JSON</td>
+<td>YES</td>
+<td>-</td>
+<td>Array of tag strings</td>
+</tr>
+<tr>
+<td><code>complexity_mu</code></td>
+<td>FLOAT</td>
+<td>NO</td>
+<td><code>0.0</code></td>
+<td>Bayesian mean score for complexity dimension</td>
+</tr>
+<tr>
+<td><code>complexity_sigma</code></td>
+<td>FLOAT</td>
+<td>NO</td>
+<td><code>1.0</code></td>
+<td>Bayesian standard deviation for complexity</td>
+</tr>
+<tr>
+<td><code>value_mu</code></td>
+<td>FLOAT</td>
+<td>NO</td>
+<td><code>0.0</code></td>
+<td>Bayesian mean score for value dimension</td>
+</tr>
+<tr>
+<td><code>value_sigma</code></td>
+<td>FLOAT</td>
+<td>NO</td>
+<td><code>1.0</code></td>
+<td>Bayesian standard deviation for value</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td>DATETIME(TZ)</td>
+<td>YES</td>
+<td><code>CURRENT_TIMESTAMP</code></td>
+<td>Creation timestamp</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td>DATETIME(TZ)</td>
+<td>YES</td>
+<td>-</td>
+<td>Last update timestamp</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Indexes:</strong>
+- Primary key on <code>id</code>
+- Index on <code>name</code></p>
+<p><strong>Constraints:</strong>
+- Foreign key: <code>project_id</code> → <code>projects.id</code></p>
+<p><strong>Notes:</strong>
+- Bayesian scores: <code>mu</code> represents the estimated score, <code>sigma</code> represents uncertainty
+- Lower <code>sigma</code> = higher confidence in the score
+- Scores are updated after each comparison using Bradley-Terry model</p>
+<h3 id="comparisons">comparisons</h3>
+<p>Stores pairwise comparison results between features.</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th>Nullable</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td>STRING (UUID)</td>
+<td>NO</td>
+<td>-</td>
+<td>Primary key</td>
+</tr>
+<tr>
+<td><code>project_id</code></td>
+<td>STRING (UUID)</td>
+<td>NO</td>
+<td>-</td>
+<td>Foreign key to <code>projects.id</code></td>
+</tr>
+<tr>
+<td><code>feature_a_id</code></td>
+<td>STRING (UUID)</td>
+<td>NO</td>
+<td>-</td>
+<td>Foreign key to <code>features.id</code> (first feature)</td>
+</tr>
+<tr>
+<td><code>feature_b_id</code></td>
+<td>STRING (UUID)</td>
+<td>NO</td>
+<td>-</td>
+<td>Foreign key to <code>features.id</code> (second feature)</td>
+</tr>
+<tr>
+<td><code>choice</code></td>
+<td>STRING</td>
+<td>NO</td>
+<td>-</td>
+<td>Comparison result (<code>'feature_a'</code>, <code>'feature_b'</code>, or <code>'tie'</code>)</td>
+</tr>
+<tr>
+<td><code>dimension</code></td>
+<td>STRING</td>
+<td>NO</td>
+<td>-</td>
+<td>Comparison dimension (<code>'complexity'</code> or <code>'value'</code>)</td>
+</tr>
+<tr>
+<td><code>strength</code></td>
+<td>STRING</td>
+<td>YES</td>
+<td>-</td>
+<td>Graded comparison strength (NULL for binary)</td>
+</tr>
+<tr>
+<td><code>user_id</code></td>
+<td>STRING (UUID)</td>
+<td>YES</td>
+<td>-</td>
+<td>Foreign key to <code>users.id</code> (who made comparison)</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td>DATETIME(TZ)</td>
+<td>YES</td>
+<td><code>CURRENT_TIMESTAMP</code></td>
+<td>Creation timestamp</td>
+</tr>
+<tr>
+<td><code>deleted_at</code></td>
+<td>DATETIME(TZ)</td>
+<td>YES</td>
+<td>-</td>
+<td>Soft deletion timestamp (NULL if active)</td>
+</tr>
+<tr>
+<td><code>deleted_by</code></td>
+<td>STRING (UUID)</td>
+<td>YES</td>
+<td>-</td>
+<td>Foreign key to <code>users.id</code> (who deleted)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Indexes:</strong>
+- Primary key on <code>id</code>
+- Composite index on <code>(project_id, dimension, deleted_at)</code> for efficient querying</p>
+<p><strong>Constraints:</strong>
+- Foreign key: <code>project_id</code> → <code>projects.id</code>
+- Foreign key: <code>feature_a_id</code> → <code>features.id</code>
+- Foreign key: <code>feature_b_id</code> → <code>features.id</code>
+- Foreign key: <code>user_id</code> → <code>users.id</code>
+- Foreign key: <code>deleted_by</code> → <code>users.id</code>
+- Check constraint: <code>strength IS NULL OR strength IN ('a_much_better', 'a_better', 'equal', 'b_better', 'b_much_better')</code></p>
+<p><strong>Notes:</strong>
+- <strong>Binary mode</strong>: <code>strength</code> is NULL, only <code>choice</code> is used
+- <strong>Graded mode</strong>: <code>strength</code> indicates comparison intensity, <code>choice</code> is derived from strength
+- <strong>Soft deletion</strong>: Comparisons are not physically deleted; <code>deleted_at</code> is set for audit trail
+- <strong>Strength values</strong>:
+  - <code>a_much_better</code>: Feature A is significantly better (2.0x Bayesian update multiplier)
+  - <code>a_better</code>: Feature A is better (1.0x multiplier)
+  - <code>equal</code>: Features are roughly equal (configurable multiplier, default 0.8x)
+  - <code>b_better</code>: Feature B is better (1.0x multiplier)
+  - <code>b_much_better</code>: Feature B is significantly better (2.0x multiplier)</p>
+<h2 id="alembic-migrations">Alembic Migrations</h2>
+<p>The schema is version-controlled using Alembic. The current migration is:</p>
+<ul>
+<li><strong><code>001_init</code></strong>: Initial schema creation with all tables</li>
+</ul>
+<h3 id="running-migrations">Running Migrations</h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Upgrade to latest schema</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>poetry<span class="w"> </span>run<span class="w"> </span>alembic<span class="w"> </span>upgrade<span class="w"> </span>head
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="c1"># View migration history</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>poetry<span class="w"> </span>run<span class="w"> </span>alembic<span class="w"> </span><span class="nb">history</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="c1"># Rollback one version</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>poetry<span class="w"> </span>run<span class="w"> </span>alembic<span class="w"> </span>downgrade<span class="w"> </span>-1
+</span></code></pre></div>
+<h2 id="common-queries">Common Queries</h2>
+<h3 id="get-all-features-with-scores-for-a-project">Get all features with scores for a project</h3>
+<div class="language-sql highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">SELECT</span><span class="w"> </span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="n">f</span><span class="p">.</span><span class="n">id</span><span class="p">,</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="n">f</span><span class="p">.</span><span class="n">name</span><span class="p">,</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="n">f</span><span class="p">.</span><span class="n">description</span><span class="p">,</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="n">ROUND</span><span class="p">(</span><span class="n">f</span><span class="p">.</span><span class="n">complexity_mu</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">complexity_score</span><span class="p">,</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">    </span><span class="n">ROUND</span><span class="p">(</span><span class="n">f</span><span class="p">.</span><span class="n">complexity_sigma</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">complexity_confidence</span><span class="p">,</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">    </span><span class="n">ROUND</span><span class="p">(</span><span class="n">f</span><span class="p">.</span><span class="n">value_mu</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">value_score</span><span class="p">,</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">    </span><span class="n">ROUND</span><span class="p">(</span><span class="n">f</span><span class="p">.</span><span class="n">value_sigma</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">value_confidence</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="k">FROM</span><span class="w"> </span>
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">    </span><span class="n">features</span><span class="w"> </span><span class="n">f</span>
+</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="k">WHERE</span><span class="w"> </span>
+</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">    </span><span class="n">f</span><span class="p">.</span><span class="n">project_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;YOUR-PROJECT-ID&#39;</span>
+</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span>
+</span><span id="__span-5-14"><a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="w">    </span><span class="n">f</span><span class="p">.</span><span class="n">complexity_mu</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</span></code></pre></div>
+<h3 id="count-active-comparisons-by-dimension">Count active comparisons by dimension</h3>
+<div class="language-sql highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">SELECT</span><span class="w"> </span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">    </span><span class="n">dimension</span><span class="p">,</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">comparison_count</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="k">FROM</span><span class="w"> </span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">    </span><span class="n">comparisons</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="k">WHERE</span><span class="w"> </span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">    </span><span class="n">project_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;YOUR-PROJECT-ID&#39;</span>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">    </span><span class="k">AND</span><span class="w"> </span><span class="n">deleted_at</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NULL</span>
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span>
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">    </span><span class="n">dimension</span><span class="p">;</span>
+</span></code></pre></div>
+<h3 id="find-users-with-most-comparisons">Find users with most comparisons</h3>
+<div class="language-sql highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">SELECT</span><span class="w"> </span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">    </span><span class="n">u</span><span class="p">.</span><span class="n">username</span><span class="p">,</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="k">COUNT</span><span class="p">(</span><span class="k">c</span><span class="p">.</span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">comparison_count</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="k">FROM</span><span class="w"> </span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">    </span><span class="n">users</span><span class="w"> </span><span class="n">u</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">    </span><span class="k">INNER</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">comparisons</span><span class="w"> </span><span class="k">c</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">u</span><span class="p">.</span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">user_id</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="k">WHERE</span><span class="w"> </span>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">    </span><span class="k">c</span><span class="p">.</span><span class="n">deleted_at</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NULL</span>
+</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span>
+</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="w">    </span><span class="n">u</span><span class="p">.</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">u</span><span class="p">.</span><span class="n">username</span>
+</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span>
+</span><span id="__span-7-12"><a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="w">    </span><span class="n">comparison_count</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</span></code></pre></div>
+<h3 id="get-comparison-history-with-feature-names">Get comparison history with feature names</h3>
+<div class="language-sql highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">SELECT</span><span class="w"> </span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">    </span><span class="k">c</span><span class="p">.</span><span class="n">created_at</span><span class="p">,</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span><span class="n">fa</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">feature_a</span><span class="p">,</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">    </span><span class="n">fb</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">feature_b</span><span class="p">,</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">    </span><span class="k">c</span><span class="p">.</span><span class="n">choice</span><span class="p">,</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">    </span><span class="k">c</span><span class="p">.</span><span class="n">dimension</span><span class="p">,</span>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">    </span><span class="k">c</span><span class="p">.</span><span class="n">strength</span><span class="p">,</span>
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">    </span><span class="n">u</span><span class="p">.</span><span class="n">username</span>
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="k">FROM</span><span class="w"> </span>
+</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="w">    </span><span class="n">comparisons</span><span class="w"> </span><span class="k">c</span>
+</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="w">    </span><span class="k">INNER</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">features</span><span class="w"> </span><span class="n">fa</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">feature_a_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fa</span><span class="p">.</span><span class="n">id</span>
+</span><span id="__span-8-12"><a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="w">    </span><span class="k">INNER</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">features</span><span class="w"> </span><span class="n">fb</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">feature_b_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fb</span><span class="p">.</span><span class="n">id</span>
+</span><span id="__span-8-13"><a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="w">    </span><span class="k">LEFT</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">users</span><span class="w"> </span><span class="n">u</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">user_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">u</span><span class="p">.</span><span class="n">id</span>
+</span><span id="__span-8-14"><a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a><span class="k">WHERE</span><span class="w"> </span>
+</span><span id="__span-8-15"><a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a><span class="w">    </span><span class="k">c</span><span class="p">.</span><span class="n">project_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;YOUR-PROJECT-ID&#39;</span>
+</span><span id="__span-8-16"><a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a><span class="w">    </span><span class="k">AND</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">deleted_at</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NULL</span>
+</span><span id="__span-8-17"><a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span>
+</span><span id="__span-8-18"><a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a><span class="w">    </span><span class="k">c</span><span class="p">.</span><span class="n">created_at</span><span class="w"> </span><span class="k">DESC</span>
+</span><span id="__span-8-19"><a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a><span class="k">LIMIT</span><span class="w"> </span><span class="mi">50</span><span class="p">;</span>
+</span></code></pre></div>
+<h2 id="database-file-location">Database File Location</h2>
+<p>The SQLite database file is located at:
+- Development: <code>./oneselect.db</code> (project root)
+- Docker: <code>/app/data/oneselect.db</code> (persisted in volume)</p>
+<h2 id="backup-and-maintenance">Backup and Maintenance</h2>
+<h3 id="manual-backup">Manual Backup</h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1"># Create backup</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>sqlite3<span class="w"> </span>oneselect.db<span class="w"> </span><span class="s2">&quot;.backup oneselect_backup_</span><span class="k">$(</span>date<span class="w"> </span>+%Y%m%d<span class="k">)</span><span class="s2">.db&quot;</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="c1"># Or use cp</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>cp<span class="w"> </span>oneselect.db<span class="w"> </span>oneselect_backup_<span class="k">$(</span>date<span class="w"> </span>+%Y%m%d<span class="k">)</span>.db
+</span></code></pre></div>
+<h3 id="database-size-and-integrity">Database Size and Integrity</h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># Check database size</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>ls<span class="w"> </span>-lh<span class="w"> </span>oneselect.db
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="c1"># Run integrity check</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>sqlite3<span class="w"> </span>oneselect.db<span class="w"> </span><span class="s2">&quot;PRAGMA integrity_check;&quot;</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="c1"># Optimize database (vacuum)</span>
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>sqlite3<span class="w"> </span>oneselect.db<span class="w"> </span><span class="s2">&quot;VACUUM;&quot;</span>
+</span></code></pre></div>
+<h2 id="performance-considerations">Performance Considerations</h2>
+<ul>
+<li><strong>Indexes</strong>: All foreign keys and frequently queried columns are indexed</li>
+<li><strong>Composite Index</strong>: <code>(project_id, dimension, deleted_at)</code> on comparisons table optimizes progress queries</li>
+<li><strong>Soft Deletion</strong>: <code>deleted_at IS NULL</code> filters are fast due to index</li>
+<li><strong>JSON Tags</strong>: SQLite's JSON1 extension is used for feature tags (available by default in Python's sqlite3)</li>
+</ul>
+<h2 id="future-schema-changes">Future Schema Changes</h2>
+<p>Alembic supports two approaches for creating migrations: <strong>manual</strong> and <strong>automatic (autogenerate)</strong>.</p>
+<h3 id="manual-migrations">Manual Migrations</h3>
+<p>Manual migrations require you to explicitly specify all schema changes in Python code. This is the default when you create a new migration:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1"># Generate an empty migration template</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>poetry<span class="w"> </span>run<span class="w"> </span>alembic<span class="w"> </span>revision<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;add_new_column&quot;</span>
+</span></code></pre></div>
+<p>This creates a new file in <code>alembic/versions/</code> with empty <code>upgrade()</code> and <code>downgrade()</code> functions. You must manually write the schema changes:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">upgrade</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>    <span class="c1"># Add your schema changes here</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>    <span class="n">op</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s1">&#39;features&#39;</span><span class="p">,</span> <span class="n">sa</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="s1">&#39;priority&#39;</span><span class="p">,</span> <span class="n">sa</span><span class="o">.</span><span class="n">Integer</span><span class="p">(),</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>    <span class="n">op</span><span class="o">.</span><span class="n">create_index</span><span class="p">(</span><span class="s1">&#39;ix_features_priority&#39;</span><span class="p">,</span> <span class="s1">&#39;features&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;priority&#39;</span><span class="p">])</span>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="k">def</span><span class="w"> </span><span class="nf">downgrade</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>    <span class="c1"># Add reverse operations here</span>
+</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>    <span class="n">op</span><span class="o">.</span><span class="n">drop_index</span><span class="p">(</span><span class="s1">&#39;ix_features_priority&#39;</span><span class="p">,</span> <span class="n">table_name</span><span class="o">=</span><span class="s1">&#39;features&#39;</span><span class="p">)</span>
+</span><span id="__span-12-9"><a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>    <span class="n">op</span><span class="o">.</span><span class="n">drop_column</span><span class="p">(</span><span class="s1">&#39;features&#39;</span><span class="p">,</span> <span class="s1">&#39;priority&#39;</span><span class="p">)</span>
+</span></code></pre></div>
+<p><strong>Pros:</strong>
+- Full control over migration operations
+- Can include data migrations and complex transformations
+- Explicit and clear what changes are being made</p>
+<p><strong>Cons:</strong>
+- Tedious and error-prone for large schema changes
+- Easy to forget constraints or indexes
+- Must manually write both upgrade and downgrade operations</p>
+<h3 id="automatic-migrations-autogenerate">Automatic Migrations (Autogenerate)</h3>
+<p>Alembic can automatically detect schema changes by comparing your SQLAlchemy models against the current database schema:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="c1"># Generate migration with automatic change detection</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>poetry<span class="w"> </span>run<span class="w"> </span>alembic<span class="w"> </span>revision<span class="w"> </span>--autogenerate<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;add_priority_field&quot;</span>
+</span></code></pre></div>
+<p><strong>How Autogenerate Works:</strong></p>
+<ol>
+<li><strong>Model Inspection</strong>: Reads your SQLAlchemy model definitions from <code>app/models/</code></li>
+<li><strong>Database Inspection</strong>: Connects to the database and reads the current schema using SQLAlchemy's reflection capabilities</li>
+<li><strong>Diff Generation</strong>: Compares the two schemas and generates migration operations for detected differences</li>
+<li><strong>Code Generation</strong>: Creates a migration file with <code>upgrade()</code> and <code>downgrade()</code> functions</li>
+</ol>
+<p><strong>What Autogenerate Can Detect:</strong></p>
+<p>✅ <strong>Detected automatically:</strong>
+- New tables
+- Removed tables
+- New columns
+- Removed columns (if configured)
+- Column type changes
+- Column nullable changes
+- New indexes
+- Removed indexes</p>
+<p>⚠️ <strong>Requires manual intervention:</strong>
+- Column renames (appears as drop + add)
+- Table renames (appears as drop + add)
+- Changes to check constraints
+- Changes to column defaults in some cases
+- Data migrations or transformations
+- Complex multi-step operations</p>
+<p><strong>Important Limitations:</strong></p>
+<p>Autogenerate is <strong>not perfect</strong> and you should <strong>always review</strong> the generated migration file:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="c1"># After running autogenerate, review the file</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>cat<span class="w"> </span>alembic/versions/XXXX_add_priority_field.py
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="c1"># Edit if needed, then apply</span>
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>poetry<span class="w"> </span>run<span class="w"> </span>alembic<span class="w"> </span>upgrade<span class="w"> </span>head
+</span></code></pre></div>
+<p><strong>Example Workflow:</strong></p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="c1"># 1. Update your model in app/models/feature.py</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">Feature</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>    <span class="c1"># ... existing fields ...</span>
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>    <span class="n">priority</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Integer</span><span class="p">,</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># NEW FIELD</span>
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>
+</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="c1"># 2. Generate migration automatically</span>
+</span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="n">poetry</span> <span class="n">run</span> <span class="n">alembic</span> <span class="n">revision</span> <span class="o">--</span><span class="n">autogenerate</span> <span class="o">-</span><span class="n">m</span> <span class="s2">&quot;add_feature_priority&quot;</span>
+</span><span id="__span-15-8"><a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>
+</span><span id="__span-15-9"><a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a><span class="c1"># 3. Review generated file (alembic/versions/XXXX_add_feature_priority.py)</span>
+</span><span id="__span-15-10"><a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a><span class="c1"># The file will contain something like:</span>
+</span><span id="__span-15-11"><a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a><span class="k">def</span><span class="w"> </span><span class="nf">upgrade</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-15-12"><a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a>    <span class="n">op</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s1">&#39;features&#39;</span><span class="p">,</span> <span class="n">sa</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="s1">&#39;priority&#39;</span><span class="p">,</span> <span class="n">sa</span><span class="o">.</span><span class="n">Integer</span><span class="p">(),</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+</span><span id="__span-15-13"><a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a>    <span class="n">op</span><span class="o">.</span><span class="n">create_index</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">f</span><span class="p">(</span><span class="s1">&#39;ix_features_priority&#39;</span><span class="p">),</span> <span class="s1">&#39;features&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;priority&#39;</span><span class="p">],</span> <span class="n">unique</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span><span id="__span-15-14"><a id="__codelineno-15-14" name="__codelineno-15-14" href="#__codelineno-15-14"></a>
+</span><span id="__span-15-15"><a id="__codelineno-15-15" name="__codelineno-15-15" href="#__codelineno-15-15"></a><span class="k">def</span><span class="w"> </span><span class="nf">downgrade</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-15-16"><a id="__codelineno-15-16" name="__codelineno-15-16" href="#__codelineno-15-16"></a>    <span class="n">op</span><span class="o">.</span><span class="n">drop_index</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">f</span><span class="p">(</span><span class="s1">&#39;ix_features_priority&#39;</span><span class="p">),</span> <span class="n">table_name</span><span class="o">=</span><span class="s1">&#39;features&#39;</span><span class="p">)</span>
+</span><span id="__span-15-17"><a id="__codelineno-15-17" name="__codelineno-15-17" href="#__codelineno-15-17"></a>    <span class="n">op</span><span class="o">.</span><span class="n">drop_column</span><span class="p">(</span><span class="s1">&#39;features&#39;</span><span class="p">,</span> <span class="s1">&#39;priority&#39;</span><span class="p">)</span>
+</span><span id="__span-15-18"><a id="__codelineno-15-18" name="__codelineno-15-18" href="#__codelineno-15-18"></a>
+</span><span id="__span-15-19"><a id="__codelineno-15-19" name="__codelineno-15-19" href="#__codelineno-15-19"></a><span class="c1"># 4. If it looks correct, apply it</span>
+</span><span id="__span-15-20"><a id="__codelineno-15-20" name="__codelineno-15-20" href="#__codelineno-15-20"></a><span class="n">poetry</span> <span class="n">run</span> <span class="n">alembic</span> <span class="n">upgrade</span> <span class="n">head</span>
+</span></code></pre></div>
+<h3 id="best-practices">Best Practices</h3>
+<ol>
+<li><strong>Always Review Autogenerated Migrations</strong>: Even with autogenerate, check the generated code before applying</li>
+<li><strong>Use Autogenerate for Simple Changes</strong>: Column additions, type changes, new indexes</li>
+<li><strong>Use Manual for Complex Changes</strong>: Data migrations, multi-step transformations, renames</li>
+<li><strong>Test Migrations</strong>: Run <code>upgrade</code> and <code>downgrade</code> in a test environment before production</li>
+<li><strong>One Logical Change Per Migration</strong>: Don't combine unrelated schema changes</li>
+<li><strong>Meaningful Messages</strong>: Use descriptive migration messages: <code>alembic revision -m "add_user_avatar_support"</code></li>
+</ol>
+<h3 id="common-migration-operations">Common Migration Operations</h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="c1"># Add a column</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="n">op</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s1">&#39;table_name&#39;</span><span class="p">,</span> <span class="n">sa</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="s1">&#39;column_name&#39;</span><span class="p">,</span> <span class="n">sa</span><span class="o">.</span><span class="n">String</span><span class="p">(),</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="c1"># Remove a column</span>
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="n">op</span><span class="o">.</span><span class="n">drop_column</span><span class="p">(</span><span class="s1">&#39;table_name&#39;</span><span class="p">,</span> <span class="s1">&#39;column_name&#39;</span><span class="p">)</span>
+</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>
+</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="c1"># Change column type</span>
+</span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a><span class="n">op</span><span class="o">.</span><span class="n">alter_column</span><span class="p">(</span><span class="s1">&#39;table_name&#39;</span><span class="p">,</span> <span class="s1">&#39;column_name&#39;</span><span class="p">,</span> <span class="n">type_</span><span class="o">=</span><span class="n">sa</span><span class="o">.</span><span class="n">Integer</span><span class="p">())</span>
+</span><span id="__span-16-9"><a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>
+</span><span id="__span-16-10"><a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a><span class="c1"># Make column non-nullable (with default for existing rows)</span>
+</span><span id="__span-16-11"><a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a><span class="n">op</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;UPDATE table_name SET column_name = &#39;default&#39; WHERE column_name IS NULL&quot;</span><span class="p">)</span>
+</span><span id="__span-16-12"><a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a><span class="n">op</span><span class="o">.</span><span class="n">alter_column</span><span class="p">(</span><span class="s1">&#39;table_name&#39;</span><span class="p">,</span> <span class="s1">&#39;column_name&#39;</span><span class="p">,</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span><span id="__span-16-13"><a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a>
+</span><span id="__span-16-14"><a id="__codelineno-16-14" name="__codelineno-16-14" href="#__codelineno-16-14"></a><span class="c1"># Add an index</span>
+</span><span id="__span-16-15"><a id="__codelineno-16-15" name="__codelineno-16-15" href="#__codelineno-16-15"></a><span class="n">op</span><span class="o">.</span><span class="n">create_index</span><span class="p">(</span><span class="s1">&#39;ix_table_column&#39;</span><span class="p">,</span> <span class="s1">&#39;table_name&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;column_name&#39;</span><span class="p">])</span>
+</span><span id="__span-16-16"><a id="__codelineno-16-16" name="__codelineno-16-16" href="#__codelineno-16-16"></a>
+</span><span id="__span-16-17"><a id="__codelineno-16-17" name="__codelineno-16-17" href="#__codelineno-16-17"></a><span class="c1"># Add a foreign key</span>
+</span><span id="__span-16-18"><a id="__codelineno-16-18" name="__codelineno-16-18" href="#__codelineno-16-18"></a><span class="n">op</span><span class="o">.</span><span class="n">create_foreign_key</span><span class="p">(</span><span class="s1">&#39;fk_table_other&#39;</span><span class="p">,</span> <span class="s1">&#39;table_name&#39;</span><span class="p">,</span> <span class="s1">&#39;other_table&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;other_id&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">])</span>
+</span><span id="__span-16-19"><a id="__codelineno-16-19" name="__codelineno-16-19" href="#__codelineno-16-19"></a>
+</span><span id="__span-16-20"><a id="__codelineno-16-20" name="__codelineno-16-20" href="#__codelineno-16-20"></a><span class="c1"># Rename a column (SQLite requires table recreation)</span>
+</span><span id="__span-16-21"><a id="__codelineno-16-21" name="__codelineno-16-21" href="#__codelineno-16-21"></a><span class="c1"># For SQLite, this is complex - see Alembic docs for batch operations</span>
+</span><span id="__span-16-22"><a id="__codelineno-16-22" name="__codelineno-16-22" href="#__codelineno-16-22"></a>
+</span><span id="__span-16-23"><a id="__codelineno-16-23" name="__codelineno-16-23" href="#__codelineno-16-23"></a><span class="c1"># Data migration example</span>
+</span><span id="__span-16-24"><a id="__codelineno-16-24" name="__codelineno-16-24" href="#__codelineno-16-24"></a><span class="n">op</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;UPDATE features SET priority = 0 WHERE priority IS NULL&quot;</span><span class="p">)</span>
+</span></code></pre></div>
+<h3 id="configuration-for-autogenerate">Configuration for Autogenerate</h3>
+<p>In <code>alembic/env.py</code>, you can configure what autogenerate detects:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="n">context</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>    <span class="n">connection</span><span class="o">=</span><span class="n">connection</span><span class="p">,</span>
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>    <span class="n">target_metadata</span><span class="o">=</span><span class="n">target_metadata</span><span class="p">,</span>
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>    <span class="n">compare_type</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>           <span class="c1"># Detect column type changes</span>
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>    <span class="n">compare_server_default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="c1"># Detect default value changes</span>
+</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>    <span class="n">include_schemas</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>        <span class="c1"># Include schema names</span>
+</span><span id="__span-17-7"><a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a><span class="p">)</span>
+</span></code></pre></div>
+<h3 id="viewing-migration-status">Viewing Migration Status</h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="c1"># Show current version</span>
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>poetry<span class="w"> </span>run<span class="w"> </span>alembic<span class="w"> </span>current
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>
+</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="c1"># Show migration history</span>
+</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>poetry<span class="w"> </span>run<span class="w"> </span>alembic<span class="w"> </span><span class="nb">history</span><span class="w"> </span>--verbose
+</span><span id="__span-18-6"><a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>
+</span><span id="__span-18-7"><a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a><span class="c1"># Show pending migrations</span>
+</span><span id="__span-18-8"><a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a>poetry<span class="w"> </span>run<span class="w"> </span>alembic<span class="w"> </span><span class="nb">history</span><span class="w"> </span>--indicate-current
+</span><span id="__span-18-9"><a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a>
+</span><span id="__span-18-10"><a id="__codelineno-18-10" name="__codelineno-18-10" href="#__codelineno-18-10"></a><span class="c1"># Show SQL without executing</span>
+</span><span id="__span-18-11"><a id="__codelineno-18-11" name="__codelineno-18-11" href="#__codelineno-18-11"></a>poetry<span class="w"> </span>run<span class="w"> </span>alembic<span class="w"> </span>upgrade<span class="w"> </span>head<span class="w"> </span>--sql
+</span></code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "search.highlight", "search.suggest", "content.code.copy"], "search": "../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      
+        <script src="../javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

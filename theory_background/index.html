@@ -1,0 +1,1771 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../introduction/">
+      
+      
+        <link rel="next" href="../authentication/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+    
+    
+      
+        <title>Theory Background - OneSelect API</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.618322db.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="purple">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#theoretical-background" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="OneSelect API" class="md-header__button md-logo" aria-label="OneSelect API" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            OneSelect API
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Theory Background
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../introduction/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Introduction
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="./" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Theory Background
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../authentication/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Authentication
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../api/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  API Reference
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../rest_api_spec_list/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  API Summary List
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../inconsistency_detection/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Inconsistency Detection
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../deployment/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Deployment
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../database_schema/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  DB Schema
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../working-with-proxies/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Working with Proxies
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="OneSelect API" class="md-nav__button md-logo" aria-label="OneSelect API" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    OneSelect API
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../introduction/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Introduction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Theory Background
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Theory Background
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-core-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Core Model
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Core Model">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-probability-function" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Probability Function
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bayesian-inference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bayesian Inference
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Bayesian Inference">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#initialization-priors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Initialization (Priors)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-update-step" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Update Step
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#active-learning-selecting-the-next-pair" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Active Learning: Selecting the Next Pair
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Active Learning: Selecting the Next Pair">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#transitive-closure-optimization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Transitive Closure Optimization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#selection-strategies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Selection Strategies
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#model-configuration-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Model Configuration Parameters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Model Configuration Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#prior_mean" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        prior_mean
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#prior_variance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        prior_variance
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#logistic_scale-s" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        logistic_scale (\(s\))
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tie_tolerance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        tie_tolerance
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#target_variance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        target_variance
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#max_parallel_pairs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        max_parallel_pairs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#confidence-and-progress-calculation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Confidence and Progress Calculation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Confidence and Progress Calculation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#key-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#effective-confidence-formula" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Effective Confidence Formula
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#practical-comparison-estimates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Practical Comparison Estimates
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#theoretical-foundation-the-bayesian-thurstone-mosteller-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Theoretical Foundation: The Bayesian Thurstone-Mosteller Model
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#initialization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Initialization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-bayesian-update-step" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Bayesian Update Step
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#active-selection-of-the-next-comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Active Selection of the Next Comparison
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#practical-workflow-for-your-meetings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Practical Workflow for Your Meetings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#output-and-final-ranking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Output and Final Ranking
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rest_api_spec_list/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Summary List
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../inconsistency_detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Inconsistency Detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../database_schema/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DB Schema
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../working-with-proxies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Working with Proxies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-core-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Core Model
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Core Model">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-probability-function" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Probability Function
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bayesian-inference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bayesian Inference
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Bayesian Inference">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#initialization-priors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Initialization (Priors)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-update-step" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Update Step
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#active-learning-selecting-the-next-pair" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Active Learning: Selecting the Next Pair
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Active Learning: Selecting the Next Pair">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#transitive-closure-optimization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Transitive Closure Optimization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#selection-strategies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Selection Strategies
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#model-configuration-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Model Configuration Parameters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Model Configuration Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#prior_mean" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        prior_mean
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#prior_variance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        prior_variance
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#logistic_scale-s" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        logistic_scale (\(s\))
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tie_tolerance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        tie_tolerance
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#target_variance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        target_variance
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#max_parallel_pairs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        max_parallel_pairs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#confidence-and-progress-calculation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Confidence and Progress Calculation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Confidence and Progress Calculation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#key-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#effective-confidence-formula" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Effective Confidence Formula
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#practical-comparison-estimates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Practical Comparison Estimates
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#theoretical-foundation-the-bayesian-thurstone-mosteller-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Theoretical Foundation: The Bayesian Thurstone-Mosteller Model
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#initialization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Initialization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-bayesian-update-step" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Bayesian Update Step
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#active-selection-of-the-next-comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Active Selection of the Next Comparison
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#practical-workflow-for-your-meetings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Practical Workflow for Your Meetings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#output-and-final-ranking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Output and Final Ranking
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="theoretical-background">Theoretical Background</h1>
+<p>OneSelect uses a probabilistic model based on the <strong>Bradley-Terry model</strong> (a specific form of the Thurstone-Mosteller model) combined with <strong>Bayesian inference</strong> to estimate the relative value or complexity of features.</p>
+<h2 id="the-core-model">The Core Model</h2>
+<p>We assume that every feature <span class="arithmatex">\(i\)</span> has a true, latent "score" <span class="arithmatex">\(\mu_i\)</span> on a given dimension (e.g., Value or Complexity). We cannot observe this score directly, but we can infer it through comparisons.</p>
+<h3 id="the-probability-function">The Probability Function</h3>
+<p>When we compare two features, <span class="arithmatex">\(i\)</span> and <span class="arithmatex">\(j\)</span>, the probability that <span class="arithmatex">\(i\)</span> wins (is chosen over <span class="arithmatex">\(j\)</span>) is determined by the difference in their scores, modeled by the logistic function:</p>
+<div class="arithmatex">\[
+P(i &gt; j) = \frac{1}{1 + e^{-\frac{\mu_i - \mu_j}{s}}}
+\]</div>
+<p>Where:
+*   <span class="arithmatex">\(\mu_i, \mu_j\)</span> are the latent scores of features <span class="arithmatex">\(i\)</span> and <span class="arithmatex">\(j\)</span>.
+*   <span class="arithmatex">\(s\)</span> is the <strong>Logistic Scale</strong> factor.</p>
+<p>This implies:
+*   If <span class="arithmatex">\(\mu_i = \mu_j\)</span>, <span class="arithmatex">\(P(i &gt; j) = 0.5\)</span> (a toss-up).
+*   If <span class="arithmatex">\(\mu_i \gg \mu_j\)</span>, <span class="arithmatex">\(P(i &gt; j) \to 1\)</span>.
+*   If <span class="arithmatex">\(\mu_i \ll \mu_j\)</span>, <span class="arithmatex">\(P(i &gt; j) \to 0\)</span>.</p>
+<h2 id="bayesian-inference">Bayesian Inference</h2>
+<p>Instead of just keeping a single score for each feature, we model our <em>belief</em> about the score as a <strong>Gaussian (Normal) distribution</strong>:</p>
+<div class="arithmatex">\[
+\mu_i \sim \mathcal{N}(\hat{\mu}_i, \sigma^2_i)
+\]</div>
+<ul>
+<li><span class="arithmatex">\(\hat{\mu}_i\)</span>: The current best estimate of the score (Mean).</li>
+<li><span class="arithmatex">\(\sigma^2_i\)</span>: The uncertainty about that score (Variance).</li>
+</ul>
+<h3 id="initialization-priors">Initialization (Priors)</h3>
+<p>Before any comparisons are made, we assign a <strong>Prior</strong> to every feature.
+*   <strong>Prior Mean (<span class="arithmatex">\(\mu_0\)</span>)</strong>: Usually set to 0 or an arbitrary baseline (e.g., 25).
+*   <strong>Prior Variance (<span class="arithmatex">\(\sigma^2_0\)</span>)</strong>: Set to a high value (e.g., 25 or 100) to represent that we are very uncertain about the true score.</p>
+<h3 id="the-update-step">The Update Step</h3>
+<p>When a user makes a choice (e.g., "Feature A is more valuable than Feature B"), we update the distributions for both features.</p>
+<ol>
+<li><strong>Winner (A)</strong>: The mean <span class="arithmatex">\(\hat{\mu}_A\)</span> increases, and variance <span class="arithmatex">\(\sigma^2_A\)</span> decreases.</li>
+<li><strong>Loser (B)</strong>: The mean <span class="arithmatex">\(\hat{\mu}_B\)</span> decreases, and variance <span class="arithmatex">\(\sigma^2_B\)</span> decreases.</li>
+</ol>
+<p>We use approximate Bayesian inference (specifically <strong>Expectation Propagation</strong> or <strong>Variational Inference</strong> techniques suitable for the Bradley-Terry model) to calculate the new posterior means and variances.</p>
+<h2 id="active-learning-selecting-the-next-pair">Active Learning: Selecting the Next Pair</h2>
+<p>To minimize the number of comparisons needed, OneSelect uses an <strong>Active Learning</strong> strategy combined with <strong>Transitive Inference</strong>. Instead of picking random pairs, it calculates which pair will provide the most <strong>Information Gain</strong> while leveraging transitivity to skip redundant comparisons.</p>
+<h3 id="transitive-closure-optimization">Transitive Closure Optimization</h3>
+<p>The key insight is that pairwise comparisons form a directed graph, and we can infer orderings through <strong>transitivity</strong>:</p>
+<ul>
+<li>If A &gt; B and B &gt; C, then we know A &gt; C without needing to ask.</li>
+<li>This reduces the required comparisons from O(N²) to approximately O(N log N).</li>
+</ul>
+<p>For N features:
+*   <strong>Naïve approach</strong>: <span class="arithmatex">\(N(N-1)/2\)</span> comparisons (e.g., 435 for 30 features)
+*   <strong>With transitivity</strong>: ~N × log₂(N) comparisons (e.g., ~150 for 30 features)
+*   <strong>Theoretical minimum</strong>: ⌈log₂(N!)⌉ (information-theoretic lower bound)</p>
+<h3 id="selection-strategies">Selection Strategies</h3>
+<p>The system uses a <strong>hybrid scoring</strong> approach that combines:</p>
+<ol>
+<li>
+<p><strong>Traditional Active Learning (Uncertainty × Closeness)</strong>:
+    [
+    \text{ActiveLearningScore}(i, j) = (\sigma_i + \sigma_j) \cdot \exp\left(-\frac{(\hat{\mu}_i - \hat{\mu}_j)^2}{2c^2}\right)
+    ]
+    Where <span class="arithmatex">\(c = 2.0\)</span> is a scaling factor. This prioritizes uncertain features with similar scores.</p>
+</li>
+<li>
+<p><strong>Connectivity Bonus</strong> (for chain building):</p>
+<ul>
+<li><strong>1.2×</strong> if exactly one feature has prior comparisons (extends a chain)</li>
+<li><strong>1.1×</strong> if both features have prior comparisons (links existing knowledge)</li>
+<li><strong>1.0×</strong> if neither has comparisons (cold start)</li>
+</ul>
+</li>
+<li>
+<p><strong>Transitive Filtering</strong>: Only considers pairs whose ordering is <strong>not already known</strong> via transitivity.</p>
+</li>
+</ol>
+<p>The final selection score is:
+[
+\text{SelectionScore}(i, j) = \text{ActiveLearningScore}(i, j) \times \text{ConnectivityBonus}
+]</p>
+<h2 id="model-configuration-parameters">Model Configuration Parameters</h2>
+<p>The API allows fine-tuning the mathematical model via the <code>model-config</code> endpoints. Here is what the parameters control:</p>
+<h3 id="prior_mean"><code>prior_mean</code></h3>
+<ul>
+<li><strong>Description</strong>: The starting score for all new features.</li>
+<li><strong>Effect</strong>: Shifts the absolute scale of the results. Since the model is relative, this is mostly cosmetic, but keeping it consistent helps with visualization.</li>
+</ul>
+<h3 id="prior_variance"><code>prior_variance</code></h3>
+<ul>
+<li><strong>Description</strong>: The initial uncertainty assigned to a new feature.</li>
+<li><strong>Effect</strong>: A higher value means the system is "open-minded" and will move the feature's score drastically after the first few comparisons. A lower value makes the score "sticky".</li>
+</ul>
+<h3 id="logistic_scale-s"><code>logistic_scale</code> (<span class="arithmatex">\(s\)</span>)</h3>
+<ul>
+<li><strong>Description</strong>: Controls the "steepness" of the probability curve.</li>
+<li><strong>Effect</strong>:<ul>
+<li><strong>Small <span class="arithmatex">\(s\)</span></strong>: The model assumes users are very precise. Small differences in score lead to high win probabilities.</li>
+<li><strong>Large <span class="arithmatex">\(s\)</span></strong>: The model assumes the comparison process is noisy. Even if <span class="arithmatex">\(A\)</span> is much better than <span class="arithmatex">\(B\)</span>, there's still a chance the user might pick <span class="arithmatex">\(B\)</span> by mistake or due to ambiguity.</li>
+<li><em>Tuning</em>: If users feel the system is "jumping to conclusions" too fast, increase this value.</li>
+</ul>
+</li>
+</ul>
+<h3 id="tie_tolerance"><code>tie_tolerance</code></h3>
+<ul>
+<li><strong>Description</strong>: The probability mass assigned to a "Tie" outcome.</li>
+<li><strong>Effect</strong>: In a strict Bradley-Terry model, ties are not natively supported. We handle ties by treating them as an observation that the difference <span class="arithmatex">\(|\mu_i - \mu_j|\)</span> is smaller than some threshold <span class="arithmatex">\(\epsilon\)</span>. This parameter defines that threshold width.</li>
+</ul>
+<h3 id="target_variance"><code>target_variance</code></h3>
+<ul>
+<li><strong>Description</strong>: Legacy stopping criterion based on Bayesian variance.</li>
+<li><strong>Effect</strong>: Originally, the system considered the ranking "complete" when the average variance dropped below this threshold. <strong>Note</strong>: The current implementation primarily uses <strong>transitive coverage</strong> for determining completion (see Confidence Calculation below).</li>
+</ul>
+<h3 id="max_parallel_pairs"><code>max_parallel_pairs</code></h3>
+<ul>
+<li><strong>Description</strong>: For multi-user sessions, how many distinct pairs can be "checked out" for comparison simultaneously.</li>
+<li><strong>Effect</strong>: Prevents race conditions where multiple users judge the exact same pair at the same time, which wastes effort.</li>
+</ul>
+<h2 id="confidence-and-progress-calculation">Confidence and Progress Calculation</h2>
+<p>The system uses a <strong>hybrid confidence model</strong> to determine progress and when comparisons are complete.</p>
+<h3 id="key-metrics">Key Metrics</h3>
+<ol>
+<li>
+<p><strong>Direct Coverage</strong>: Fraction of pairs directly compared.
+    [
+    \text{DirectCoverage} = \frac{\text{UniquePairsCompared}}{\text{TotalPossiblePairs}}
+    ]</p>
+</li>
+<li>
+<p><strong>Transitive Coverage</strong>: Fraction of pairs with known ordering (direct OR inferred via transitivity).
+    [
+    \text{TransitiveCoverage} = \frac{\text{TotalPossiblePairs} - \text{UncertainPairs}}{\text{TotalPossiblePairs}}
+    ]</p>
+</li>
+<li>
+<p><strong>Bayesian Confidence</strong>: Derived from variance reduction.
+    [
+    \text{BayesianConfidence} = \max(0, \min(1, 1 - \bar{\sigma}))
+    ]
+    Where <span class="arithmatex">\(\bar{\sigma}\)</span> is the average sigma across all features.</p>
+</li>
+<li>
+<p><strong>Consistency Score</strong>: Penalizes logical cycles (inconsistencies).
+    [
+    \text{ConsistencyScore} = \max(0.5, 1 - \frac{\text{CycleCount}}{\text{UniquePairsCompared}})
+    ]</p>
+</li>
+</ol>
+<h3 id="effective-confidence-formula">Effective Confidence Formula</h3>
+<p>The <strong>effective confidence</strong> determines overall progress:</p>
+<ul>
+<li>
+<p>If transitive coverage = 100% and no cycles:
+    [\text{EffectiveConfidence} = 1.0]</p>
+</li>
+<li>
+<p>If transitive coverage = 100% but cycles exist:
+    [\text{EffectiveConfidence} = \min(0.95, \text{ConsistencyScore})]</p>
+</li>
+<li>
+<p>Otherwise:
+    [\text{EffectiveConfidence} = \min(1, \text{TransitiveCoverage} + 0.05 \times \text{BayesianConfidence}) \times \text{ConsistencyScore}]</p>
+</li>
+</ul>
+<h3 id="practical-comparison-estimates">Practical Comparison Estimates</h3>
+<p>For N features, the practical number of comparisons needed is approximately:
+[
+\text{PracticalEstimate} \approx (0.5 + 0.3 \times \text{TargetCertainty}) \times N \times \log_2(N)
+]</p>
+<table>
+<thead>
+<tr>
+<th>Features</th>
+<th>70% Target</th>
+<th>80% Target</th>
+<th>90% Target</th>
+<th>Theoretical Min</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>10</td>
+<td>24</td>
+<td>27</td>
+<td>29</td>
+<td>22</td>
+</tr>
+<tr>
+<td>20</td>
+<td>61</td>
+<td>67</td>
+<td>73</td>
+<td>62</td>
+</tr>
+<tr>
+<td>30</td>
+<td>105</td>
+<td>115</td>
+<td>125</td>
+<td>107</td>
+</tr>
+<tr>
+<td>50</td>
+<td>198</td>
+<td>217</td>
+<td>236</td>
+<td>214</td>
+</tr>
+</tbody>
+</table>
+<h3 id="theoretical-foundation-the-bayesian-thurstone-mosteller-model">Theoretical Foundation: The Bayesian Thurstone-Mosteller Model</h3>
+<p>The core model we'll use is a Bayesian interpretation of the <strong>Bradley-Terry</strong> model (for pairwise comparisons) or, more generally, the <strong>Thurstone-Mosteller</strong> model. It assumes that each feature has an underlying, unobserved "score" (for complexity or value), and the outcome of a pairwise comparison is a probabilistic function of the difference between these scores.</p>
+<p><strong>Core Assumptions:</strong></p>
+<ol>
+<li><strong>Latent Score:</strong> Every feature <span class="arithmatex">\(i\)</span> has a true, but unknown, latent score <span class="arithmatex">\(\mu_i\)</span> for the dimension being rated (complexity or value).</li>
+<li><strong>Comparison Probability:</strong> The probability that feature <span class="arithmatex">\(i\)</span> is chosen as "more complex/valuable" than feature <span class="arithmatex">\(j\)</span> is given by the cumulative distribution function of the difference in their scores. A common and mathematically convenient choice is the <strong>Logistic Function</strong> (leading to the Bradley-Terry model):
+    [
+    P(i &gt; j) = \frac{1}{1 + e^{-(\mu_i - \mu_j)}}
+    ]
+    Here, <span class="arithmatex">\(\mu_i - \mu_j\)</span> is the score difference. If <span class="arithmatex">\(\mu_i = \mu_j\)</span>, the probability is 0.5 (a toss-up). As <span class="arithmatex">\(\mu_i\)</span> becomes much larger than <span class="arithmatex">\(\mu_j\)</span>, the probability approaches 1.</li>
+<li><strong>Prior Distribution:</strong> We start with a prior belief about each feature's score. A natural choice is a <strong>Normal (Gaussian) distribution</strong> because it is conjugate to itself when updated with normal likelihoods, making the math tractable. We represent our belief about feature <span class="arithmatex">\(i\)</span>'s score as:
+    [
+    \mu_i \sim \mathcal{N}(\hat{\mu}_i, \sigma^2_i)
+    ]
+    where:<ul>
+<li><span class="arithmatex">\(\hat{\mu}_i\)</span> is our current mean estimate of the score.</li>
+<li><span class="arithmatex">\(\sigma^2_i\)</span> is the variance, representing our <strong>uncertainty</strong> about the estimate.</li>
+</ul>
+</li>
+</ol>
+<h3 id="initialization">Initialization</h3>
+<p>At the start of your meeting, before any comparisons are made:</p>
+<ol>
+<li><strong>Set Prior Means (<span class="arithmatex">\(\hat{\mu}_i\)</span>):</strong> You can set all prior means to 0. This assumes no prior knowledge about which features are more complex/valuable. Alternatively, if you have a rough gut feeling, you could assign initial values, but 0 is standard and unbiased.</li>
+<li><strong>Set Prior Variances (<span class="arithmatex">\(\sigma^2_i\)</span>):</strong> Set all initial variances to a relatively high value, e.g., 1.0. A high initial variance means we are very uncertain about our initial estimates and are ready to update them significantly based on new data.</li>
+</ol>
+<h3 id="the-bayesian-update-step">The Bayesian Update Step</h3>
+<p>This is the core of the learning process. After each pairwise comparison between feature <span class="arithmatex">\(i\)</span> and feature <span class="arithmatex">\(j\)</span>, we update our beliefs about their scores.</p>
+<p>Let's say we compare feature <span class="arithmatex">\(i\)</span> vs. <span class="arithmatex">\(j\)</span>. The possible outcomes are:
+*   <strong>Outcome <span class="arithmatex">\(y=1\)</span></strong>: Feature <span class="arithmatex">\(i\)</span> is chosen.
+*   <strong>Outcome <span class="arithmatex">\(y=0\)</span></strong>: Feature <span class="arithmatex">\(j\)</span> is chosen.</p>
+<p>We treat the outcome as a binary observation.</p>
+<p><strong>The update is performed using a method called "Assumed Density Filtering" (ADF) or Laplace Approximation.</strong> The goal is to find a new Gaussian distribution for <span class="arithmatex">\(\mu_i\)</span> and <span class="arithmatex">\(\mu_j\)</span> that best matches the true, but more complex, posterior distribution. The steps are:</p>
+<ol>
+<li>
+<p><strong>Compute Expected Outcome:</strong> Based on our current beliefs, what was the <em>expected</em> probability that <span class="arithmatex">\(i\)</span> would win?
+    [
+    \hat{p} = E[P(i&gt;j)] = \int \int \frac{1}{1 + e^{-(x_i - x_j)}} \mathcal{N}(x_i | \hat{\mu}_i, \sigma^2_i) \mathcal{N}(x_j | \hat{\mu}_j, \sigma^2_j) dx_i dx_j
+    ]
+    This integral is tricky, but it can be approximated very well by:
+    [
+    \hat{p} \approx \frac{1}{1 + e^{-(\hat{\mu}_i - \hat{\mu}_j) / \sqrt{1 + \bar{\sigma}^2}}}
+    ]
+    where <span class="arithmatex">\(\bar{\sigma}^2\)</span> is a mean variance. A simpler and effective approximation is <span class="arithmatex">\(\hat{p} = \frac{1}{1 + e^{-(\hat{\mu}_i - \hat{\mu}_j)}}\)</span>, treating the current scores as certain for the purpose of prediction.</p>
+</li>
+<li>
+<p><strong>Compute Prediction Error:</strong> The difference between the actual outcome and the expected outcome.
+    [
+    \delta = y - \hat{p}
+    ]</p>
+</li>
+<li>
+<p><strong>Calculate the Update (Gradient and Hessian):</strong> We compute the derivative (gradient) and second derivative (Hessian) of the log-likelihood with respect to the scores. For the logistic model, this leads to a simple update rule. The variance of the outcome is (\hat{p}(1-\hat{p})$.</p>
+</li>
+<li>
+<p><strong>Update the Means and Variances:</strong> The parameters for features <span class="arithmatex">\(i\)</span> and <span class="arithmatex">\(j\)</span> are updated as follows:
+    [
+    \hat{\mu}_i \leftarrow \hat{\mu}_i + \sigma^2_i \cdot \frac{\delta}{\sqrt{1 + \lambda \hat{p}(1-\hat{p})}}
+    ]
+    [
+    \hat{\mu}_j \leftarrow \hat{\mu}_j - \sigma^2_j \cdot \frac{\delta}{\sqrt{1 + \lambda \hat{p}(1-\hat{p})}}
+    ]
+    [
+    \sigma^2_i \leftarrow \sigma^2_i \cdot \max\left(1 - \sigma^2_i \cdot \frac{\hat{p}(1-\hat{p})}{1 + \lambda \hat{p}(1-\hat{p})}, \kappa \right)
+    ]
+    [
+    \sigma^2_j \leftarrow \sigma^2_j \cdot \max\left(1 - \sigma^2_j \cdot \frac{\hat{p}(1-\hat{p})}{1 + \lambda \hat{p}(1-\hat{p})}, \kappa \right)
+    ]
+    Where:</p>
+<ul>
+<li><span class="arithmatex">\(\lambda\)</span> is a tuning parameter (often set to <span class="arithmatex">\(\pi/8\)</span> or 1 for the logistic model).</li>
+<li><span class="arithmatex">\(\kappa\)</span> is a small minimum variance (e.g., 0.01) to prevent overconfidence and allow for continued learning.</li>
+</ul>
+</li>
+</ol>
+<p><strong>Interpretation:</strong>
+*   <strong>Mean Update:</strong> If <span class="arithmatex">\(i\)</span> wins (<span class="arithmatex">\(y=1\)</span>) and we expected it to (<span class="arithmatex">\(\hat{p} &gt; 0.5\)</span>), the update is positive but small. If it wins and we were uncertain (<span class="arithmatex">\(\hat{p} \approx 0.5\)</span>), the update is large. The update is scaled by the feature's current uncertainty (<span class="arithmatex">\(\sigma^2_i\)</span>)—we learn more about features we are uncertain of.
+*   <strong>Variance Update:</strong> After each comparison, the variances of the compared features <strong>shrink</strong>. We become more confident in our estimates.</p>
+<h3 id="active-selection-of-the-next-comparison">Active Selection of the Next Comparison</h3>
+<p>This is the "smart" part. Instead of picking comparisons randomly, we choose the pair that provides the <strong>maximum expected information gain</strong>. A standard and effective metric for this is the <strong>Expected Information Gain</strong>, which, for a Gaussian approximation, is closely related to the <strong>expected reduction in variance</strong>.</p>
+<p>A simpler, highly effective, and computationally cheap heuristic is to pick the pair <span class="arithmatex">\((i, j)\)</span> that maximizes the product of two terms:</p>
+<div class="arithmatex">\[
+\text{Selection Score}(i, j) = \text{Uncertainty}(i, j) \cdot \text{Closeness}(i, j)
+\]</div>
+<p>Where:
+*   <strong>Uncertainty:</strong> <span class="arithmatex">\(\sigma_i + \sigma_j\)</span>. We want to compare features we are uncertain about.
+*   <strong>Closeness:</strong> <span class="arithmatex">\(1 - |\hat{p} - 0.5|\)</span>, where <span class="arithmatex">\(\hat{p}\)</span> is the estimated probability that <span class="arithmatex">\(i\)</span> beats <span class="arithmatex">\(j\)</span>. This term is maximized when <span class="arithmatex">\(\hat{p}\)</span> is near 0.5, meaning the outcome is most unpredictable and therefore most informative.</p>
+<p>In practice, you can simply compute:
+[
+\text{Selection Score}(i, j) = (\sigma_i + \sigma_j) \cdot \exp\left(-\frac{(\hat{\mu}_i - \hat{\mu}_j)^2}{2c^2}\right)
+]
+where <span class="arithmatex">\(c\)</span> is a scaling factor. The pair with the highest score is chosen for the next comparison.</p>
+<h3 id="practical-workflow-for-your-meetings">Practical Workflow for Your Meetings</h3>
+<ol>
+<li>
+<p><strong>Preparation:</strong> Input all features into a tool (a simple script or web app is ideal for this). Initialize all scores <span class="arithmatex">\(\hat{\mu}_i = 0\)</span> and variances <span class="arithmatex">\(\sigma^2_i = 1.0\)</span>.</p>
+</li>
+<li>
+<p><strong>Meeting Loop:</strong>
+    a. The tool uses the active selection algorithm to present the most informative pair: "Which is more complex, Feature A or Feature B?"
+    b. The technical architects vote/discuss and provide their answer.
+    c. The facilitator inputs the result into the tool.
+    d. The tool performs the Bayesian update for features A and B, adjusting their scores and uncertainties.
+    e. <strong>Repeat.</strong> The tool might show a live ranking list (ordered by current mean score <span class="arithmatex">\(\hat{\mu}_i\)</span>) with confidence intervals (e.g., <span class="arithmatex">\(\hat{\mu}_i \pm 2\sigma_i\)</span>).</p>
+</li>
+<li>
+<p><strong>Stopping Condition:</strong> The system stops requesting comparisons when any of these conditions are met:</p>
+<ul>
+<li><strong>Transitive coverage reaches target</strong>: All (or target percentage of) pair orderings are known via direct comparison or transitivity.</li>
+<li><strong>No uncertain pairs remain</strong>: Every pair's ordering can be determined from existing comparisons.</li>
+<li><strong>Cycles detected</strong>: If inconsistencies exist, the system offers resolution pairs instead.</li>
+<li>A timebox expires (e.g., 60 minutes) - application-level control.</li>
+</ul>
+<p>The <code>/next</code> endpoint returns <strong>HTTP 204 No Content</strong> when comparisons are complete.</p>
+</li>
+<li>
+<p><strong>Handling Inconsistencies:</strong></p>
+<ul>
+<li>The model <strong>automatically handles minor inconsistencies</strong> because it's probabilistic. A single "upset" (a lower-rated feature winning) will not drastically change the rankings but will slightly increase the uncertainty of the involved features.</li>
+<li><strong>Flagging Major Inconsistencies:</strong> At the end of the meeting, the tool can identify pairs where the model's prediction was most wrong. It can report: "We observed a potential inconsistency: you rated A &gt; B, B &gt; C, but C &gt; A. Let's re-examine this triplet."</li>
+<li>You can then <strong>force a comparison</strong> between the most conflicting pair in this triplet to resolve the inconsistency directly.</li>
+</ul>
+</li>
+</ol>
+<h3 id="output-and-final-ranking">Output and Final Ranking</h3>
+<p>At the end of the session, you have for each feature <span class="arithmatex">\(i\)</span>:
+*   A <strong>mean score</strong> <span class="arithmatex">\(\hat{\mu}_i\)</span>, which gives you the final rank.
+*   A <strong>standard deviation</strong> <span class="arithmatex">\(\sigma_i\)</span>, which quantifies your confidence.</p>
+<p>You can then plot the features on a 2x2 matrix (Business Value vs. Technical Complexity), where each feature is not a point but an <strong>ellipse</strong>, representing the uncertainty in both dimensions. This visually communicates that the ranking is probabilistic.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "search.highlight", "search.suggest", "content.code.copy"], "search": "../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      
+        <script src="../javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

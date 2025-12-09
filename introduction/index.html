@@ -1,0 +1,1538 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="..">
+      
+      
+        <link rel="next" href="../theory_background/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+    
+    
+      
+        <title>Introduction - OneSelect API</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.618322db.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="purple">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#introduction-to-pairwise-comparison" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="OneSelect API" class="md-header__button md-logo" aria-label="OneSelect API" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            OneSelect API
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Introduction
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="./" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Introduction
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../theory_background/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Theory Background
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../authentication/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Authentication
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../api/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  API Reference
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../rest_api_spec_list/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  API Summary List
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../inconsistency_detection/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Inconsistency Detection
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../deployment/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Deployment
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../database_schema/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  DB Schema
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../working-with-proxies/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Working with Proxies
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="OneSelect API" class="md-nav__button md-logo" aria-label="OneSelect API" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    OneSelect API
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Introduction
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Introduction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-challenge-of-prioritization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Challenge of Prioritization
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-pairwise-comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why Pairwise Comparison?
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Why Pairwise Comparison?">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cognitive-benefits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cognitive Benefits
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-oneselect-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How OneSelect Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-design-principles-for-ui-efficiency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API Design Principles for UI Efficiency
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="API Design Principles for UI Efficiency">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#embedded-data-with-include_-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Embedded Data with include_* Parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inline-response-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inline Response Data
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#batch-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Batch Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recommended-ui-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommended UI Patterns
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pagination-defaults" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pagination Defaults
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#audit-trail-and-data-integrity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Audit Trail and Data Integrity
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Audit Trail and Data Integrity">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-is-tracked" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What is Tracked
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#soft-deletes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Soft Deletes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#accessing-the-audit-trail" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Accessing the Audit Trail
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cases-for-audit-trail" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Cases for Audit Trail
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#authentication-and-security" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Authentication and Security
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Authentication and Security">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#jwt-tokens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        JWT Tokens
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="JWT Tokens">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-is-a-jwt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What is a JWT?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-authentication-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How Authentication Works
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#security-benefits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Security Benefits
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#user-roles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        User Roles
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../theory_background/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Theory Background
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rest_api_spec_list/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Summary List
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../inconsistency_detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Inconsistency Detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../database_schema/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DB Schema
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../working-with-proxies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Working with Proxies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-challenge-of-prioritization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Challenge of Prioritization
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-pairwise-comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why Pairwise Comparison?
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Why Pairwise Comparison?">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cognitive-benefits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cognitive Benefits
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-oneselect-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How OneSelect Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-design-principles-for-ui-efficiency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API Design Principles for UI Efficiency
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="API Design Principles for UI Efficiency">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#embedded-data-with-include_-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Embedded Data with include_* Parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inline-response-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inline Response Data
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#batch-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Batch Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recommended-ui-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommended UI Patterns
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pagination-defaults" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pagination Defaults
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#audit-trail-and-data-integrity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Audit Trail and Data Integrity
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Audit Trail and Data Integrity">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-is-tracked" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What is Tracked
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#soft-deletes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Soft Deletes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#accessing-the-audit-trail" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Accessing the Audit Trail
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cases-for-audit-trail" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Cases for Audit Trail
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#authentication-and-security" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Authentication and Security
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Authentication and Security">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#jwt-tokens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        JWT Tokens
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="JWT Tokens">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-is-a-jwt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What is a JWT?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-authentication-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How Authentication Works
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#security-benefits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Security Benefits
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#user-roles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        User Roles
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="introduction-to-pairwise-comparison">Introduction to Pairwise Comparison</h1>
+<h2 id="the-challenge-of-prioritization">The Challenge of Prioritization</h2>
+<p>In software development and product management, prioritizing features or requirements is a constant challenge. Stakeholders often struggle to assign absolute values (like "High", "Medium", "Low" or 1-10 scores) to a long list of items. This often leads to:</p>
+<ul>
+<li><strong>The "Everything is High Priority" Syndrome</strong>: When everything is important, nothing is.</li>
+<li><strong>Cognitive Overload</strong>: Comparing one item against an abstract scale is difficult and subjective.</li>
+<li><strong>Inconsistency</strong>: A "5" today might be a "7" tomorrow depending on mood or context.</li>
+</ul>
+<h2 id="why-pairwise-comparison">Why Pairwise Comparison?</h2>
+<p>Pairwise comparison simplifies this process by breaking it down into the smallest possible unit of decision-making: <strong>comparing two items against each other</strong>.</p>
+<p>Instead of asking "How valuable is Feature A on a scale of 1 to 10?", we ask: <strong>"Is Feature A more valuable than Feature B?"</strong></p>
+<h3 id="cognitive-benefits">Cognitive Benefits</h3>
+<ul>
+<li><strong>Relative vs. Absolute Judgment</strong>: Humans are significantly better at making relative judgments (comparing A to B) than absolute judgments (rating A in isolation).</li>
+<li><strong>Reduced Context Switching</strong>: The decision maker only needs to focus on two items at a time.</li>
+<li><strong>Faster Decisions</strong>: Binary choices are quicker to make than nuanced scoring.</li>
+</ul>
+<h2 id="how-oneselect-works">How OneSelect Works</h2>
+<p>OneSelect leverages the power of pairwise comparison but solves its main drawback: the number of comparisons.</p>
+<p>In a naive approach, comparing every item against every other item requires <span class="arithmatex">\(O(N^2)\)</span> comparisons. For 50 features, that's 1,225 comparisons—far too many for a human.</p>
+<p>OneSelect uses <strong>Bayesian Inference</strong> and <strong>Active Learning</strong> to:</p>
+<ol>
+<li><strong>Select the most informative pairs</strong>: It chooses the pair of items that, if compared, will give the most information about the overall ranking (reducing uncertainty).</li>
+<li><strong>Infer rankings</strong>: It updates the estimated score and confidence interval for every item after each comparison.</li>
+<li><strong>Stop early</strong>: You don't need to compare everything. The system stops when it has enough certainty to rank the items reliably.</li>
+</ol>
+<p>This allows you to rank a large backlog with a fraction of the effort required for full manual sorting, while maintaining high mathematical rigor.</p>
+<h2 id="api-design-principles-for-ui-efficiency">API Design Principles for UI Efficiency</h2>
+<p>The OneSelect API is designed with UI client efficiency in mind, minimizing round-trips and providing flexible data fetching patterns.</p>
+<h3 id="embedded-data-with-include_-parameters">Embedded Data with <code>include_*</code> Parameters</h3>
+<p>Many endpoints support optional <code>include_*</code> query parameters that embed related data in the response, eliminating the need for separate API calls:</p>
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Parameter</th>
+<th>Embeds</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET /projects</code></td>
+<td><code>include_stats=true</code></td>
+<td>Feature counts, comparison counts, progress per dimension</td>
+</tr>
+<tr>
+<td><code>GET /features</code></td>
+<td><code>include_scores=true</code></td>
+<td>Bayesian scores (mu, sigma) for complexity and value</td>
+</tr>
+<tr>
+<td><code>GET /comparisons/next</code></td>
+<td><code>include_progress=true</code></td>
+<td>Current progress metrics toward target certainty</td>
+</tr>
+<tr>
+<td><code>GET /results</code></td>
+<td><code>include_quadrants=true</code></td>
+<td>Quadrant categorization alongside ranked results</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example - Efficient Dashboard Load:</strong>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>GET /api/v1/projects?include_stats=true
+</span></code></pre></div>
+Returns all projects with their statistics in a single call, rather than requiring N+1 requests.</p>
+<h3 id="inline-response-data">Inline Response Data</h3>
+<p>Several mutation endpoints return updated state directly in the response, allowing immediate UI updates without refetching:</p>
+<ul>
+<li><strong>Submit Comparison</strong> (<code>POST /comparisons</code>): Returns <code>inconsistency_stats</code> showing current cycle count and inconsistency percentage</li>
+<li><strong>Undo Comparison</strong> (<code>POST /comparisons/undo</code>): Returns <code>updated_progress</code> with new comparison count and progress percentage</li>
+<li><strong>Resolve Inconsistency</strong> (<code>GET /resolve-inconsistency</code>): Returns <code>cycle_context</code> with cycle count and affected feature names</li>
+</ul>
+<h3 id="batch-operations">Batch Operations</h3>
+<p>For bulk data needs, the API supports batch fetching:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>GET /api/v1/projects/{id}/comparisons?ids=uuid1,uuid2,uuid3
+</span></code></pre></div>
+<p>This retrieves specific comparisons by ID in a single request, useful for audit trails or undo history displays.</p>
+<h3 id="recommended-ui-patterns">Recommended UI Patterns</h3>
+<ol>
+<li><strong>Comparison Flow</strong>: Use <code>include_progress=true</code> on <code>/next</code> to show progress bar updates without extra calls</li>
+<li><strong>Project List</strong>: Use <code>include_stats=true</code> to show feature counts and progress indicators on project cards</li>
+<li><strong>Results View</strong>: Use <code>include_quadrants=true</code> to render both the ranked list and quadrant chart from one response</li>
+<li><strong>Feature Table</strong>: Use <code>include_scores=true</code> when displaying uncertainty or confidence indicators</li>
+</ol>
+<h3 id="pagination-defaults">Pagination Defaults</h3>
+<p>List endpoints use sensible defaults to balance payload size and usability:
+- Features: 50 per page
+- Comparisons: 20 per page
+- Projects: 100 per page</p>
+<p>For infinite scroll UIs, these can be adjusted via <code>per_page</code> or <code>limit</code> parameters.</p>
+<h2 id="audit-trail-and-data-integrity">Audit Trail and Data Integrity</h2>
+<p>OneSelect maintains a complete audit trail of all comparison activity, ensuring transparency and enabling analysis of decision-making patterns.</p>
+<h3 id="what-is-tracked">What is Tracked</h3>
+<p>Every comparison records:
+- <strong>Who</strong>: The user who made the comparison (<code>user_id</code>)
+- <strong>What</strong>: The features compared, the choice made, and the dimension
+- <strong>When</strong>: Timestamp of creation (<code>created_at</code>)</p>
+<p>For deleted or undone comparisons:
+- <strong>Deleted At</strong>: When the comparison was removed
+- <strong>Deleted By</strong>: Which user performed the deletion/undo</p>
+<h3 id="soft-deletes">Soft Deletes</h3>
+<p>Comparisons are never permanently deleted from the database. Both explicit deletions and undo operations use <strong>soft deletes</strong>:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>DELETE /api/v1/projects/{id}/comparisons/{comparison_id}  → Soft delete
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>POST /api/v1/projects/{id}/comparisons/undo               → Soft delete
+</span></code></pre></div>
+<p>This preserves the complete history of all decisions, including those later reconsidered.</p>
+<h3 id="accessing-the-audit-trail">Accessing the Audit Trail</h3>
+<p>Use the project history endpoint to retrieve the full audit trail:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>GET /api/v1/projects/{id}/history
+</span></code></pre></div>
+<p><strong>Response:</strong>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="p">{</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="nt">&quot;project&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;...&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;...&quot;</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span><span class="nt">&quot;comparisons&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="p">{</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">      </span><span class="nt">&quot;feature_a&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;...&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Feature A&quot;</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">      </span><span class="nt">&quot;feature_b&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;...&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Feature B&quot;</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">      </span><span class="nt">&quot;choice&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;feature_a&quot;</span><span class="p">,</span>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">      </span><span class="nt">&quot;dimension&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;complexity&quot;</span><span class="p">,</span>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">      </span><span class="nt">&quot;user&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;...&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;username&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;alice&quot;</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">      </span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-01-15T10:30:00Z&quot;</span>
+</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="w">  </span><span class="p">],</span>
+</span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="w">  </span><span class="nt">&quot;deleted_comparisons&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-4-15"><a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="w">    </span><span class="p">{</span>
+</span><span id="__span-4-16"><a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+</span><span id="__span-4-17"><a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="w">      </span><span class="nt">&quot;feature_a&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;...&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Feature C&quot;</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-4-18"><a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="w">      </span><span class="nt">&quot;feature_b&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;...&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Feature D&quot;</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-4-19"><a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a><span class="w">      </span><span class="nt">&quot;choice&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;feature_b&quot;</span><span class="p">,</span>
+</span><span id="__span-4-20"><a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a><span class="w">      </span><span class="nt">&quot;dimension&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;value&quot;</span><span class="p">,</span>
+</span><span id="__span-4-21"><a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a><span class="w">      </span><span class="nt">&quot;user&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;...&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;username&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;alice&quot;</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-4-22"><a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a><span class="w">      </span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-01-15T09:00:00Z&quot;</span><span class="p">,</span>
+</span><span id="__span-4-23"><a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a><span class="w">      </span><span class="nt">&quot;deleted_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-01-15T11:00:00Z&quot;</span><span class="p">,</span>
+</span><span id="__span-4-24"><a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a><span class="w">      </span><span class="nt">&quot;deleted_by&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;...&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;username&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;bob&quot;</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-4-25"><a id="__codelineno-4-25" name="__codelineno-4-25" href="#__codelineno-4-25"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-4-26"><a id="__codelineno-4-26" name="__codelineno-4-26" href="#__codelineno-4-26"></a><span class="w">  </span><span class="p">]</span>
+</span><span id="__span-4-27"><a id="__codelineno-4-27" name="__codelineno-4-27" href="#__codelineno-4-27"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<h3 id="use-cases-for-audit-trail">Use Cases for Audit Trail</h3>
+<ol>
+<li><strong>Compliance</strong>: Demonstrate how prioritization decisions were made</li>
+<li><strong>Debugging Inconsistencies</strong>: Understand why certain cycles exist by reviewing comparison history</li>
+<li><strong>User Activity Analysis</strong>: Track who contributed which comparisons</li>
+<li><strong>Undo Analysis</strong>: See what was changed and by whom</li>
+<li><strong>Data Recovery</strong>: Soft-deleted comparisons can potentially be restored if needed</li>
+</ol>
+<h2 id="authentication-and-security">Authentication and Security</h2>
+<p>OneSelect uses industry-standard authentication mechanisms to protect your data and ensure secure access to the API.</p>
+<h3 id="jwt-tokens">JWT Tokens</h3>
+<p>OneSelect uses <strong>JWT (JSON Web Token)</strong> for authentication. A JWT is a compact, URL-safe token that contains encoded claims about the user's identity and permissions.</p>
+<h4 id="what-is-a-jwt">What is a JWT?</h4>
+<p>A JWT consists of three parts separated by dots (<code>.</code>):</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>header.payload.signature
+</span></code></pre></div>
+<ol>
+<li><strong>Header</strong>: Contains metadata about the token type and signing algorithm</li>
+<li><strong>Payload</strong>: Contains claims (user data, permissions, expiration time)</li>
+<li><strong>Signature</strong>: Cryptographic signature to verify the token hasn't been tampered with</li>
+</ol>
+<p>Example JWT:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+</span></code></pre></div></p>
+<h4 id="how-authentication-works">How Authentication Works</h4>
+<ol>
+<li><strong>Login</strong>: Send your credentials to <code>/api/v1/auth/login</code></li>
+<li><strong>Receive Token</strong>: The API returns a JWT token</li>
+<li><strong>Use Token</strong>: Include the token in the <code>Authorization</code> header for all subsequent requests:
+   <div class="language-text highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>Authorization: Bearer &lt;your-jwt-token&gt;
+</span></code></pre></div></li>
+<li><strong>Token Expiration</strong>: Tokens expire after a set period (typically 24 hours). Use the refresh endpoint to get a new token without re-entering credentials.</li>
+</ol>
+<h4 id="security-benefits">Security Benefits</h4>
+<ul>
+<li><strong>Stateless</strong>: The server doesn't need to store session data</li>
+<li><strong>Tamper-Proof</strong>: The cryptographic signature prevents token modification</li>
+<li><strong>Self-Contained</strong>: All necessary information is encoded in the token</li>
+<li><strong>Expiring</strong>: Tokens have a limited lifetime to reduce security risks</li>
+</ul>
+<h3 id="user-roles">User Roles</h3>
+<p>OneSelect supports two user roles:</p>
+<ul>
+<li><strong>User</strong>: Standard access to create projects and perform comparisons</li>
+<li><strong>Root/Superuser</strong>: Administrative access including user management and system administration</li>
+</ul>
+<p>Role-based permissions ensure that sensitive operations are restricted to authorized users only.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "search.highlight", "search.suggest", "content.code.copy"], "search": "../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      
+        <script src="../javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>
