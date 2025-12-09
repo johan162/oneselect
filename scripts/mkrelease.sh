@@ -322,8 +322,8 @@ else
     # Code style (if black is available)
     if command -v black >/dev/null 2>&1; then
         echo "  ✓ Checking code formatting..."
-        black --check --diff src/ tests/ || {
-            print_error_colored "Code formatting issues found. Run: black src/ tests/"
+        black --check --diff app/ tests/ || {
+            print_error_colored "Code formatting issues found. Run: black app/ tests/"
             exit 1
         }
     fi
