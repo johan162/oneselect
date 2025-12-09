@@ -1,28 +1,28 @@
 # API Endpoint Test Coverage Verification
 
-**Date:** December 1, 2025  
+**Date:** December 9, 2025  
 **Status:** ✅ VERIFIED - COMPREHENSIVE COVERAGE  
-**Total Tests:** 237 passing (100%)
+**Total Tests:** 379 passing (100%)
 
 ## Executive Summary
 
-All 65 API endpoints across 9 endpoint modules have comprehensive test coverage with an average of **3.6 tests per endpoint**. Each endpoint is tested for both happy path scenarios and extensive edge cases including authentication failures, invalid parameters, boundary conditions, and security vulnerabilities.
+All 69 API endpoints across 9 endpoint modules have comprehensive test coverage with an average of **5.5 tests per endpoint**. Each endpoint is tested for both happy path scenarios and extensive edge cases including authentication failures, invalid parameters, boundary conditions, and security vulnerabilities.
 
 ## Coverage by Endpoint Module
 
 | Module | Endpoints | Tests | Tests/Endpoint | Status | Test Files |
 |--------|-----------|-------|----------------|--------|------------|
 | **Admin** | 8 | 25 | 3.1 | ✓ EXCELLENT | `test_admin`, `test_admin_edge_cases` |
-| **Comparisons** | 13 | 39 | 3.0 | ✓ EXCELLENT | `test_comparisons`, `test_comparisons_edge_cases` |
-| **Features** | 7 | 31 | 4.4 | ✓ EXCELLENT | `test_features`, `test_features_edge_cases` |
-| **Login/Auth** | 8 | 30 | 3.8 | ✓ EXCELLENT | `test_auth`, `test_auth_edge_cases`, `test_login` |
-| **Model Config** | 4 | 29 | 7.2 | ✓ EXCELLENT | `test_model_config`, `test_model_config_edge_cases` |
-| **Projects** | 10 | 30 | 3.0 | ✓ EXCELLENT | `test_projects`, `test_projects_edge_cases` |
-| **Results** | 3 | 26 | 8.7 | ✓ EXCELLENT | `test_statistics_results`, `test_statistics_results_edge_cases` |
-| **Statistics** | 2 | 26 | 13.0 | ✓ EXCELLENT | `test_statistics_results`, `test_statistics_results_edge_cases` |
-| **Users** | 10 | 27 | 2.7 | ✓ GOOD | `test_users`, `test_users_edge_cases` |
+| **Comparisons** | 15 | 93 | 6.2 | ✓ EXCELLENT | `test_comparisons`, `test_comparisons_edge_cases`, `test_graded_comparisons` |
+| **Features** | 7 | 37 | 5.3 | ✓ EXCELLENT | `test_features`, `test_features_edge_cases` |
+| **Login/Auth** | 10 | 48 | 4.8 | ✓ EXCELLENT | `test_auth`, `test_auth_edge_cases`, `test_login`, `test_google_auth` |
+| **Model Config** | 4 | 33 | 8.2 | ✓ EXCELLENT | `test_model_config`, `test_model_config_edge_cases` |
+| **Projects** | 10 | 45 | 4.5 | ✓ EXCELLENT | `test_projects`, `test_projects_edge_cases` |
+| **Results** | 3 | 25 | 8.3 | ✓ EXCELLENT | `test_statistics_results`, `test_statistics_results_edge_cases` |
+| **Statistics** | 2 | 8 | 4.0 | ✓ EXCELLENT | `test_statistics_results`, `test_statistics_results_edge_cases` |
+| **Users** | 10 | 35 | 3.5 | ✓ GOOD | `test_users`, `test_users_edge_cases` |
 
-**Total:** 65 endpoints, 237 tests, 3.6 tests per endpoint
+**Total:** 69 endpoints, 379 tests, 5.5 tests per endpoint
 
 ## Edge Case Coverage Checklist
 
@@ -57,10 +57,12 @@ All critical edge case categories are comprehensively tested:
 - Malformed import data
 - Missing parameters
 
-### Comparisons Endpoints (13 endpoints, 39 tests)
+### Comparisons Endpoints (15 endpoints, 93 tests)
 - `GET /{project_id}/comparisons` - List all comparisons
 - `GET /{project_id}/comparisons/next` - Get next comparison pair
 - `POST /{project_id}/comparisons` - Create new comparison
+- `POST /{project_id}/comparisons/binary` - Create binary comparison
+- `POST /{project_id}/comparisons/graded` - Create graded comparison
 - `GET /{project_id}/comparisons/estimates` - Get score estimates
 - `GET /{project_id}/comparisons/inconsistencies` - Find inconsistencies
 - `GET /{project_id}/comparisons/resolve-inconsistency` - Resolve conflicts
@@ -80,8 +82,10 @@ All critical edge case categories are comprehensively tested:
 - Missing required fields
 - Invalid choice values
 - Non-existent project access
+- Graded comparison validation
+- Binary vs Graded mode enforcement
 
-### Features Endpoints (7 endpoints, 31 tests)
+### Features Endpoints (7 endpoints, 37 tests)
 - `GET /{project_id}/features` - List features
 - `POST /{project_id}/features` - Create feature
 - `POST /{project_id}/features/bulk` - Bulk create
@@ -100,9 +104,11 @@ All critical edge case categories are comprehensively tested:
 - Non-existent bulk IDs
 - Wrong project ID for feature
 
-### Login/Auth Endpoints (8 endpoints, 30 tests)
+### Login/Auth Endpoints (10 endpoints, 48 tests)
 - `POST /login` - User authentication
 - `POST /login/test-token` - Token validation
+- `POST /login/google` - Google OAuth login
+- `GET /login/google/callback` - Google OAuth callback
 - `POST /register` - New user registration
 - `POST /change-password` - Password change
 - `POST /refresh` - Token refresh
@@ -122,8 +128,10 @@ All critical edge case categories are comprehensively tested:
 - Existing email in profile update
 - Invalid/expired tokens
 - Unauthenticated access
+- OAuth flow failures
+- Missing OAuth configuration
 
-### Model Config Endpoints (4 endpoints, 29 tests)
+### Model Config Endpoints (4 endpoints, 33 tests)
 - `GET /{project_id}/model-config` - Get configuration
 - `PUT /{project_id}/model-config` - Update configuration
 - `POST /{project_id}/model-config/preview` - Preview changes
@@ -142,7 +150,7 @@ All critical edge case categories are comprehensively tested:
 - Null values
 - Unauthorized access
 
-### Projects Endpoints (10 endpoints, 30 tests)
+### Projects Endpoints (10 endpoints, 45 tests)
 - `GET /` - List all projects
 - `POST /` - Create project
 - `PUT /{id}` - Update project
@@ -169,7 +177,7 @@ All critical edge case categories are comprehensively tested:
 - Double deletion
 - Invalid pagination parameters
 
-### Results Endpoints (3 endpoints, 26 tests)
+### Results Endpoints (3 endpoints, 25 tests)
 - `GET /{project_id}/results` - Get ranked results
 - `GET /{project_id}/results/quadrants` - Get quadrant distribution
 - `GET /{project_id}/results/export` - Export results
@@ -185,7 +193,7 @@ All critical edge case categories are comprehensively tested:
 - Excessive pagination values
 - No comparisons made yet
 
-### Statistics Endpoints (2 endpoints, 26 tests)
+### Statistics Endpoints (2 endpoints, 8 tests)
 - `GET /{project_id}/statistics` - Get project statistics
 - `GET /{project_id}/statistics/scores` - Get score statistics
 
@@ -199,7 +207,7 @@ All critical edge case categories are comprehensively tested:
 - Projects with no comparisons
 - Feature usage statistics for unused features
 
-### Users Endpoints (10 endpoints, 27 tests)
+### Users Endpoints (10 endpoints, 35 tests)
 - `GET /` - List all users
 - `POST /` - Create user
 - `POST /{user_id}/assignments` - Assign project
@@ -243,21 +251,21 @@ All endpoints are tested for common security vulnerabilities:
 $ make test
 PYTHONPATH=. poetry run pytest
 =============================================== test session starts ===============================================
-platform darwin -- Python 3.14.0, pytest-9.0.1, pluggy-1.6.0
+platform darwin -- Python 3.14.0, pytest-9.0.2, pluggy-1.6.0
 ...
-============================================== 237 passed in 22.51s ===============================================
+============================================== 379 passed in 15.10s ===============================================
 ```
 
-**Result:** ✅ All 237 tests passing (100% pass rate)
+**Result:** ✅ All 379 tests passing (100% pass rate)
 
 ## Code Coverage
 
 ```
-TOTAL                                   1154    159    86%
+TOTAL                                   2118    184    91%
 ```
 
-- **Lines Covered:** 995/1154
-- **Coverage:** 86%
+- **Lines Covered:** 1934/2118
+- **Coverage:** 91%
 - **Missing Coverage:** Primarily in unimplemented features and error handling paths
 
 ## Validation Commands
