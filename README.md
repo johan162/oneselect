@@ -277,3 +277,19 @@ poetry run mypy --explicit-package-bases .
 - `tests/`: Test suite
 - `alembic/`: Database migrations
 - `docs/`: Documentation using `mkdocs` documentation system
+
+
+## Citation
+
+If you use this tool in your research or business process, please cite:
+
+```
+@software{oneselect,
+  title = {Bradley-Terry model with Bayesian inference for graded decision ranking},
+  author = {Johan Persson},
+  year = {2025},
+  url = {https://github.com/johan162/oneselect}
+  version={0.0.1-rc1}
+}
+```
+

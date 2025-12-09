@@ -1,0 +1,90 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info
+dist/
+build/
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Testing - exclude tests from production image
+tests/
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+*.cover
+conftest.py
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+oneselect.db
+data/
+
+# Documentation - not needed in production
+docs/
+docs/_build/
+site/
+*.md
+!README.md
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Development
+.env
+.env.local
+.env.example
+*.log
+tmp/
+temp/
+
+# Alembic (included but ignore local versions)
+alembic/versions/__pycache__
+
+# Node (if any frontend dev)
+node_modules/
+npm-debug.log
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# Test data
+test_*.db
+
+# Docker files (not needed inside container)
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Development files
+Makefile
+LICENSE
+CHANGELOG.md
+CONTRIBUTING.md
