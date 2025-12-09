@@ -1,5 +1,4 @@
 # Makefile for OneSelect Backend Application
-# JP 2024-12-10
 # The structure for the Makefile is built on separating timestamp dependencies and command targets
 # Each command target may depend on one or more timestamp files that encapsulate the logic for when
 # to re-run certain tasks based on file changes.
@@ -9,9 +8,8 @@ pre-commit clean maintainer-clean docs docs-serve build container-build containe
 container-restart container-shell container-clean container-clean-container-volumes container-clean-images \
 container-volume-info container-rebuild ensure-poetry ensure-podman ensure-podman-compose
 
-.DEFAULT_GOAL := help
-
 # Make behavior
+.DEFAULT_GOAL := help
 SHELL := /usr/bin/env bash
 .DELETE_ON_ERROR:
 .ONESHELL:
@@ -53,7 +51,9 @@ VERSION := $(shell grep '^version' pyproject.toml | head -1 | cut -d'"' -f2)
 CONTAINER_NAME := $(PROJECT)-backend
 SERVICE_NAME := $(PROJECT)-api
 DB_FILE := $(PROJECT).db
-COVERAGE := 80  # Minimum coverage percentage required
+
+# Minimum coverage percentage required
+COVERAGE := 80
 
 # Source and Test Files
 SRC_FILES := $(shell find $(SRC_DIR) -name '*.py')
@@ -71,7 +71,7 @@ TYPECHECK_STAMP := .typecheck-stamp
 INSTALL_STAMP := .install-stamp
 TEST_STAMP := .test-stamp
 
-# Build files
+# Build package files
 BUILD_DIR := dist
 BUILD_WHEEL := $(BUILD_DIR)/$(PYPI_NAME)-$(VERSION)-py3-none-any.whl
 BUILD_SDIST := $(BUILD_DIR)/$(PYPI_NAME)-$(VERSION).tar.gz
@@ -120,6 +120,7 @@ $(INSTALL_STAMP): pyproject.toml $(LOCK_FILE)
 	@echo -e "$(DARKYELLOW)- Installing dependencies...$(NC)"
 	@poetry config virtualenvs.in-project true  ## make sure venv is created in project dir
 	@poetry install
+	@cp .env.example .env 2>/dev/null || true  ## copy example env if .env does not exist
 	@sleep 1  ## ensure timestamp difference
 	@touch $(INSTALL_STAMP)
 	@echo -e "$(GREEN)✓ Project dependencies installed$(NC)"
@@ -173,7 +174,7 @@ help: ## Show this help message
 # =====================================
 dev: $(INSTALL_STAMP) $(DB_FILE) ## Setup complete development environment
 	@echo -e "$(GREEN)✓ Development environment ready!$(NC)"
-	@echo -e "$(YELLOW)Run 'make run' to start the server or 'make container-up' for containerized deployment$(NC)"
+	@echo -e "$(YELLOW)- TIP! $(BLUE)Run 'make test' to verify, 'make run' to start the server, or 'make container-up' for containerized deployment$(NC)"
 
 install: $(INSTALL_STAMP) ## Install project dependencies and setup virtual environment
 	@:
@@ -267,9 +268,9 @@ clean-venv: ## Remove the virtual environment
 clean: ## Clean up build artifacts, caches, and timestamp files. Keep the .venv intact.
 	@echo -e "$(DARKYELLOW)- Cleaning build artifacts and caches...$(NC)"
 	@rm -rf .pytest_cache
-	@rm -rf .coverage
+	@rm -rf .coverage coverage.xml
 	@rm -rf htmlcov
-	@rm -rf site
+	@rm -rf site dist
 	@rm -rf .mypy_cache
 	@rm -f $(FORMAT_STAMP) $(LINT_STAMP) $(TYPECHECK_STAMP) $(DOC_STAMP) $(TEST_STAMP)
 	@find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
@@ -281,7 +282,7 @@ maintainer-clean: ## Perform a thorough cleanup including virtual environment, c
 	@$(MAKE) clean-venv
 	@$(MAKE) clean
 	-@$(MAKE) container-clean 2>/dev/null
-	@rm -rf *.db
+	@rm -rf *.db .env
 	@echo -e "$(GREEN)✓ Deep clean completed$(NC)"
 
 # =====================================
