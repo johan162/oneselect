@@ -297,6 +297,14 @@ docs-serve: docs ## Serve the project documentation locally with MkDocs
 	@echo -e "$(BLUE)Serving documentation on http://localhost:$(DOCS_PORT)$(NC)"
 	@poetry run mkdocs serve -a localhost:$(DOCS_PORT)
 
+docs-deploy: ## Build and deploy documentation to GitHub Pages
+	@echo -e "$(DARKYELLOW)- Deploying documentation to GitHub Pages...$(NC)"
+	@if poetry run mkdocs gh-deploy --force; then \
+		echo -e "$(GREEN)✓ Documentation deployed successfully$(NC)"; \
+	else \
+		echo -e "$(RED)✗ Error: Documentation deployment failed$(NC)"; \
+		exit 1; \
+	fi
 
 # =====================================
 # Container Management with Podman
