@@ -29,6 +29,9 @@ declare PROGRAMNAME_PRETTY="OneSelect"
 declare PROGRAM_ENTRYPOINT="oneselect"
 declare COVERAGE="80"
 
+declare REQUIRED_GH_VERSION="2.0.0"
+declare CHANGELOG_FILE="CHANGELOG.md"
+
 # =====================================
 # Functions to print colored output
 # =====================================
