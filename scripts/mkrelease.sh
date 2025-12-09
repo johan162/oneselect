@@ -639,7 +639,9 @@ run_command "rm -rf build/ dist/ app/*.egg-info/ htmlcov/" "Cleaning up build ar
 run_command "rm -f *.bak app/*.bak" "Removing backup files..."
 
 # 7.2: Build Package with the now updated version number
-run_command "make build" "Testing & verifying package building..."
+rm -rf dist/
+run_command "poetry build" "Building new version packages..."
+run_command "poetry run twine check dist/*" "Verifying new version packages..."
 
 if [[ "$DRY_RUN" == "false" && $? -ne 0 ]]; then
     print_error_colored "Distribution package build failed"
