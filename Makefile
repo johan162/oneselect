@@ -147,16 +147,32 @@ $(DB_FILE): ## Setup the database if it does not exist
 # =====================================
 # Help Target
 # =====================================
+
+# Defines a function to print a section of the help message.
+# Arg 1: Section title
+# Arg 2: A pipe-separated list of targets for the section
+define print_section
+	@echo ""
+	@echo -e "$(DARKYELLOW)$1:$(NC)"
+	@grep -E '^($(2)):.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(GREEN)%-22s$(NC) %s\n", $$1, $$2}' | sort
+endef
+
 help: ## Show this help message
-	@echo -e "$(BLUE)OneSelect - Makefile targets$(NC)"
-	@echo -e ""
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(GREEN) %-18s$(NC) %s\n", $$1, $$2}'
-	@echo -e ""
+	@echo -e "$(BLUE)OneSelect - Makefile Targets$(NC)"
+	@$(call print_section,Project Setup & Development,dev|install|reinstall|run)
+	@$(call print_section,Code Quality,check|lint|format|typecheck|pre-commit)
+	@$(call print_section,Testing,test|test-short|test-param|test-html)
+	@$(call print_section,Database,migrate|init-db)
+	@$(call print_section,Build & Documentation,build|docs|docs-serve)
+	@$(call print_section,Container Management,container-build|container-up|container-down|container-logs|container-restart|container-shell|container-rebuild|container-volume-info|container-clean)
+	@$(call print_section,Cleanup,clean|clean-venv|maintainer-clean)
+	@echo ""
 
 # =====================================
 # Development Environment Targets
 # =====================================
 dev: $(INSTALL_STAMP) $(DB_FILE) ## Setup complete development environment
+	@echo -e "$(GREEN)✓ Development environment ready!$(NC)"
 	@echo -e "$(YELLOW)Run 'make run' to start the server or 'make container-up' for containerized deployment$(NC)"
 
 install: $(INSTALL_STAMP) ## Install project dependencies and setup virtual environment
