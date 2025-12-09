@@ -344,6 +344,8 @@ if [[ "$DRY_RUN" == "false" && $? -ne 0 ]]; then
     exit 1
 fi
 
+exit 1
+
 # =====================================
 # PHASE 3: RELEASE PREPARATION
 # =====================================
