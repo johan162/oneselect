@@ -15,11 +15,29 @@ SHELL := /usr/bin/env bash
 .ONESHELL:
 
 # Colors for output
-BLUE := \033[0;34m
+BLACK := \033[0;30m
+RED := \033[0;31m
 GREEN := \033[0;32m
 YELLOW := \033[1;33m
+BLUE := \033[0;34m
+MAGENTA := \033[0;35m
+CYAN := \033[0;36m
+WHITE := \033[1;37m
+
+# Variations
+DARKGRAY := \033[1;30m
+BRIGHTRED := \033[1;31m
+BRIGHTGREEN := \033[1;32m
 DARKYELLOW := \033[0;33m
-RED := \033[0;31m
+BRIGHTBLUE := \033[1;34m
+BRIGHTMAGENTA := \033[1;35m
+BRIGHTCYAN := \033[1;36m
+LIGHTGRAY := \033[0;37m
+
+# Formatting
+BOLD := \033[1m
+UNDERLINE := \033[4m
+
 NC := \033[0m # No Color
 
 # =====================================
@@ -156,17 +174,17 @@ $(DB_FILE): ## Setup the database if it does not exist
 # Arg 2: A pipe-separated list of targets for the section
 define print_section
 	@echo ""
-	@echo -e "$(DARKYELLOW)$1:$(NC)"
-	@grep -E '^($(2)):.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(GREEN)%-22s$(NC) %s\n", $$1, $$2}' | sort
+	@echo -e "$(BRIGHTCYAN)$1:$(NC)"
+	@grep -E '^($(2)):.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(BLUE)%-22s$(NC) %s\n", $$1, $$2}' | sort
 endef
 
 help: ## Show this help message
-	@echo -e "$(BLUE)OneSelect - Makefile Targets$(NC)"
+	@echo -e "$(DARKYELLOW)OneSelect - Makefile Targets$(NC)"
 	@$(call print_section,Project Setup & Development,dev|install|reinstall|run)
 	@$(call print_section,Code Quality,check|lint|format|typecheck|pre-commit)
 	@$(call print_section,Testing,test|test-short|test-param|test-html)
 	@$(call print_section,Database,migrate|init-db)
-	@$(call print_section,Build & Documentation,build|docs|docs-serve)
+	@$(call print_section,Build & Documentation,build|docs|docs-serve|docs-deploy)
 	@$(call print_section,Container Management,container-build|container-up|container-down|container-logs|container-restart|container-shell|container-rebuild|container-volume-info|container-clean)
 	@$(call print_section,Cleanup,clean|clean-venv|maintainer-clean)
 	@echo ""
