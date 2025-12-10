@@ -42,11 +42,23 @@ UNDERLINE := \033[4m
 NC := \033[0m # No Color
 
 # ============================================================================================
-# Tool availability targets
+# Tool availability checks
 # ============================================================================================
-_ := $(if $(shell command -v poetry),,$(error "⚠️ Error: poetry not found. Install with: pip install poetry"))
-_ := $(if $(shell command -v podman),,$(error "⚠️ Error: podman not found. Install with: brew install podman"))
-_ := $(if $(shell command -v podman-compose),,$(error "⚠️ Error: podman-compose not found. Install with: brew install podman-compose"))
+POETRY := $(shell command -v poetry 2>/dev/null)
+PODMAN := $(shell command -v podman 2>/dev/null)
+PODMAN_COMPOSE := $(shell command -v podman-compose 2>/dev/null)
+
+ifeq ($(POETRY),)
+$(error poetry not found. MacOS Install with: pip install poetry)
+endif
+
+ifeq ($(PODMAN),)
+$(error podman not found. MacOS Install with: brew install podman)
+endif
+
+ifeq ($(PODMAN_COMPOSE),)
+$(error podman-compose not found. MacOS Install with: brew install podman-compose)
+endif
 
 # ============================================================================================
 # Variable configurations
