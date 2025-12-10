@@ -89,6 +89,7 @@ LINT_STAMP := .lint-stamp
 TYPECHECK_STAMP := .typecheck-stamp
 INSTALL_STAMP := .install-stamp
 TEST_STAMP := .test-stamp
+GHCR_LOGIN_STAMP := .ghcr-login-stamp
 
 # Build package files
 BUILD_DIR := dist
@@ -186,18 +187,21 @@ $(GHCR_LOGIN_STAMP):
 		echo -e "$(RED)✗ Error: GHCR_TOKEN environment variable is not se. Please set GHCR_TOKEN with a valid GitHub Personal Access Token.$(NC)"; \
 		exit 1; \
 	fi
-	@if [ -f $(LOGIN_STAMP) ] && [ $$(find $(LOGIN_STAMP) -mmin -120) ]; then \
+	@if [ -f $(GHCR_LOGIN_STAMP) ] && [ $$(find $(GHCR_LOGIN_STAMP) -mmin -120) ]; then \
 		echo -e "$(GREEN)✓ Already logged in to GHCR recently.$(NC)"; \
 		exit 0; \
-	fi
-	@echo -e "$(DARKYELLOW)- Logging in to GitHub Container Registry...$(NC)"
-	@if podman login ghcr.io -u $(GITHUB_USER) -p $(GHCR_TOKEN) >/dev/null 2>&1; then \
-		echo -e "$(GREEN)✓ Login to GitHub successful!$(NC)"; \
 	else \
-		echo -e "$(RED)✗ Login failed. Please check your GHCR_TOKEN.$(NC)"; \
-		exit 1; \
+		echo -e "$(DARKYELLOW)- Logging in to GitHub Container Registry...$(NC)"; \
+		if podman login ghcr.io -u $(GITHUB_USER) -p $(GHCR_TOKEN) >/dev/null 2>&1; then \
+			echo -e "$(GREEN)✓ Login to GitHub successful!$(NC)"; \
+			touch $(GHCR_LOGIN_STAMP) ; \
+		else \
+			echo -e "$(RED)✗ Login failed. Please check your GHCR_TOKEN.$(NC)"; \
+			rm -f $(GHCR_LOGIN_STAMP); \
+			exit 1; \
+		fi \
 	fi	
-	@touch $(LOGIN_STAMP)
+	
 
 
 
@@ -418,9 +422,9 @@ container-rebuild: ## Rebuild container from scratch
 # ============================================================================================
 # GitHub Container Registry Targets
 # ============================================================================================
-ghcr-login: $(LOGIN_STAMP) ## Login to GitHub Container Registry via Podman
+ghcr-login: $(GHCR_LOGIN_STAMP) ## Login to GitHub Container Registry via Podman
 
-ghcr-push:  ## Push container image to GitHub Container Registry
+ghcr-push: $(GHCR_LOGIN_STAMP) $(CONTAINER_STAMP)  ## Push container image to GitHub Container Registry
 	@if [ -z "$(GITHUB_USER)" ]; then \
         echo -e "$(RED)✗ Error: GITHUB_USER environment variable is not set."; \
         echo -e "  Please set GITHUB_USER as an environment variable or add as argument: make container-push GITHUB_USER=\"XXXXX\"$(NC)"; \
@@ -429,7 +433,7 @@ ghcr-push:  ## Push container image to GitHub Container Registry
 	@echo -e "$(DARKYELLOW)- Checking if image version $(VERSION) already exists on GHCR...$(NC)"
 	@if podman manifest inspect ghcr.io/$(GITHUB_USER)/$(CONTAINER_NAME):$(VERSION) >/dev/null 2>&1; then \
         echo -e "$(YELLOW)⚠️  Warning: Image $(CONTAINER_NAME):$(VERSION) already exists in the registry. Skipping push.$(NC)"; \
-        exit 0; \
+        exit 1; \
     fi
 	@echo -e "$(DARKYELLOW)- Pushing image $(CONTAINER_NAME):$(VERSION) and tagging as latest to GitHub Container Registry...$(NC)"
 	@podman tag $(CONTAINER_NAME):$(VERSION) ghcr.io/$(GITHUB_USER)/$(CONTAINER_NAME):$(VERSION)
@@ -442,9 +446,13 @@ ghcr-push:  ## Push container image to GitHub Container Registry
     fi
 
 ghcr-logout: ## Logout from GitHub Container Registry
+	@if [ ! -f $(GHCR_LOGIN_STAMP) ]; then \
+		echo -e "$(YELLOW)⚠️  Warning: Not logged in to GHCR. Skipping logout.$(NC)"; \
+		exit 1; \
+	fi
 	@echo -e "$(DARKYELLOW)- Logging out from GitHub Container Registry...$(NC)"
 	@podman logout ghcr.io
-	@rm -f $(LOGIN_STAMP)
+	@rm -f $(GHCR_LOGIN_STAMP)
 	@echo -e "$(GREEN)✓ Logged out from GHCR$(NC)"
 
 ghcr-clean: ghcr-logout container-clean-images ## Clean up GHCR login and local images

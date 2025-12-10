@@ -32,8 +32,7 @@ RUN apk add --no-cache \
     libffi-dev
 
 # Install Poetry and export plugin
-RUN curl -sSL https://install.python-poetry.org | python3 - \
-    && /root/.local/bin/poetry self add poetry-plugin-export
+RUN curl -sSL https://install.python-poetry.org | python3 - 
 ENV PATH="/root/.local/bin:$PATH"
 
 # Set working directory
