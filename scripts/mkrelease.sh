@@ -24,8 +24,9 @@ NC='\033[0m'
 
 declare GITHUB_USER="johan162"
 declare SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-declare PROGRAMNAME="oneselect"
-declare PROGRAMNAME_PRETTY="OneSelect"
+declare PROGRAM_NAME="oneselect"
+declare CONTAINER_NAME="oneselect-backend"
+declare PROGRAM_NAME_PRETTY="OneSelect"
 declare PROGRAM_ENTRYPOINT="oneselect"
 declare COVERAGE="80"
 
@@ -161,10 +162,10 @@ check_condition() {
 # =====================================
 show_help() {
     cat << EOF
-🚀 ${PROGRAMNAME_PRETTY} Release Script
+🚀 ${PROGRAM_NAME_PRETTY} Release Script
 
 DESCRIPTION:
-    Automated release script for ${PROGRAMNAME} with comprehensive quality gates.
+    Automated release script for ${PROGRAM_NAME} with comprehensive quality gates.
     Performs validation, testing, versioning, and git operations for releases.
 
 USAGE:
@@ -285,10 +286,10 @@ fi
 
 if [[ "$DRY_RUN" == "true" ]]; then
     print_warning_colored "🔍 DRY RUN MODE - No commands will be executed"
-    echo "🚀 Would start ${PROGRAMNAME_PRETTY} v$VERSION release process..."
+    echo "🚀 Would start ${PROGRAM_NAME_PRETTY} v$VERSION release process..."
     echo "📋 Release type: $RELEASE_TYPE"
 else
-    echo "🚀 Starting ${PROGRAMNAME_PRETTY} v$VERSION release process..."
+    echo "🚀 Starting ${PROGRAM_NAME_PRETTY} v$VERSION release process..."
     echo "📋 Release type: $RELEASE_TYPE"
 fi
 
@@ -688,7 +689,7 @@ else
     print_step_colored ""
     print_step_colored "✅ PHASE 9: RELEASE SUMMARY"
     print_step_colored ""
-    print_success_colored "🎉 ${PROGRAMNAME_PRETTY} v${VERSION} released successfully!"
+    print_success_colored "🎉 ${PROGRAM_NAME_PRETTY} v${VERSION} released successfully!"
     echo ""
     echo "📊 Release Summary:"
     echo "   Version:     $VERSION"
@@ -700,6 +701,9 @@ else
     echo "📦 Artifacts:"
     echo "   - $(ls dist|head -1)"
     echo "   - $(ls dist|tail -1)"
+    echo "   - Documentation: https://${GITHUB_USER}.github.io/${PROGRAM_NAME}/"
+    echo "   - Container Image: ghcr.io/${GITHUB_USER}/${CONTAINER_NAME}:${VERSION}"
+    echo "   - Container Image: ghcr.io/${GITHUB_USER}/${CONTAINER_NAME}:latest"
     echo ""
     echo "📊 Branch Status:"
     echo "   GitHub will show develop as 'ahead' of main - this is expected!"
@@ -721,7 +725,7 @@ else
     echo "   ✓ Static Analysis: Passed"
     echo "   ✓ Integration & Unit Tests: Passed"
     echo ""    
-    print_success_colored "Thank you for contributing to ${PROGRAMNAME_PRETTY}! 🎉"
+    print_success_colored "Thank you for contributing to ${PROGRAM_NAME_PRETTY}! 🎉"
 fi
 
 echo ""
