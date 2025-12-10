@@ -18,7 +18,7 @@ RUN apk add --no-cache \
     curl \
     libffi-dev
 
-# Install Poetry and export plugin
+# Install Poetry
 RUN curl -sSL https://install.python-poetry.org | python3 - 
 ENV PATH="/root/.local/bin:$PATH"
 
@@ -29,12 +29,22 @@ WORKDIR /app
 COPY pyproject.toml poetry.lock ./
 
 # Setup Poetry with only runtime dependencies and no dev dependencies
-RUN poetry config virtualenvs.in-project true && poetry install --no-root --only=main
+RUN poetry config virtualenvs.in-project true && \
+    poetry install --no-root --only=main && \
+    # Clean up venv to reduce size: remove pip, setuptools, wheel
+    .venv/bin/pip uninstall -y pip setuptools wheel && \
+    # Strip shared libraries to reduce size
+    find .venv -name "*.so" -exec strip --strip-unneeded {} + && \
+    # Remove bytecode from venv
+    find .venv -type d -name "__pycache__" -exec rm -r {} +
 
 # ======================================================================
 # Stage 2 Runner - minimal Alpine image
 # ======================================================================
 FROM python:3.13-alpine
+
+# Connect the container to the repo
+LABEL org.opencontainers.image.source https://github.com/johan162/oneselect
 
 # Harden he image step 1: remove python build tools
 RUN python -m pip uninstall -y pip
@@ -52,9 +62,6 @@ WORKDIR /app
 
 # Copy the virtual environment with dependencies from the builder stage
 COPY --from=builder --chown=oneselect:oneselect /app/.venv ./.venv
-
-# Remove pip and other installation tools not needed in the virtual environment
-RUN ./.venv/bin/python -m pip uninstall -y pip
 
 # Copy only application code (not tests, docs, etc.)
 COPY --chown=oneselect:oneselect app/ ./app/
