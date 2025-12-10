@@ -648,6 +648,13 @@ if [[ "$DRY_RUN" == "false" && $? -ne 0 ]]; then
     exit 1
 fi
 
+# 7.3: Deploy documentation to GitHub pages
+if [[ "$DRY_RUN" == "true" ]]; then
+    echo "  [DRY-RUN] Would deploy documentation to GitHub Pages..."
+else
+    run_command "make docs-deploy" "Deploying documentation to GitHub Pages..."
+fi
+
 # =====================================
 # PHASE 8: RELEASE SUMMARY
 # =====================================

@@ -1,4 +1,11 @@
 site_name: OneSelect API
+site_author: Johan Persson
+site_description: Documentation for the OneSelect API - A Bradley-Terry model with Bayesian inference for graded decision ranking
+site_url: https://johan162.github.io/oneselect
+
+repo_name: johan162/oneselect
+repo_url: https://github.com/johan162/oneselect
+
 theme:
   name: material
   palette:
@@ -42,3 +49,12 @@ markdown_extensions:
 extra_javascript:
   - javascripts/mathjax.js
   - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/johan162/oneselect
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/oneselect
+  version:
+    provider: mike
