@@ -6,7 +6,8 @@
 .PHONY: help dev install clean-venv reinstall run test test-short test-param test-html lint format typecheck migrate init-db check \
 pre-commit clean maintainer-clean docs docs-serve build container-build container-up container-down container-logs \
 container-restart container-shell container-clean container-clean-container-volumes container-clean-images \
-container-volume-info container-rebuild ensure-poetry ensure-podman ensure-podman-compose
+container-volume-info container-rebuild ensure-poetry ensure-podman ensure-podman-compose \
+ghcr-login
 
 # Make behavior
 .DEFAULT_GOAL := help
@@ -180,6 +181,27 @@ $(DB_FILE): ## Setup the database if it does not exist
 		$(MAKE) init-db; \
 	fi
 
+$(GHCR_LOGIN_STAMP): 
+	@if [ -z "$(GHCR_TOKEN)" ]; then \
+		echo -e "$(RED)✗ Error: GHCR_TOKEN environment variable is not se. Please set GHCR_TOKEN with a valid GitHub Personal Access Token.$(NC)"; \
+		exit 1; \
+	fi
+	@if [ -f $(LOGIN_STAMP) ] && [ $$(find $(LOGIN_STAMP) -mmin -120) ]; then \
+		echo -e "$(GREEN)✓ Already logged in to GHCR recently.$(NC)"; \
+		exit 0; \
+	fi
+	@echo -e "$(DARKYELLOW)- Logging in to GitHub Container Registry...$(NC)"
+	@if podman login ghcr.io -u $(GITHUB_USER) -p $(GHCR_TOKEN) >/dev/null 2>&1; then \
+		echo -e "$(GREEN)✓ Login to GitHub successful!$(NC)"; \
+	else \
+		echo -e "$(RED)✗ Login failed. Please check your GHCR_TOKEN.$(NC)"; \
+		exit 1; \
+	fi	
+	@touch $(LOGIN_STAMP)
+
+
+
+
 # ============================================================================================
 # Help Target
 # ============================================================================================
@@ -202,6 +224,7 @@ help: ## Show this help message
 	@$(call print_section,Build & Documentation,build|docs|docs-serve|docs-deploy)
 	@$(call print_section,Container Management,container-build|container-up|container-down|container-logs|container-restart|container-shell|container-rebuild|container-volume-info|container-clean)
 	@$(call print_section,Cleanup,clean|clean-venv|maintainer-clean)
+	@$(call print_section,GitHub Container Registry,ghcr-login|ghcr-logout|ghcr-push)
 	@echo ""
 
 # ============================================================================================
@@ -374,7 +397,7 @@ container-clean-container-volumes: ## Remove all containers, volumes and prune t
 	@podman system prune -f
 	@echo -e "$(GREEN)✓ Containers and volumes removed$(NC)"
 
-container-clean-images: ## Remove all oneselect container images
+container-clean-images: container-down ## Remove all oneselect container images
 	@echo -e "$(DARKYELLOW)- Removing all oneselect images...$(NC)"
 	@podman rmi -f $$(podman images --filter "reference=oneselect*" -q) 2>/dev/null || true
 	@rm -f $(CONTAINER_STAMP)
@@ -391,6 +414,42 @@ container-rebuild: ## Rebuild container from scratch
 	@rm -f $(CONTAINER_STAMP)
 	@$(MAKE) container-build
 	@echo -e "$(GREEN)✓ Container rebuilt$(NC)"
+
+# ============================================================================================
+# GitHub Container Registry Targets
+# ============================================================================================
+ghcr-login: $(LOGIN_STAMP) ## Login to GitHub Container Registry via Podman
+
+ghcr-push:  ## Push container image to GitHub Container Registry
+	@if [ -z "$(GITHUB_USER)" ]; then \
+        echo -e "$(RED)✗ Error: GITHUB_USER environment variable is not set."; \
+        echo -e "  Please set GITHUB_USER as an environment variable or add as argument: make container-push GITHUB_USER=\"XXXXX\"$(NC)"; \
+        exit 1; \
+	fi
+	@echo -e "$(DARKYELLOW)- Checking if image version $(VERSION) already exists on GHCR...$(NC)"
+	@if podman manifest inspect ghcr.io/$(GITHUB_USER)/$(CONTAINER_NAME):$(VERSION) >/dev/null 2>&1; then \
+        echo -e "$(YELLOW)⚠️  Warning: Image $(CONTAINER_NAME):$(VERSION) already exists in the registry. Skipping push.$(NC)"; \
+        exit 0; \
+    fi
+	@echo -e "$(DARKYELLOW)- Pushing image $(CONTAINER_NAME):$(VERSION) and tagging as latest to GitHub Container Registry...$(NC)"
+	@podman tag $(CONTAINER_NAME):$(VERSION) ghcr.io/$(GITHUB_USER)/$(CONTAINER_NAME):$(VERSION)
+	@podman tag $(CONTAINER_NAME):$(VERSION) ghcr.io/$(GITHUB_USER)/$(CONTAINER_NAME):latest
+	@if podman push ghcr.io/$(GITHUB_USER)/$(CONTAINER_NAME):$(VERSION) && podman push ghcr.io/$(GITHUB_USER)/$(CONTAINER_NAME):latest; then \
+        echo -e "$(GREEN)✓ Image pushed successfully.$(NC)"; \
+	else \
+        echo -e "$(RED)✗ Error: Failed to push image to GHCR.$(NC)"; \
+        exit 1; \
+    fi
+
+ghcr-logout: ## Logout from GitHub Container Registry
+	@echo -e "$(DARKYELLOW)- Logging out from GitHub Container Registry...$(NC)"
+	@podman logout ghcr.io
+	@rm -f $(LOGIN_STAMP)
+	@echo -e "$(GREEN)✓ Logged out from GHCR$(NC)"
+
+ghcr-clean: ghcr-logout container-clean-images ## Clean up GHCR login and local images
+	@:
+
 
 # Alternative: using podman directly
 # .PHONY: podman-build podman-run podman-stop
