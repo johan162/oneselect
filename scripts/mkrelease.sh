@@ -656,12 +656,17 @@ else
 fi
 
 # =====================================
-# PHASE 8: RELEASE SUMMARY
+# PHASE 8: BUILD DISTRIBUTION PACKAGE
+# =====================================
+make ghcr-push
+
+# =====================================
+# PHASE 9: RELEASE SUMMARY
 # =====================================
 echo ""
 if [[ "$DRY_RUN" == "true" ]]; then
     print_step_colored ""
-    print_step_colored "🔍 PHASE 8: DRY RUN RELEASE SUMMARY"
+    print_step_colored "🔍 PHASE 9: DRY RUN RELEASE SUMMARY"
     print_step_colored ""
     echo "📋 Commands that would be executed:"
     echo "   → All validation checks (repository state, version format, etc.)"
@@ -669,16 +674,19 @@ if [[ "$DRY_RUN" == "true" ]]; then
     echo "   → Static analysis and code formatting checks"
     echo "   → Integration testing with example networks"
     echo "   → Package building and validation"
-    echo "   → Version number updates in multiple files"
+    echo "   → Version number updates across files"
     echo "   → Changelog generation and user editing"
     echo "   → Git operations: commit, merge, tag, push"
+    echo "   → Post-release branch synchronization"
     echo "   → Post-release cleanup"
+    echo "   → Documentation deployment to GitHub Pages"
+    echo "   → Container image build and push to GitHub Container Registry"
     echo ""
     echo "🚀 To execute for real:"
     echo "   $0 $VERSION $RELEASE_TYPE"
 else
     print_step_colored ""
-    print_step_colored "✅ PHASE 8: RELEASE SUMMARY"
+    print_step_colored "✅ PHASE 9: RELEASE SUMMARY"
     print_step_colored ""
     print_success_colored "🎉 ${PROGRAMNAME_PRETTY} v${VERSION} released successfully!"
     echo ""
