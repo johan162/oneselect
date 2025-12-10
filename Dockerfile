@@ -10,6 +10,7 @@
 # ======================================================================
 # Stage 1 Builder
 # ======================================================================
+
 FROM python:3.13-alpine as builder
 
 # Install build dependencies
@@ -44,7 +45,7 @@ RUN poetry config virtualenvs.in-project true && \
 FROM python:3.13-alpine
 
 # Connect the container to the repo
-LABEL org.opencontainers.image.source https://github.com/johan162/oneselect
+LABEL org.opencontainers.image.source=https://github.com/johan162/oneselect
 
 # Harden he image step 1: remove python build tools
 RUN python -m pip uninstall -y pip
