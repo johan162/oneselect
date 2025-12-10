@@ -161,12 +161,11 @@ $(BUILD_WHEEL): $(SRC_FILES) $(TEST_FILES) $(MISC_FILES)
 	fi
 	@echo -e "$(DARKYELLOW)- Verifying packages with twine...$(NC)"
 	@if poetry run twine check dist/*; then \
-		echo -e "$(GREEN)✓ 📦 Package verification passed: $(BUILD_WHEEL), $(BUILD_SDIST)$(NC)"; \
+		echo -e "$(GREEN)✓ 📦 Package verification passed$(NC)"; \
 	else \
 		echo -e "$(RED)✗ Error: Package verification failed$(NC)"; \
 		exit 1; \
 	fi
-	@touch $(BUILD_WHEEL)
 
 $(LOCK_FILE): pyproject.toml  ## Ensure poetry.lock is up to date if dependencies change
 	@echo -e "$(DARKYELLOW)- Regenerating lock file to ensure consistency...$(NC)"
