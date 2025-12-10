@@ -1,3 +1,11 @@
+## [v0.0.1-rc6] - 2025-12-10
+
+Release Type: minor
+
+### 📋 Summary 
+- Test #6 release for release script verification
+
+
 ## [v0.0.1-rc5] - 2025-12-10
 
 Release Type: patch
