@@ -80,6 +80,7 @@ TEST_FILES := $(shell find $(TEST_DIR) -name 'test_*.py')
 DOC_FILES := mkdocs.yml $(shell find $(DOCS_DIR) -name '*.md' -o -name '*.yml' -o -name '*.yaml')
 MISC_FILES := pyproject.toml poetry.lock README.md mypy.ini .flake8 alembic.ini 
 LOCK_FILE := poetry.lock
+DOCKER_SRC_FILES := Dockerfile docker-compose.yml docker-entrypoint.sh
 
 # Timestamp files
 CONTAINER_STAMP := .container-stamp
@@ -117,7 +118,7 @@ $(FORMAT_STAMP): $(SRC_FILES) $(TEST_FILES)
 	@touch $(FORMAT_STAMP)
 	@echo -e "$(GREEN)✓ Format target runs successfully$(NC)"
 
-$(CONTAINER_STAMP): $(SRC_FILES)
+$(CONTAINER_STAMP): $(SRC_FILES) $(TEST_FILES) $(DOCKER_SRC_FILES) $(MISC_FILES) $(INSTALL_STAMP)
 	@echo -e "$(DARKYELLOW)- Building container image...$(NC)"
 	@podman-compose build
 	@podman tag oneselect-backend:latest oneselect-backend:$(VERSION)

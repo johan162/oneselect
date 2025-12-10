@@ -5,20 +5,7 @@
 # The first stage (builder) installs all application dependencies using Poetry
 # and creates a virtual environment. The second stage (runner) copies the virtual
 # environment and application code into a minimal Alpine-based image.
-#
-# == Verification steps for the builder stage: 
-# podman build --target builder -t oneselect-builder-debug .
-# podman run -it --rm oneselect-builder-debug sh
-# /app $ poetry config --list
-#
-# == Verification steps for the final stage:
-# podman build -t oneselect-backend:latest 
-# Create the container and bypass the defined entry script and be able to run the commands manually and verify it works
-# podman run -it --rm --entrypoint sh oneselect-backend:latest
-# /app $ whoami
-# /app $ ls -la
-# /app $ which elambic
-# /app $ which uvicorn
+
 
 # ======================================================================
 # Stage 1 Builder
