@@ -1,3 +1,11 @@
+## [v0.0.1-rc8] - 2025-12-10
+
+Release Type: patch
+
+### 📋 Summary 
+- Test #8 release for release script verification
+
+
 ## [v0.0.1-rc7] - 2025-12-10
 
 Release Type: patch
