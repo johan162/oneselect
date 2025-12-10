@@ -11,7 +11,7 @@ ghcr-login
 
 # Make behavior
 .DEFAULT_GOAL := help
-SHELL := /usr/bin/env bash
+SHELL := $(shell which bash)
 .DELETE_ON_ERROR:
 .ONESHELL:
 
