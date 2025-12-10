@@ -91,8 +91,10 @@ TEST_STAMP := .test-stamp
 
 # Build package files
 BUILD_DIR := dist
-BUILD_WHEEL := $(BUILD_DIR)/$(PYPI_NAME)-$(VERSION)-py3-none-any.whl
-BUILD_SDIST := $(BUILD_DIR)/$(PYPI_NAME)-$(VERSION).tar.gz
+# Remove any hypen in PyPi specifi version number for wheel filename compliance
+PYPI_VERSION := $(shell echo $(VERSION) | tr -d '-')
+BUILD_WHEEL := $(BUILD_DIR)/$(PYPI_NAME)-$(PYPI_VERSION)-py3-none-any.whl
+BUILD_SDIST := $(BUILD_DIR)/$(PYPI_NAME)-$(PYPI_VERSION).tar.gz
 
 # ================================================================================================
 # Timestamp dependencies
@@ -151,7 +153,7 @@ $(INSTALL_STAMP): pyproject.toml $(LOCK_FILE)
 	@touch $(INSTALL_STAMP)
 	@echo -e "$(GREEN)✓ Project dependencies installed$(NC)"
 
-$(BUILD_WHEEL): $(SRC_FILES) $(TEST_FILES) $(MISC_FILES)
+$(BUILD_WHEEL) $(BUILD_SDIST): $(SRC_FILES) $(TEST_FILES) $(MISC_FILES)
 	@echo -e "$(DARKYELLOW)- Building project packages...$(NC)"
 	@if poetry build; then \
 		echo -e "$(GREEN)✓ Packages built successfully$(NC)"; \
@@ -287,7 +289,7 @@ pre-commit: $(INSTALL_STAMP) ## Run pre-commit checks (format, lint, typecheck)
 # ============================================================================================
 # Build Package Targets
 # ============================================================================================
-build: $(INSTALL_STAMP) check test docs $(BUILD_WHEEL) ## Build the project packages
+build: $(INSTALL_STAMP) check test docs $(BUILD_WHEEL) $(BUILD_SDIST) ## Build the project packages
 	@:
 
 # ============================================================================================
