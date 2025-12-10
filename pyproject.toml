@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "oneselect-backend"
-version = "0.0.1-rc5"
+version = "0.0.1-rc6"
 description = "Backend for OneSelect pairwise comparison system"
 authors = ["johan162@gmail.com"]
 license = "MIT"
@@ -23,9 +23,9 @@ packages = [{include = "app"}]
 
 [tool.poetry.dependencies]
 python = "^3.13"
-fastapi = "^0.124.0"
+fastapi = "^0.124.2"
 uvicorn = {extras = ["standard"], version = "^0.38.0"}
-sqlalchemy = "^2.0.25"
+sqlalchemy = "^2.0.45"
 pydantic = {extras = ["email"], version = "^2.5.3"}
 pydantic-settings = "^2.12.0"
 python-jose = {extras = ["cryptography"], version = "^3.3.0"}
@@ -74,7 +74,7 @@ disallow_untyped_defs = false
 check_untyped_defs = false
 
 [tool.pytest.ini_options]
-addopts = "-n auto --cov=app --cov-report=term-missing"
+# addopts = "-n auto --cov=app --cov-report=term-missing"
 pythonpath = ["."]
 testpaths = ["tests"]
 filterwarnings = [

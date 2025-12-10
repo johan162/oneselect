@@ -1,20 +1,44 @@
 site_name: OneSelect API
+site_author: Johan Persson
+site_description: Documentation for the OneSelect API - A Bradley-Terry model with Bayesian inference for graded decision ranking
+site_url: https://johan162.github.io/oneselect
+
+repo_name: johan162/oneselect
+repo_url: https://github.com/johan162/oneselect
+edit_uri: edit/main/docs/
+
 theme:
   name: material
   palette:
-    scheme: slate
-    primary: deep purple
-    accent: purple
+    # Light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
   features:
+    - navigation.instant
+    - navigation.tracking
     - navigation.tabs
     - navigation.sections
+    - navigation.expand
     - navigation.top
-    - search.highlight
     - search.suggest
+    - search.highlight
     - content.code.copy
-
-plugins:
-  - search
+    - content.code.annotate
+  icon:
+    repo: fontawesome/brands/github
 
 nav:
   - Home: index.md
@@ -27,6 +51,11 @@ nav:
   - Deployment: deployment.md
   - DB Schema: database_schema.md
   - Working with Proxies: working-with-proxies.md
+
+
+plugins:
+  - search
+  
 
 markdown_extensions:
   - pymdownx.highlight:
@@ -42,3 +71,12 @@ markdown_extensions:
 extra_javascript:
   - javascripts/mathjax.js
   - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/johan162/oneselect
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/oneselect
+  version:
+    provider: mike

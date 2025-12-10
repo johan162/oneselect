@@ -6,7 +6,8 @@
 .PHONY: help dev install clean-venv reinstall run test test-short test-param test-html lint format typecheck migrate init-db check \
 pre-commit clean maintainer-clean docs docs-serve build container-build container-up container-down container-logs \
 container-restart container-shell container-clean container-clean-container-volumes container-clean-images \
-container-volume-info container-rebuild ensure-poetry ensure-podman ensure-podman-compose
+container-volume-info container-rebuild ensure-poetry ensure-podman ensure-podman-compose \
+ghcr-login
 
 # Make behavior
 .DEFAULT_GOAL := help
@@ -79,6 +80,7 @@ TEST_FILES := $(shell find $(TEST_DIR) -name 'test_*.py')
 DOC_FILES := mkdocs.yml $(shell find $(DOCS_DIR) -name '*.md' -o -name '*.yml' -o -name '*.yaml')
 MISC_FILES := pyproject.toml poetry.lock README.md mypy.ini .flake8 alembic.ini 
 LOCK_FILE := poetry.lock
+DOCKER_SRC_FILES := Dockerfile docker-compose.yml docker-entrypoint.sh
 
 # Timestamp files
 CONTAINER_STAMP := .container-stamp
@@ -88,11 +90,14 @@ LINT_STAMP := .lint-stamp
 TYPECHECK_STAMP := .typecheck-stamp
 INSTALL_STAMP := .install-stamp
 TEST_STAMP := .test-stamp
+GHCR_LOGIN_STAMP := .ghcr-login-stamp
 
 # Build package files
 BUILD_DIR := dist
-BUILD_WHEEL := $(BUILD_DIR)/$(PYPI_NAME)-$(VERSION)-py3-none-any.whl
-BUILD_SDIST := $(BUILD_DIR)/$(PYPI_NAME)-$(VERSION).tar.gz
+# Remove any hypen in PyPi specifi version number for wheel filename compliance
+PYPI_VERSION := $(shell echo $(VERSION) | tr -d '-')
+BUILD_WHEEL := $(BUILD_DIR)/$(PYPI_NAME)-$(PYPI_VERSION)-py3-none-any.whl
+BUILD_SDIST := $(BUILD_DIR)/$(PYPI_NAME)-$(PYPI_VERSION).tar.gz
 
 # ================================================================================================
 # Timestamp dependencies
@@ -113,7 +118,7 @@ $(FORMAT_STAMP): $(SRC_FILES) $(TEST_FILES)
 	@touch $(FORMAT_STAMP)
 	@echo -e "$(GREEN)✓ Format target runs successfully$(NC)"
 
-$(CONTAINER_STAMP): $(SRC_FILES)
+$(CONTAINER_STAMP): $(SRC_FILES) $(TEST_FILES) $(DOCKER_SRC_FILES) $(MISC_FILES) $(INSTALL_STAMP)
 	@echo -e "$(DARKYELLOW)- Building container image...$(NC)"
 	@podman-compose build
 	@podman tag oneselect-backend:latest oneselect-backend:$(VERSION)
@@ -151,7 +156,7 @@ $(INSTALL_STAMP): pyproject.toml $(LOCK_FILE)
 	@touch $(INSTALL_STAMP)
 	@echo -e "$(GREEN)✓ Project dependencies installed$(NC)"
 
-$(BUILD_WHEEL): $(SRC_FILES) $(TEST_FILES) $(MISC_FILES)
+$(BUILD_WHEEL) $(BUILD_SDIST): $(SRC_FILES) $(TEST_FILES) $(MISC_FILES)
 	@echo -e "$(DARKYELLOW)- Building project packages...$(NC)"
 	@if poetry build; then \
 		echo -e "$(GREEN)✓ Packages built successfully$(NC)"; \
@@ -161,12 +166,11 @@ $(BUILD_WHEEL): $(SRC_FILES) $(TEST_FILES) $(MISC_FILES)
 	fi
 	@echo -e "$(DARKYELLOW)- Verifying packages with twine...$(NC)"
 	@if poetry run twine check dist/*; then \
-		echo -e "$(GREEN)✓ 📦 Package verification passed: $(BUILD_WHEEL), $(BUILD_SDIST)$(NC)"; \
+		echo -e "$(GREEN)✓ 📦 Package verification passed$(NC)"; \
 	else \
 		echo -e "$(RED)✗ Error: Package verification failed$(NC)"; \
 		exit 1; \
 	fi
-	@touch $(BUILD_WHEEL)
 
 $(LOCK_FILE): pyproject.toml  ## Ensure poetry.lock is up to date if dependencies change
 	@echo -e "$(DARKYELLOW)- Regenerating lock file to ensure consistency...$(NC)"
@@ -178,6 +182,30 @@ $(DB_FILE): ## Setup the database if it does not exist
 		$(MAKE) migrate; \
 		$(MAKE) init-db; \
 	fi
+
+$(GHCR_LOGIN_STAMP): 
+	@if [ -z "$(GHCR_TOKEN)" ]; then \
+		echo -e "$(RED)✗ Error: GHCR_TOKEN environment variable is not se. Please set GHCR_TOKEN with a valid GitHub Personal Access Token.$(NC)"; \
+		exit 1; \
+	fi
+	@if [ -f $(GHCR_LOGIN_STAMP) ] && [ $$(find $(GHCR_LOGIN_STAMP) -mmin -120) ]; then \
+		echo -e "$(GREEN)✓ Already logged in to GHCR recently.$(NC)"; \
+		exit 0; \
+	else \
+		echo -e "$(DARKYELLOW)- Logging in to GitHub Container Registry...$(NC)"; \
+		if podman login ghcr.io -u $(GITHUB_USER) -p $(GHCR_TOKEN) >/dev/null 2>&1; then \
+			echo -e "$(GREEN)✓ Login to GitHub successful!$(NC)"; \
+			touch $(GHCR_LOGIN_STAMP) ; \
+		else \
+			echo -e "$(RED)✗ Login failed. Please check your GHCR_TOKEN.$(NC)"; \
+			rm -f $(GHCR_LOGIN_STAMP); \
+			exit 1; \
+		fi \
+	fi	
+	
+
+
+
 
 # ============================================================================================
 # Help Target
@@ -201,6 +229,7 @@ help: ## Show this help message
 	@$(call print_section,Build & Documentation,build|docs|docs-serve|docs-deploy)
 	@$(call print_section,Container Management,container-build|container-up|container-down|container-logs|container-restart|container-shell|container-rebuild|container-volume-info|container-clean)
 	@$(call print_section,Cleanup,clean|clean-venv|maintainer-clean)
+	@$(call print_section,GitHub Container Registry,ghcr-login|ghcr-logout|ghcr-push)
 	@echo ""
 
 # ============================================================================================
@@ -288,7 +317,7 @@ pre-commit: $(INSTALL_STAMP) ## Run pre-commit checks (format, lint, typecheck)
 # ============================================================================================
 # Build Package Targets
 # ============================================================================================
-build: $(INSTALL_STAMP) check test docs $(BUILD_WHEEL) ## Build the project packages
+build: $(INSTALL_STAMP) check test docs $(BUILD_WHEEL) $(BUILD_SDIST) ## Build the project packages
 	@:
 
 # ============================================================================================
@@ -373,7 +402,7 @@ container-clean-container-volumes: ## Remove all containers, volumes and prune t
 	@podman system prune -f
 	@echo -e "$(GREEN)✓ Containers and volumes removed$(NC)"
 
-container-clean-images: ## Remove all oneselect container images
+container-clean-images: container-down ## Remove all oneselect container images
 	@echo -e "$(DARKYELLOW)- Removing all oneselect images...$(NC)"
 	@podman rmi -f $$(podman images --filter "reference=oneselect*" -q) 2>/dev/null || true
 	@rm -f $(CONTAINER_STAMP)
@@ -390,6 +419,46 @@ container-rebuild: ## Rebuild container from scratch
 	@rm -f $(CONTAINER_STAMP)
 	@$(MAKE) container-build
 	@echo -e "$(GREEN)✓ Container rebuilt$(NC)"
+
+# ============================================================================================
+# GitHub Container Registry Targets
+# ============================================================================================
+ghcr-login: $(GHCR_LOGIN_STAMP) ## Login to GitHub Container Registry via Podman
+
+ghcr-push: $(GHCR_LOGIN_STAMP) $(CONTAINER_STAMP)  ## Push container image to GitHub Container Registry
+	@if [ -z "$(GITHUB_USER)" ]; then \
+        echo -e "$(RED)✗ Error: GITHUB_USER environment variable is not set."; \
+        echo -e "  Please set GITHUB_USER as an environment variable or add as argument: make container-push GITHUB_USER=\"XXXXX\"$(NC)"; \
+        exit 1; \
+	fi
+	@echo -e "$(DARKYELLOW)- Checking if image version $(VERSION) already exists on GHCR...$(NC)"
+	@if podman manifest inspect ghcr.io/$(GITHUB_USER)/$(CONTAINER_NAME):$(VERSION) >/dev/null 2>&1; then \
+        echo -e "$(YELLOW)⚠️  Warning: Image $(CONTAINER_NAME):$(VERSION) already exists in the registry. Skipping push.$(NC)"; \
+        exit 1; \
+    fi
+	@echo -e "$(DARKYELLOW)- Pushing image $(CONTAINER_NAME):$(VERSION) and tagging as latest to GitHub Container Registry...$(NC)"
+	@podman tag $(CONTAINER_NAME):$(VERSION) ghcr.io/$(GITHUB_USER)/$(CONTAINER_NAME):$(VERSION)
+	@podman tag $(CONTAINER_NAME):$(VERSION) ghcr.io/$(GITHUB_USER)/$(CONTAINER_NAME):latest
+	@if podman push ghcr.io/$(GITHUB_USER)/$(CONTAINER_NAME):$(VERSION) && podman push ghcr.io/$(GITHUB_USER)/$(CONTAINER_NAME):latest; then \
+        echo -e "$(GREEN)✓ Image pushed successfully.$(NC)"; \
+	else \
+        echo -e "$(RED)✗ Error: Failed to push image to GHCR.$(NC)"; \
+        exit 1; \
+    fi
+
+ghcr-logout: ## Logout from GitHub Container Registry
+	@if [ ! -f $(GHCR_LOGIN_STAMP) ]; then \
+		echo -e "$(YELLOW)⚠️  Warning: Not logged in to GHCR. Skipping logout.$(NC)"; \
+		exit 1; \
+	fi
+	@echo -e "$(DARKYELLOW)- Logging out from GitHub Container Registry...$(NC)"
+	@podman logout ghcr.io
+	@rm -f $(GHCR_LOGIN_STAMP)
+	@echo -e "$(GREEN)✓ Logged out from GHCR$(NC)"
+
+ghcr-clean: ghcr-logout container-clean-images ## Clean up GHCR login and local images
+	@:
+
 
 # Alternative: using podman directly
 # .PHONY: podman-build podman-run podman-stop

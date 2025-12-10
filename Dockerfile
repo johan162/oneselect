@@ -5,20 +5,7 @@
 # The first stage (builder) installs all application dependencies using Poetry
 # and creates a virtual environment. The second stage (runner) copies the virtual
 # environment and application code into a minimal Alpine-based image.
-#
-# == Verification steps for the builder stage: 
-# podman build --target builder -t oneselect-builder-debug .
-# podman run -it --rm oneselect-builder-debug sh
-# /app $ poetry config --list
-#
-# == Verification steps for the final stage:
-# podman build -t oneselect-backend:latest 
-# Create the container and bypass the defined entry script and be able to run the commands manually and verify it works
-# podman run -it --rm --entrypoint sh oneselect-backend:latest
-# /app $ whoami
-# /app $ ls -la
-# /app $ which elambic
-# /app $ which uvicorn
+
 
 # ======================================================================
 # Stage 1 Builder
@@ -31,9 +18,8 @@ RUN apk add --no-cache \
     curl \
     libffi-dev
 
-# Install Poetry and export plugin
-RUN curl -sSL https://install.python-poetry.org | python3 - \
-    && /root/.local/bin/poetry self add poetry-plugin-export
+# Install Poetry
+RUN curl -sSL https://install.python-poetry.org | python3 - 
 ENV PATH="/root/.local/bin:$PATH"
 
 # Set working directory
@@ -43,12 +29,22 @@ WORKDIR /app
 COPY pyproject.toml poetry.lock ./
 
 # Setup Poetry with only runtime dependencies and no dev dependencies
-RUN poetry config virtualenvs.in-project true && poetry install --no-root --only=main
+RUN poetry config virtualenvs.in-project true && \
+    poetry install --no-root --only=main && \
+    # Clean up venv to reduce size: remove pip, setuptools, wheel
+    .venv/bin/pip uninstall -y pip setuptools wheel && \
+    # Strip shared libraries to reduce size
+    find .venv -name "*.so" -exec strip --strip-unneeded {} + && \
+    # Remove bytecode from venv
+    find .venv -type d -name "__pycache__" -exec rm -r {} +
 
 # ======================================================================
 # Stage 2 Runner - minimal Alpine image
 # ======================================================================
 FROM python:3.13-alpine
+
+# Connect the container to the repo
+LABEL org.opencontainers.image.source https://github.com/johan162/oneselect
 
 # Harden he image step 1: remove python build tools
 RUN python -m pip uninstall -y pip
@@ -66,9 +62,6 @@ WORKDIR /app
 
 # Copy the virtual environment with dependencies from the builder stage
 COPY --from=builder --chown=oneselect:oneselect /app/.venv ./.venv
-
-# Remove pip and other installation tools not needed in the virtual environment
-RUN ./.venv/bin/python -m pip uninstall -y pip
 
 # Copy only application code (not tests, docs, etc.)
 COPY --chown=oneselect:oneselect app/ ./app/
