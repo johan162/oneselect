@@ -1,6 +1,6 @@
 ## [v0.0.1-rc7] - 2025-12-10
 
-Release Type: minor
+Release Type: patch
 
 ### 📋 Summary 
 - Test #7 release for release script verification
@@ -8,7 +8,7 @@ Release Type: minor
 
 ## [v0.0.1-rc6] - 2025-12-10
 
-Release Type: minor
+Release Type: patch
 
 ### 📋 Summary 
 - Test #6 release for release script verification
