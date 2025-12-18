@@ -337,14 +337,14 @@ fi
 print_success "Authenticated with GitHub"
 
 # 1.4: Verify we're on main branch
-# print_sub_step "Verifying branch..."
-# CURRENT_BRANCH=$(git branch --show-current)
-# if [[ "$CURRENT_BRANCH" != "main" ]]; then
-#     print_error "Must be on 'main' branch (currently on '$CURRENT_BRANCH')"
-#     echo "Run: git checkout main"
-#     exit 1
-# fi
-# print_success "On main branch"
+print_sub_step "Verifying branch..."
+CURRENT_BRANCH=$(git branch --show-current)
+if [[ "$CURRENT_BRANCH" != "main" ]]; then
+    print_error "Must be on 'main' branch (currently on '$CURRENT_BRANCH')"
+    echo "Run: git checkout main"
+    exit 1
+fi
+print_success "On main branch"
 
 # 1.5: Check for uncommitted changes
 print_sub_step "Checking for uncommitted changes..."
