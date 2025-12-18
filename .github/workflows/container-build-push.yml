@@ -9,7 +9,7 @@ permissions:
   packages: write
 
 jobs:
-  build-and-push:
+  container-build-and-push:
     runs-on: ubuntu-latest
     env:
       REGISTRY: ghcr.io
@@ -20,10 +20,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Podman
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y podman
+      # - name: Install Podman
+      #   run: |
+      #     sudo apt-get update
+      #     sudo apt-get install -y podman
 
       - name: Lowercase Registry User
         id: registry_case
