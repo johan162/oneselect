@@ -1,3 +1,11 @@
+## [v0.0.1-rc13] - 2025-12-18
+
+Release Type: patch
+
+### 📋 Summary 
+- Added PyPi publish GitHub Actions on release
+
+
 ## [v0.0.1-rc12] - 2025-12-18
 
 Release Type: patch
