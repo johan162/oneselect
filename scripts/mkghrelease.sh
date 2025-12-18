@@ -30,7 +30,7 @@ NC='\033[0m'
 
 declare GITHUB_USER="johan162"
 declare SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-declare PROGRAM_NAME="oneselect"
+declare PROGRAM_NAME="oneselect_backend"
 declare CONTAINER_NAME="oneselect-backend"
 declare PROGRAM_NAME_PRETTY="OneSelect"
 declare COVERAGE="80"
@@ -336,14 +336,14 @@ fi
 print_success "Authenticated with GitHub"
 
 # 1.4: Verify we're on main branch
-print_sub_step "Verifying branch..."
-CURRENT_BRANCH=$(git branch --show-current)
-if [[ "$CURRENT_BRANCH" != "main" ]]; then
-    print_error "Must be on 'main' branch (currently on '$CURRENT_BRANCH')"
-    echo "Run: git checkout main"
-    exit 1
-fi
-print_success "On main branch"
+# print_sub_step "Verifying branch..."
+# CURRENT_BRANCH=$(git branch --show-current)
+# if [[ "$CURRENT_BRANCH" != "main" ]]; then
+#     print_error "Must be on 'main' branch (currently on '$CURRENT_BRANCH')"
+#     echo "Run: git checkout main"
+#     exit 1
+# fi
+# print_success "On main branch"
 
 # 1.5: Check for uncommitted changes
 print_sub_step "Checking for uncommitted changes..."
