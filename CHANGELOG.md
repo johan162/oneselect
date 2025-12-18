@@ -1,3 +1,11 @@
+## [v0.0.1-rc11] - 2025-12-18
+
+Release Type: patch
+
+### 📋 Summary 
+- Added mkghrelease.sh script to make a full GitHub release from latest tag on main
+
+
 ## [v0.0.1-rc10] - 2025-12-10
 
 Release Type: patch
