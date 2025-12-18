@@ -30,7 +30,8 @@ NC='\033[0m'
 
 declare GITHUB_USER="johan162"
 declare SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-declare PROGRAM_NAME="oneselect"
+declare REPO_NAME="oneselect"
+declare PROGRAM_NAME="oneselect_backend"
 declare CONTAINER_NAME="oneselect-backend"
 declare PROGRAM_NAME_PRETTY="OneSelect"
 declare COVERAGE="80"
@@ -140,7 +141,7 @@ print_info_colored() {
 
 show_help() {
     cat << EOF
-🚀 GitHub Release Creator for ${PROGRAMNAME_PRETTY}
+🚀 GitHub Release Creator for ${PROGRAM_NAME_PRETTY}
 
 DESCRIPTION:
     Creates a GitHub release using the gh CLI tool. This script should be run
@@ -277,9 +278,9 @@ fi
 
 echo ""
 echo "=========================================="
-echo "  GitHub Release Creator for ${PROGRAMNAME_PRETTY}"
+echo "  GitHub Release Creator for ${PROGRAM_NAME_PRETTY}"
 echo "=========================================="
-echo "Repository: ${PROGRAMNAME}"
+echo "Repository: ${PROGRAM_NAME}"
 echo "Branch: $(git branch --show-current)"
 echo "Commit: $(git rev-parse --short HEAD)"
 if [[ "$DRY_RUN" == "true" ]]; then
@@ -495,12 +496,12 @@ VERSION_NUMBER=${LATEST_TAG#v}
 # Strip the '-' from the version for pre-releases
 FILE_VERSION_NUMBER=${VERSION_NUMBER//-rc/rc}
 print_sub_step "Locating artifacts with version $FILE_VERSION_NUMBER..."
-WHEEL_FILE=$(find "$DIST_DIR" -name "${PROGRAMNAME}-${FILE_VERSION_NUMBER}-*.whl" | head -1)
-SDIST_FILE=$(find "$DIST_DIR" -name "${PROGRAMNAME}-${FILE_VERSION_NUMBER}.tar.gz" | head -1)
+WHEEL_FILE=$(find "$DIST_DIR" -name "${PROGRAM_NAME}-${FILE_VERSION_NUMBER}-*.whl" | head -1)
+SDIST_FILE=$(find "$DIST_DIR" -name "${PROGRAM_NAME}-${FILE_VERSION_NUMBER}.tar.gz" | head -1)
 
 if [[ -z "$WHEEL_FILE" ]]; then
     print_error "Wheel file not found for version $VERSION_NUMBER"
-    echo "Expected: dist/${PROGRAMNAME}-${FILE_VERSION_NUMBER}-*.whl"
+    echo "Expected: dist/${PROGRAM_NAME}-${FILE_VERSION_NUMBER}-*.whl"
     echo ""
     echo "Files in dist/:"
     ls -la "$DIST_DIR"
@@ -510,7 +511,7 @@ print_success "Found wheel: $(basename "$WHEEL_FILE")"
 
 if [[ -z "$SDIST_FILE" ]]; then
     print_error "Source distribution not found for version $VERSION_NUMBER"
-    echo "Expected: dist/${PROGRAMNAME}-${FILE_VERSION_NUMBER}.tar.gz"
+    echo "Expected: dist/${PROGRAM_NAME}-${FILE_VERSION_NUMBER}.tar.gz"
     echo ""
     echo "Files in dist/:"
     ls -la "$DIST_DIR"
@@ -580,7 +581,7 @@ if [[ $EXTRACT_STATUS -ne 0 ]] || [[ ! -s "$RELEASE_NOTES_FILE" ]]; then
 - [List internal changes]
 
 ---
-For full details, see [CHANGELOG.md](https://github.com/${GITHUB_USER}/${PROGRAMNAME}/blob/main/CHANGELOG.md)
+For full details, see [CHANGELOG.md](https://github.com/${GITHUB_USER}/${REPO_NAME}/blob/main/CHANGELOG.md)
 EOF
 fi
 
@@ -623,7 +624,7 @@ print_step_colored ""
 
 # 6.1: Construct gh release create command
 GH_RELEASE_CMD="gh release create \"$LATEST_TAG\" \
-    --title \"${PROGRAMNAME_PRETTY} $LATEST_TAG\" \
+    --title \"${PROGRAM_NAME_PRETTY} $LATEST_TAG\" \
     --notes-file \"$RELEASE_NOTES_FILE\" \
     \"$WHEEL_FILE\" \
     \"$SDIST_FILE\""
@@ -689,7 +690,7 @@ else
     echo ""
     echo "Release: $LATEST_TAG ($RELEASE_TYPE)"
     echo "View:    gh release view $LATEST_TAG"
-    echo "URL:     https://github.com/${GITHUB_USER}/${PROGRAMNAME}/releases/tag/$LATEST_TAG"
+    echo "URL:     https://github.com/${GITHUB_USER}/${REPO_NAME}/releases/tag/$LATEST_TAG"
     echo ""
     echo "Artifacts uploaded:"
     echo "  - $(basename "$WHEEL_FILE")"
@@ -697,9 +698,9 @@ else
     echo ""
     echo "Next steps:"
     echo "  1. Verify release on GitHub:"
-    echo "     https://github.com/${GITHUB_USER}/${PROGRAMNAME}/releases"
+    echo "     https://github.com/${GITHUB_USER}/${REPO_NAME}/releases"
     echo "  2. Verify that PyPI upload has been done or is in progress (via GitHub Actions):"
-    echo "     https://github.com/${GITHUB_USER}/${PROGRAMNAME}/actions"
+    echo "     https://github.com/${GITHUB_USER}/${REPO_NAME}/actions"
     echo "  3. Announce release to users"
     echo ""
 fi

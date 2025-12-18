@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "oneselect-backend"
-version = "0.0.1-rc11"
+version = "0.0.1-rc12"
 description = "Backend for OneSelect pairwise comparison system"
 authors = ["johan162@gmail.com"]
 license = "MIT"
