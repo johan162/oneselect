@@ -241,6 +241,7 @@ EOF
 VERSION=""
 RELEASE_TYPE="minor"
 DRY_RUN=false
+BUILD_CONTAINER=false
 
 for arg in "$@"; do
     case $arg in
@@ -250,6 +251,10 @@ for arg in "$@"; do
             ;;
         --dry-run)
             DRY_RUN=true
+            shift
+            ;;
+        --build-container)
+            BUILD_CONTAINER=true
             shift
             ;;
         -*)
@@ -657,9 +662,22 @@ else
 fi
 
 # =====================================
-# PHASE 8: BUILD DISTRIBUTION PACKAGE
+# PHASE 8: BUILD AND PUSH CONTAINER IMAGE TO GHCR
 # =====================================
-make ghcr-push
+if [[ "$BUILD_CONTAINER" == "false" ]]; then
+    print_step_colored ""
+    print_step_colored "🚢 PHASE 8: SKIPPING CONTAINER IMAGE BUILD AND PUSH"
+    print_step_colored ""
+    echo "⚠️  Container build and push skipped as per user request."
+    echo "   To enable, run the script with --build-container option."
+else
+    print_step_colored ""
+    print_step_colored "🚢 PHASE 8: BUILD AND PUSH CONTAINER IMAGE TO GHCR"
+    print_step_colored ""
+fi
+if [[ "$BUILD_CONTAINER" == "true" ]]; then
+    make ghcr-push
+fi
 
 # =====================================
 # PHASE 9: RELEASE SUMMARY

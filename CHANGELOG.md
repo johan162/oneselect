@@ -1,3 +1,11 @@
+## [v0.0.1-rc14] - 2025-12-18
+
+Release Type: patch
+
+### 📋 Summary 
+- Add GitHub script to build container and push to ghcr.io
+
+
 ## [v0.0.1-rc13] - 2025-12-18
 
 Release Type: patch

@@ -1,0 +1,67 @@
+name: Container Build and Push
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    env:
+      REGISTRY: ghcr.io
+      IMAGE_NAME: oneselect-backend
+      VERSION: ${{ github.event.release.tag_name }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Podman
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y podman
+
+      - name: Lowercase Registry User
+        id: registry_case
+        run: |
+          # GHCR requires lowercase owner names
+          OWNER_LOWER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          echo "owner_lower=${OWNER_LOWER}" >> $GITHUB_OUTPUT
+
+      - name: Log in to GitHub Container Registry
+        # Uses the automatic GITHUB_TOKEN
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | podman login "${REGISTRY}" -u "${{ github.actor }}" --password-stdin
+
+      - name: Build image
+        run: |
+          podman build -t "${IMAGE_NAME}:${VERSION}" -f Dockerfile .
+
+      - name: Check if tag already exists
+        id: tag-check
+        env:
+          OWNER: ${{ steps.registry_case.outputs.owner_lower }}
+        run: |
+          if podman manifest inspect "${REGISTRY}/${OWNER}/${IMAGE_NAME}:${VERSION}" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "::notice::Image tag ${VERSION} already exists. Skipping push."
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Tag and push image
+        if: steps.tag-check.outputs.exists == 'false'
+        env:
+          OWNER: ${{ steps.registry_case.outputs.owner_lower }}
+        run: |
+          FULL_IMAGE_PATH="${REGISTRY}/${OWNER}/${IMAGE_NAME}"
+          
+          podman tag "${IMAGE_NAME}:${VERSION}" "${FULL_IMAGE_PATH}:${VERSION}"
+          podman tag "${IMAGE_NAME}:${VERSION}" "${FULL_IMAGE_PATH}:latest"
+          
+          podman push "${FULL_IMAGE_PATH}:${VERSION}"
+          podman push "${FULL_IMAGE_PATH}:latest"
