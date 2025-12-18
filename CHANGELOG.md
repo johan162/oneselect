@@ -1,3 +1,11 @@
+## [v0.0.1-rc15] - 2025-12-18
+
+Release Type: patch
+
+### 📋 Summary 
+- Fix permission for container Action script
+
+
 ## [v0.0.1-rc14] - 2025-12-18
 
 Release Type: patch
