@@ -1,3 +1,11 @@
+## [v0.0.1-rc12] - 2025-12-18
+
+Release Type: patch
+
+### 📋 Summary 
+- Fixes in mkghrelease script
+
+
 ## [v0.0.1-rc11] - 2025-12-18
 
 Release Type: patch
