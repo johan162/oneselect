@@ -2,16 +2,15 @@ version: '3.8'
 
 services:
   oneselect-api:
-    image: oneselect-backend:latest
-    build:
-      context: .
-      dockerfile: Dockerfile
-
+    # Pull pre-built image from GitHub Container Registry
+    # Replace 'latest' with specific version tag for production (e.g., v0.0.1-rc15)
+    image: ghcr.io/johan162/oneselect-backend:latest
+    
     container_name: oneselect-backend
-
+    
     ports:
       - "8000:8000"
-
+    
     # Environment variables. Set these in a .env file or export in your shell
     # They are then available to the Python application via os.getenv() and will be
     # handled by Pydantic settings in the app.py
@@ -22,7 +21,7 @@ services:
       
       # IMPORTANT: Set a secure SECRET_KEY in production
       # Generate with: openssl rand -hex 32
-      - SECRET_KEY=${SECRET_KEY:-supersecretkey}
+      - SECRET_KEY=${SECRET_KEY}
       
       # Database settings (SQLite by default for simplicity)
       # The database is persisted in a named volume
@@ -34,26 +33,18 @@ services:
       - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES:-30}
       
       # Admin user credentials (created on first run)
-      - FIRST_SUPERUSER=${FIRST_SUPERUSER:-admin@example.com}
-      - FIRST_SUPERUSER_PASSWORD=${FIRST_SUPERUSER_PASSWORD:-admin}
+      - FIRST_SUPERUSER=${FIRST_SUPERUSER}
+      - FIRST_SUPERUSER_PASSWORD=${FIRST_SUPERUSER_PASSWORD}
       
       # Optional: Google OAuth configuration
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-}
-      - GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI:-http://localhost:8000/api/v1/auth/google/callback}
+      - GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI:-}
       - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
     
     volumes:
       # Persist database in named volume
       - oneselect-data:/app/data/:U
-
-      # Alternatively, for development, you can mount a local file (uncomment below)
-      # - ./oneselect.db:/app/data/oneselect.db  
-      
-      # For development: mount source code for hot reload
-      # Uncomment the following lines for development mode:
-      # - ./app:/app/app:ro
-      # command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     
     restart: unless-stopped
     
@@ -66,6 +57,10 @@ services:
       timeout: 10s
       retries: 3
       start_period: 15s
+    
+    # Security: Run as non-root user
+    # The container already runs as user 'oneselect' (UID 1000)
+    user: "1000:1000"
 
 volumes:
   oneselect-data:
