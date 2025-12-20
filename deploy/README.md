@@ -69,6 +69,8 @@ Choose **one** of the following container runtimes:
   - Install: https://podman.io/getting-started/installation
   - Verify: `podman --version && podman-compose --version`
 
+*Note: If both are installed the installation script will prefer* `podman`.
+
 ### System Requirements
 
 | Resource | Minimum | Recommended |
@@ -172,18 +174,20 @@ nano .env  # or vim, code, etc.
 
 ### Step 4: Deploy
 
+*Note: Replace* `podman-compose` *with* `docker-compose` *if docker is to be used!*.
+
 ```bash
 # Pull the image
-docker-compose pull
+podman-compose pull
 
 # Start the service
-docker-compose up -d
+podman-compose up -d
 
 # Check status
-docker-compose ps
+podman-compose ps
 
 # View logs
-docker-compose logs -f
+podman-compose logs -f
 ```
 
 ### Step 5: Verify Deployment
