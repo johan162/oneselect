@@ -27,7 +27,6 @@ declare SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 declare PROGRAM_NAME="oneselect"
 declare CONTAINER_NAME="oneselect-backend"
 declare PROGRAM_NAME_PRETTY="OneSelect"
-declare PROGRAM_ENTRYPOINT="oneselect"
 declare COVERAGE="80"
 
 declare REQUIRED_GH_VERSION="2.0.0"
@@ -395,7 +394,7 @@ print_step_colored "🧪 PHASE 2: UNIT TESTING & STATIC ANALYSIS"
 print_step_colored ""
 
 # 2.1: Full test suite with coverage requirements
-run_command "make test"  "Running full test suite with coverage..."
+run_command "make test-html"  "Running full test suite with coverage..."
 
 if [[ "$DRY_RUN" == "false" && $? -ne 0 ]]; then
     print_error_colored "Test suite failed - aborting release"
@@ -443,6 +442,7 @@ if [[ "$DRY_RUN" == "true" ]]; then
     echo "  [DRY-RUN] Would update __version__ in __init__.py to $VERSION"
     echo "  [DRY-RUN] Would update version in pyproject.toml to $VERSION"
     echo "  [DRY-RUN] Would update version in README.md to $VERSION"
+    echo "  [DRY-RUN] Would update coverage badge percentage in README.md to $VERSION"
 else
     echo "  ✓ Updating version in __init__.py..."
     sed -i.bak 's/__version__ = ".*"/__version__ = "'"$VERSION"'"/' app/__version__.py
@@ -452,6 +452,9 @@ else
 
     echo "  ✓ Updating version in README.md..."
     sed -i.bak 's/^  version={.*}/  version={'"$VERSION"'}/' README.md
+
+    echo "  ✓ Updating coverage badge percentage in README.md..."
+    ${SCRIPT_DIR}/mkcovupd.sh 
 fi
 
 # 3.2: Generate changelog entry

@@ -1,18 +1,26 @@
-# ⚠️ OneSelect Backend — Under Active Development
+# OneSelect Backend
 
-> ⚠️ **Under heavy development — not ready for production / no release yet.**
->
-> This repository is currently under active development. Important functionality and tests are still being implemented and validated. There is no stable release yet — do not use this code in production.
 
-| Category | Link |
-|----------|--------|
-|**Python**|[![Python 3.13+](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/downloads/)|
-|**Documentation**|[![Documentation](https://img.shields.io/badge/docs-mkdocs-blue)](https://johan162.github.io/oneselect/)|
-|**API**|[![OpenAPI](https://img.shields.io/badge/OpenAPI-3.1.0-6BA539?logo=openapiinitiative&logoColor=white)](http://localhost:8000/docs)|
-|**License**|[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)|
-|**Release**|[![GitHub release](https://img.shields.io/github/v/release/johan162/oneselect?include_prereleases)](https://github.com/johan162/oneselect/releases)|
-|**Code Quality**|[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black) [![Checked with mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/) [![Linting: flake8](https://img.shields.io/badge/linting-flake8-yellowgreen)](https://flake8.pycqa.org/)|
-|Repo URL|[![GitHub](https://img.shields.io/badge/GitHub-100000?style=flat-square&logo=github&logoColor=white)](https://github.com/johan162/oneselect)|
+<div align="center">
+
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) 
+[![Documentation](https://img.shields.io/badge/docs-mkdocs-blue)](https://johan162.github.io/oneselect/)
+[![OpenAPI](https://img.shields.io/badge/OpenAPI-3.1.0-6BA539?logo=openapiinitiative&logoColor=white)](http://localhost:8000/docs)
+[![Python 3.13+](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/downloads/)
+
+
+[![GitHub release](https://img.shields.io/github/v/release/johan162/oneselect?include_prereleases)](https://github.com/johan162/oneselect/releases) 
+![Coverage](https://img.shields.io/badge/coverage-91%25-darkgreen.svg)
+
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black) [![Checked with mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/) 
+[![Linting: flake8](https://img.shields.io/badge/linting-flake8-yellowgreen)](https://flake8.pycqa.org/) 
+
+
+ ⚠️ **Under heavy development — not ready for production / no release yet.**
+
+
+</div>
 
 
 
@@ -24,15 +32,15 @@ Prioritizing a large backlog of tasks or features is a challenge for any team. W
 
 However, comparing every possible pair ($N$ items require $N(N-1)/2$ comparisons) quickly becomes impractical. OneSelect solves this by using a smart, probabilistic approach. Instead of requiring a complete set of comparisons, it uses a Bayesian interpretation of the **Bradley-Terry** (or Thurstone-Mosteller) model to infer the underlying scores of all items from a sparse set of comparisons. This allows for an accurate ranking with significantly less effort—focusing on getting the most important items right, rather than perfect sorting of the entire list.
 
-For a rigorous statistical treatment of the underlying mathematics, see [Efficient Bayesian Inference for Generalized Bradley-Terry Models](https://www.stats.ox.ac.uk/~doucet/caron_doucet_bayesianbradleyterry.pdf) by F. Caron and A. Doucet.
+For a rigorous statistical treatment of the underlying mathematics, see [Efficient Bayesian Inference for Generalized Bradley-Terry Models](https://www.stats.ox.ac.uk/~doucet/caron_doucet_bayesianbradleyterry.pdf) by *F. Caron* and *A. Doucet*.
 
-This repository contains the **backend REST API** for the OneSelect system. It is a high-performance, production-ready server built with modern Python technologies:
-- **Python 3.13+**
-- **FastAPI** for high-performance web API
-- **SQLAlchemy** for robust database interactions
-- **Pydantic** for data validation
 
-**Note:** This project provides the backend infrastructure and API only. It is designed to power a separate frontend user interface.
+**Note:** This project provides the backend REST API only. It is designed to power a separate frontend user interface. The backend API is designed to minimize roundtrips for typical information needed by a UI. This means that some API calls partly overlaps and does, by choice, not provide a purely orthogonal design in order to make it efficient.
+
+## Documentation
+
+Full documentation is available [OneSelect Documentation](https://johan162.github.io/oneselect/).
+
 
 ## Features
 
@@ -45,74 +53,67 @@ This repository contains the **backend REST API** for the OneSelect system. It i
 *   **Production Ready**: Fully containerized with Podman/Docker support, health checks, and database migrations.
 *   **Developer Friendly**: Complete OpenAPI specification with interactive Swagger UI and ReDoc documentation.
 
-## Prerequisites
+This repository contains the **backend REST API** for the OneSelect system. It is a high-performance, production-ready server built with modern Python technologies:
+- **Python 3.13+**
+- **FastAPI** for high-performance web API
+- **SQLAlchemy** for robust database interactions
+- **Pydantic** for data validation
 
-### Option 1: Local Development
-- Python 3.13+
-- [Poetry](https://python-poetry.org/) for dependency management
+## 🚀 Quick Start (Recommended)
 
-### Option 2: Container Deployment
-- [Podman](https://podman.io/) or Docker
-- podman-compose (or docker-compose)
+The quickest way to get the backend API REST set up and running is to use the one-line install script which can be run on your local machine as long as you have `podman` or `Docker` installed.
 
-## Quick Start with Containers (Recommended)
 
-The fastest way to get started is using containers with Podman:
-
-1. Clone the repository:
-   ```bash
-   git clone <repository-url>
-   cd oneselect
-   ```
-
-2. Create environment configuration:
-   ```bash
-   cp .env.example .env
-   # Edit .env and set your SECRET_KEY and admin credentials
-   ```
-
-3. Build and start the container:
-   ```bash
-   make container-build
-   make container-up
-   ```
-
-4. The API will be available at `http://localhost:8000`
-
-5. View logs:
-   ```bash
-   make container-logs
-   ```
-
-6. Stop the container:
-   ```bash
-   make container-down
-   ```
-
-### Container Management Commands
+### Method 1: One-Line Install
 
 ```bash
-make container-build     # Build the container image
-make container-up        # Start services in detached mode
-make container-down      # Stop and remove containers
-make container-logs      # View and follow logs
-make container-restart   # Restart services
-make container-shell     # Open shell inside container
-make container-clean     # Remove containers and volumes
+mkdir oneselect-deploy
+cd oneselect-deploy
+curl -fsSL https://raw.githubusercontent.com/johan162/oneselect/main/deploy/install.sh | bash
 ```
 
-### Alternative: Direct Podman Commands
+The above line will download and setup all necessary files and start-up a container with the backend-server. The script will:
+
+1. ✓ Check system requirements (Docker/Podman)
+2. ✓ Prompt for configuration (admin credentials, port, etc.)
+3. ✓ Generate secure SECRET_KEY automatically
+4. ✓ Download docker-compose.prod.yml
+5. ✓ Create .env configuration file
+6. ✓ Pull and start the container from [ghcr.io](https://ghcr.io/)
+7. ✓ Display access information
+
+For an extensive walkthrough in excruciating details about running the container see the [Deployment README File](deploy/README.md).
+
+
+
+### Method 2: Download and Run
+
+For more control, download the script first:
 
 ```bash
-# Build image
-make podman-build
-
-# Run container
-make podman-run
-
-# Stop container
-make podman-stop
+mkdir oneselect-deploy
+cd oneselect-deploy
+wget https://raw.githubusercontent.com/johan162/oneselect/main/deploy/install.sh
+chmod +x install.sh
 ```
+
+You can now inspect the `install.sh` to better understand what it does under the hood.
+
+Once satisfied run:
+
+```bash
+./install.sh
+```
+
+### Post-Installation
+
+After installation completes:
+
+1. **Wait 10-15 seconds** for initialization
+2. **Access the API**: http://localhost:8000/docs
+3. **Login** with your admin credentials
+4. **Change password** immediately after first login
+
 
 ### Container Features
 
@@ -121,6 +122,15 @@ make podman-stop
 - **Health checks**: Automatic health monitoring
 - **Multi-stage build**: Optimized image size
 - **Auto-initialization**: Database and admin user created on first run
+
+
+## Local Development Prerequisites
+
+- Python 3.13+
+- [Poetry](https://python-poetry.org/) for dependency management
+- [Podman](https://podman.io/) or Docker
+- podman-compose (or docker-compose)
+
 
 ## Local Development Installation
 
@@ -139,12 +149,15 @@ make podman-stop
    # poetry source add --priority=primary artifactory https://your-artifactory.com/api/pypi/pypi-virtual/simple
    ```
 
-3. Install dependencies:
+3. Setup local development environment :
    ```bash
-   poetry install
+   make dev
    ```
 
 ## Configuration
+
+The environment file is read by both Pydentic as well as podman-compose to inject environment variables and is strictly speaking not necessaary form development as there are sane defaults.
+
 
 1. Copy the example environment file:
    ```bash
@@ -158,20 +171,13 @@ make podman-stop
 
 ## Database Setup
 
-The project uses SQLite by default for development.
+The project uses SQLite by default for development. The previous `make dev` will also set-up a DB. Should you later on want to delete and setup a new DB just delete the old DB and run
 
-1. Apply database migrations:
-   ```bash
-   poetry run alembic upgrade head
-   ```
+```
+make init-db
+```
 
-2. Create initial data (creates the default superuser):
-   ```bash
-   poetry run python app/initial_data.py
-   ```
-   Default credentials:
-   - Email: `admin@example.com`
-   - Password: `admin`
+and a new freach DB will have been created.
 
 ## Authentication
 
@@ -184,13 +190,13 @@ See [AUTHENTICATION_SETUP.md](AUTHENTICATION_SETUP.md) for quick setup or [docs/
 
 ## Running the Server
 
-Start the development server with hot reload:
+Once you have a development environment setup you can start the development server with hot reload:
 
 ```bash
 make run
 ```
 
-or directlys as
+or directly with poetry as
 
 ```bash
 poetry run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
@@ -223,10 +229,10 @@ For complete API documentation, see:
 
 ## Running Tests
 
-Run the test suite using pytest:
+Run the test suite and coverage analysis using pytest:
 
 ```bash
-make test
+make test-html
 ```
 
 or directly as
@@ -234,35 +240,6 @@ or directly as
 ```bash
 PYTHONPATH=. poetry run pytest
 ```
-
-
-## Linting and Formatting
-
-The project uses `black` for formatting, `flake8` for linting, and `mypy` for type checking.
-
-The complete check of all code with respect to these areas are done with the `check` target
-
-```bash
-make check
-```
-
-or direct with `poetry`
-
-Format code:
-```bash
-poetry run black .
-```
-
-Run linter:
-```bash
-poetry run flake8 .
-```
-
-Run type checker:
-```bash
-poetry run mypy --explicit-package-bases .
-```
-
 
 
 ## Project Structure
@@ -289,7 +266,7 @@ If you use this tool in your research or business process, please cite:
   author = {Johan Persson},
   year = {2025},
   url = {https://github.com/johan162/oneselect}
-  version={0.0.1-rc15}
+  version={0.0.1-rc16}
 }
 ```
 

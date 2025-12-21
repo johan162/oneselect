@@ -1,3 +1,13 @@
+## [v0.0.1-rc16] - 2025-12-21
+
+Release Type: patch
+
+### 📋 Summary 
+- Update coverage badge with line percent coverage. 
+- Cleaned up README
+- Added separate deployment - one-line-install script
+
+
 ## [v0.0.1-rc15] - 2025-12-18
 
 Release Type: patch

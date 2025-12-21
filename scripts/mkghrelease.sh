@@ -537,6 +537,29 @@ fi
 print_success "Wheel size: $(numfmt --to=iec-i --suffix=B "$WHEEL_SIZE" 2>/dev/null || echo "$WHEEL_SIZE bytes")"
 print_success "Sdist size: $(numfmt --to=iec-i --suffix=B "$SDIST_SIZE" 2>/dev/null || echo "$SDIST_SIZE bytes")"
 
+
+# =====================================
+# PHASE 4.5: CREATE DEPLOYMENT tar & zip from deploy/ directory
+# =====================================
+print_sub_step "Creating deployment archives from deploy/ directory..."
+DEPLOY_TAR_FILE="${PROGRAM_NAME}_deploy_${VERSION_NUMBER}.tar.gz"
+DEPLOY_ZIP_FILE="${PROGRAM_NAME}_deploy_${VERSION_NUMBER}.zip"
+if [[ ! -d "deploy" ]]; then
+    print_error "deploy/ directory not found"
+    exit 1
+fi
+
+# Create tar.gz
+tar -czf "$DIST_DIR/$DEPLOY_TAR_FILE" -C deploy .
+TAR_SIZE=$(stat -f%z "$DIST_DIR/$DEPLOY_TAR_FILE" 2>/dev/null || stat -c%s "$DIST_DIR/$DEPLOY_TAR_FILE" 2>/dev/null)
+print_success "Created deployment tar.gz: $DEPLOY_TAR_FILE ($(numfmt --to=iec-i --suffix=B "$TAR_SIZE" 2>/dev/null || echo "$TAR_SIZE bytes"))"
+
+# Create zip
+zip -r "$DIST_DIR/$DEPLOY_ZIP_FILE" deploy > /dev/null
+ZIP_SIZE=$(stat -f%z "$DIST_DIR/$DEPLOY_ZIP_FILE" 2>/dev/null || stat -c%s "$DIST_DIR/$DEPLOY_ZIP_FILE" 2>/dev/null)
+print_success "Created deployment zip: $DEPLOY_ZIP_FILE ($(numfmt --to=iec-i --suffix=B "$ZIP_SIZE" 2>/dev/null || echo "$ZIP_SIZE bytes"))"
+
+
 # =====================================
 # PHASE 5: RELEASE NOTES PREPARATION
 # =====================================
@@ -560,9 +583,11 @@ sed -n "/^## \[$LATEST_TAG\]/,/^## \[/p" "$CHANGELOG_FILE" | sed '$d' > "$RELEAS
 EXTRACT_STATUS=$?
 
 if [[ $EXTRACT_STATUS -ne 0 ]] || [[ ! -s "$RELEASE_NOTES_FILE" ]]; then
-    print_warning "Could not extract release notes for $LATEST_TAG from CHANGELOG.md"
-    echo "Creating default release notes template..."
-    cat > "$RELEASE_NOTES_FILE" << EOF
+    print_warning "Could not extract release notes for $LATEST_TAG from CHANGELOG.md. Will create default template."
+    if [[ "$DRY_RUN" == "true" ]]; then
+        print_warning "[DRY-RUN] Would create default release notes template"
+    else
+        cat > "$RELEASE_NOTES_FILE" << EOF
 ## Release $LATEST_TAG
 
 ### 📋 Summary
@@ -583,6 +608,7 @@ if [[ $EXTRACT_STATUS -ne 0 ]] || [[ ! -s "$RELEASE_NOTES_FILE" ]]; then
 ---
 For full details, see [CHANGELOG.md](https://github.com/${GITHUB_USER}/${REPO_NAME}/blob/main/CHANGELOG.md)
 EOF
+    fi
 fi
 
 print_success "Release notes prepared in $RELEASE_NOTES_FILE"
@@ -627,7 +653,9 @@ GH_RELEASE_CMD="gh release create \"$LATEST_TAG\" \
     --title \"${PROGRAM_NAME_PRETTY} $LATEST_TAG\" \
     --notes-file \"$RELEASE_NOTES_FILE\" \
     \"$WHEEL_FILE\" \
-    \"$SDIST_FILE\""
+    \"$SDIST_FILE\"" \
+    \"$DIST_DIR/$DEPLOY_TAR_FILE\" \
+    \"$DIST_DIR/$DEPLOY_ZIP_FILE\"
 
 if [[ "$IS_PRE_RELEASE" == "true" ]]; then
     GH_RELEASE_CMD="$GH_RELEASE_CMD --prerelease"

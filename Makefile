@@ -283,7 +283,7 @@ test-param: $(INSTALL_STAMP) ## Run parameterized integration tests, no coverage
 test-html: $(INSTALL_STAMP) ## Run tests in parallel, HTML & XML coverage report
 	@echo -e "$(DARKYELLOW)- Starting parallel test coverage...$(NC)"
 	@poetry run pytest -q -n auto --cov=app --cov-report=xml --cov-report=html --cov-fail-under=${COVERAGE}
-	@echo -e "$(GREEN)✓ Test coverage report generated at \"htmlcov/index.html\"$(NC)"
+	@echo -e "$(GREEN)✓ Test coverage report generated in \"coverage.xml\" and \"htmlcov/index.html\"$(NC)"
 
 # ============================================================================================
 # Database Migration Targets
